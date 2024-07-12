@@ -1,0 +1,44 @@
+.qr-button {
+    border: 1px solid #6c757d;
+    background-color: #f8f9fa; /* Light background color */
+    transition: background-color 0.3s ease;
+  }
+  
+  .qr-button:hover {
+    background-color: #343a40; /* Dark background color */
+  }
+  
+  .qr-button .svg-inline--fa {
+    color: #343a40; /* Dark icon color */
+  }
+  
+  .qr-button:hover .svg-inline--fa {
+    color: #ffffff; /* White icon color on hover */
+  }
+
+  .custom-button {
+    width: 40px; 
+    height: 40px;
+    align-items: center;
+}
+
+small {
+  font-size: 8px;
+}
+
+ul {
+  list-style-type: none;
+}
+
+.minor-button {
+  margin-top: 3px;
+  height: 34px; 
+  margin-bottom: 3px; 
+}
+
+.edit-modal {
+  max-width: 1000px; /* Adjust the width as needed */
+}
+
+  
+  

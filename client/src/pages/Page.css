@@ -1,0 +1,73 @@
+.app {
+  padding: 30px;
+}
+
+.ips {
+  align-items: center;
+  display: flex;
+  font-size: 18px;
+  justify-content: space-between;
+}
+
+.submit {
+  margin-top: 1rem;
+}
+
+
+.text-area {
+  width: 100%;
+  height: calc(100vh - 350px); 
+}
+
+.text-area textarea {
+  width: 100%;
+  height: 100%;
+}
+
+/* Adjust the height and padding for dropdown buttons */
+.dropdown-container {
+  padding-bottom: 5px; 
+}
+
+.dropdown-button {
+  height: 30px; 
+  margin-bottom: 5px; 
+}
+
+.mb-3 {
+  margin-right: 5px;
+}
+
+.noteFont {
+  font-size: 14px;
+  display: inline;
+}
+
+.text-area-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.text-area {
+  flex: 1;
+  margin: 0 10px;
+}
+
+.text-area h5 {
+  text-align: center;
+}
+
+.message {
+  margin-top: 6.5rem;
+  width: 50%;
+  height: 30px;
+  /* ensure in centre vertically of message */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+} 
+
+
+
+
+
