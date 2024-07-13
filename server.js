@@ -1,19 +1,23 @@
 require("dotenv").config();
 const express = require("express");
 const axios = require('axios');
-const ReadPreference = require("mongodb").ReadPreference;
-const mongoose = require("mongoose");
 const cors = require("cors");
 const path = require("path");
 const xmlparser = require("express-xml-bodyparser");
-const { IPSModel } = require("./models/IPSModel");
+const { Sequelize } = require("sequelize");
+const {
+    IPSModel,
+    Medication,
+    Allergy,
+    Condition,
+    Observation
+} = require("./models/IPSModel");
 const { getIPSBundle } = require('./servercontrollers/ipsBundleFormat');
 const { getIPSBundleByName } = require('./servercontrollers/ipsBundleByName');
 const { getORABundleByName } = require('./servercontrollers/oraBundleByName');
 const { getIPSLegacyBundle } = require('./servercontrollers/ipsBundleFormat_old');
 const { getIPSXMLBundle } = require('./servercontrollers/ipsXMLBundleFormat');
 const { getIPSRaw, getAllIPS } = require('./servercontrollers/ipsDatabaseFormats');
-const { getMongoFormatted } = require('./servercontrollers/ipsMongoDisplayFormat');
 const getIPSBasic = require("./servercontrollers/ipsBasicFormat");
 const getIPSBEER = require("./servercontrollers/ipsBEERFormat");
 const getIPSHL72_8 = require("./servercontrollers/ipsHL728Format");
@@ -34,20 +38,28 @@ const { updateIPSByUUID } = require('./servercontrollers/updateIPSRecordByUUID')
 const { convertCDAToIPS } = require('./servercontrollers/convertCDAToIPS');
 const { convertCDAToBEER } = require('./servercontrollers/convertCDAToBEER');
 
+const { DB_USER, DB_PASSWORD, DB_NAME, DB_HOST } = process.env;
 
-const { DB_CONN } = process.env;
+const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASSWORD, {
+    host: DB_HOST,
+    dialect: 'mysql'
+});
+
+sequelize.authenticate()
+    .then(() => console.log("DB connection successful"))
+    .catch(console.error);
 
 const api = express();
 api.use(cors()); // enable CORS on all our requests 
 api.use(express.json()); // parses incoming requests with JSON payloads
 api.use(express.urlencoded({ extended: false })); // parses incoming requests with urlencoded payloads
-api.use(express.text())
+api.use(express.text());
 api.use(xmlparser());
 
-mongoose
-    .connect(DB_CONN, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log("DB connection successful"))
-    .catch(console.error);
+// Sync Sequelize models
+sequelize.sync({ force: false }).then(() => {
+    console.log('Database & tables created!');
+});
 
 // API POST - CRUD Create/Convert
 api.post("/ips", addIPS);
@@ -68,7 +80,7 @@ api.post('/convertcdatobeer', convertCDAToBEER);
 // API GET - CRUD Read
 api.get("/ips/all", getAllIPS);
 api.get("/ipsraw/:id", getIPSRaw);
-api.get("/ipsmongo/:id", getMongoFormatted);
+//api.get("/ipsmongo/:id", getMongoFormatted);
 api.get("/ips/:id", getIPSBundle);
 api.get("/ipsbasic/:id", getIPSBasic);
 api.get("/ipsbeer/:id/:delim?", getIPSBEER);
@@ -95,4 +107,4 @@ api.get("/*", (req, res) => {
 const port = process.env.PORT || 5000;
 api.listen(port, () => {
     console.log(`Server is running on port: ${port}`)
-  })
+});

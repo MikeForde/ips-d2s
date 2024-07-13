@@ -1,74 +1,87 @@
-const mongoose = require('mongoose');
+const { Sequelize, DataTypes } = require('sequelize');
+const sequelize = new Sequelize('database', 'username', 'password', {
+    host: 'localhost',
+    dialect: 'mysql'
+});
 
-const IPSModel = mongoose.model(
-    "ipsAlt",
-    new mongoose.Schema({
-        packageUUID: {
-            type: String,
-            required: true
-        },
-        timeStamp: {
-            type: Date,
-            required: true
-        },
-        patient: {
-            name: {
-                type: String,
-                required: true
-            },
-            given: {
-                type: String,
-                required: true
-            },
-            dob: {
-                type: Date,
-                required: true
-            },
-            gender: {
-                type: String,
-                required: false
-            },
-            nation: {
-                type: String,
-                required: true
-            },
-            practitioner: {
-                type: String,
-                required: true
-            },
-            organization: {
-                type: String,
-                required: false
-            },
-        },
-        medication: [
-            {
-                name: String,
-                date: Date,
-                dosage: String,
-            }
-        ],
-        allergies: [
-            {
-                name: String,
-                criticality: String,
-                date: Date
-            }
-        ],
-        conditions: [
-            {
-                name: String,
-                date: Date
-            }
-        ],
-        observations: [
-            {
-                name: String,
-                date: Date,
-                value: String
-            }
-        ],
-    })
-);
+const IPSModel = sequelize.define('IPSModel', {
+    packageUUID: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    timeStamp: {
+        type: DataTypes.DATE,
+        allowNull: false
+    },
+    patientName: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    patientGiven: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    patientDob: {
+        type: DataTypes.DATE,
+        allowNull: false
+    },
+    patientGender: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    patientNation: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    patientPractitioner: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    patientOrganization: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+}, {
+    tableName: 'ipsAlt'
+});
 
-exports.IPSModel = IPSModel;
+const Medication = sequelize.define('Medication', {
+    name: DataTypes.STRING,
+    date: DataTypes.DATE,
+    dosage: DataTypes.STRING,
+});
+
+const Allergy = sequelize.define('Allergy', {
+    name: DataTypes.STRING,
+    criticality: DataTypes.STRING,
+    date: DataTypes.DATE
+});
+
+const Condition = sequelize.define('Condition', {
+    name: DataTypes.STRING,
+    date: DataTypes.DATE
+});
+
+const Observation = sequelize.define('Observation', {
+    name: DataTypes.STRING,
+    date: DataTypes.DATE,
+    value: DataTypes.STRING
+});
+
+IPSModel.hasMany(Medication, { as: 'medications' });
+Medication.belongsTo(IPSModel);
+
+IPSModel.hasMany(Allergy, { as: 'allergies' });
+Allergy.belongsTo(IPSModel);
+
+IPSModel.hasMany(Condition, { as: 'conditions' });
+Condition.belongsTo(IPSModel);
+
+IPSModel.hasMany(Observation, { as: 'observations' });
+Observation.belongsTo(IPSModel);
+
+sequelize.sync({ force: true }).then(() => {
+    console.log('Database & tables created!');
+});
+
+module.exports = { IPSModel, Medication, Allergy, Condition, Observation };
