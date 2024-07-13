@@ -9,7 +9,7 @@ function AboutWebAppPage() {
                 <Col>
                     <h2>About This Web Application</h2>
                     <p>
-                        Built using the <a href="https://www.mongodb.com/resources/languages/mern-stack" target="_blank" rel="noopener noreferrer">MERN Stack</a>. MERN stands for MongoDB, Express.js, React, and Node.js.
+                        Built using the <a href="https://medium.com/@ksekwamote/how-to-build-a-sern-application-dc358b48defe" target="_blank" rel="noopener noreferrer">SERN Stack</a>. SERN stands for SQL, Express.js, React, and Node.js.
                     </p>
                 </Col>
             </Row>

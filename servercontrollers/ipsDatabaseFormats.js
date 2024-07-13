@@ -36,8 +36,7 @@ function getIPSRaw(req, res) {
 }
 
 function getAllIPS(req, res) {
-  IPSModel.find({})
-    .exec()
+  IPSModel.findAll()
     .then((ipss) => {
       res.json(ipss);
     })

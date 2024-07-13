@@ -1,6 +1,6 @@
 const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = new Sequelize('database', 'username', 'password', {
-    host: 'localhost',
+const sequelize = new Sequelize('test', 'root', 'password', {
+    host: '172.17.0.2',
     dialect: 'mysql'
 });
 
@@ -80,7 +80,7 @@ Condition.belongsTo(IPSModel);
 IPSModel.hasMany(Observation, { as: 'observations' });
 Observation.belongsTo(IPSModel);
 
-sequelize.sync({ force: true }).then(() => {
+sequelize.sync({ force: false }).then(() => {
     console.log('Database & tables created!');
 });
 

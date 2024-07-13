@@ -1,6 +1,6 @@
 # IPS D2S Project
 
-This project is a DERN (DatabaseTBD, Express, React, Node.js) stack application designed to manage and manipulate IPS (International Patient Summary) records. It includes features to convert between Database Native, BEER, and IPS JSON formats, and supports various CRUD operations on IPS data.
+This project is a SERN (SQL, Express, React, Node.js) stack application designed to manage and manipulate IPS (International Patient Summary) records. It includes features to convert between Database Native, BEER, and IPS JSON formats, and supports various CRUD operations on IPS data.
 
 ## Table of Contents
 

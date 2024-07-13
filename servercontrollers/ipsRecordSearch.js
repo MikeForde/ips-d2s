@@ -1,4 +1,5 @@
 const { IPSModel } = require('../models/IPSModel');
+const { Op } = require('sequelize');
 
 function getIPSSearch(req, res) {
     const { name } = req.params;
@@ -8,18 +9,26 @@ function getIPSSearch(req, res) {
     }
 
     // Search for IPS records based on patient's name
-    IPSModel.find({ "patient.name": { $regex: new RegExp(name, "i") } })
-        .exec()
-        .then((ipss) => {
-            if (!ipss.length) {
-                return res.status(404).json({ message: "No matching IPS records found" });
+    IPSModel.findAll({
+        where: {
+            patientName: {
+                [Op.like]: `%${name}%`
             }
+        }
+    })
+    .then((ipss) => {
+        if (!ipss.length) {
+            return res.status(404).json({ message: "No matching IPS records found" });
+        }
 
-            res.json(ipss);
-        })
-        .catch((err) => {
-            res.status(400).send(err);
-        });
+        console.log(ipss);
+
+        res.json(ipss);
+    })
+    .catch((err) => {
+        res.status(400).send(err);
+    });
 }
 
 module.exports = { getIPSSearch };
+
