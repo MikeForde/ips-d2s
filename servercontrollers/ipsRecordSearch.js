@@ -1,5 +1,6 @@
 const { IPSModel } = require('../models/IPSModel');
 const { Op } = require('sequelize');
+const {SQLToMongo} = require('./MySQLHelpers/SQLToMongo');
 
 function getIPSSearch(req, res) {
     const { name } = req.params;
@@ -8,7 +9,6 @@ function getIPSSearch(req, res) {
         return res.status(400).json({ message: "Name query parameter is required" });
     }
 
-    // Search for IPS records based on patient's name
     IPSModel.findAll({
         where: {
             patientName: {
@@ -16,14 +16,17 @@ function getIPSSearch(req, res) {
             }
         }
     })
-    .then((ipss) => {
+    .then(async (ipss) => {
         if (!ipss.length) {
             return res.status(404).json({ message: "No matching IPS records found" });
         }
 
         console.log(ipss);
 
-        res.json(ipss);
+        const transformedIpss = await SQLToMongo(ipss);
+
+        console.log(transformedIpss);
+        res.json(transformedIpss);
     })
     .catch((err) => {
         res.status(400).send(err);
@@ -31,4 +34,3 @@ function getIPSSearch(req, res) {
 }
 
 module.exports = { getIPSSearch };
-

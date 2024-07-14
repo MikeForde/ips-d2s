@@ -1,4 +1,4 @@
-const { IPSModel } = require('../models/IPSModel');
+// Desc: Controller function to convert CDA JSON to IPS JSON format
 const { convertCDAToSchema } = require('./servercontrollerfuncs/convertCDAToSchema');
 const { generateIPSBundle } = require('./servercontrollerfuncs/generateIPSBundle');
 

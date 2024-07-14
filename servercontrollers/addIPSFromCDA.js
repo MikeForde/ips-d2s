@@ -1,6 +1,8 @@
 // servercontrollers/addIPSFromCDA.js
 const { IPSModel } = require('../models/IPSModel');
 const { convertCDAToSchema } = require('./servercontrollerfuncs/convertCDAToSchema');
+const { MongoToSQL } = require('./MySQLHelpers/MongoToSQL');
+const { SQLToMongoSingle } = require('./MySQLHelpers/SQLToMongo');
 
 async function addIPSFromCDA(req, res) {
     try {
@@ -10,13 +12,16 @@ async function addIPSFromCDA(req, res) {
         // Convert CDA JSON to IPS schema
         const ipsRecord = convertCDAToSchema(cdaJSON);
 
+        // Convert to MySQL format
+        const transformedData = await MongoToSQL(ipsRecord);
+
         // Create a new IPS record using the converted schema
-        const newIPS = new IPSModel(ipsRecord);
+        const newIPS = await IPSModel.create(transformedData);
 
-        // Save the new IPS record to the database
-        await newIPS.save();
+        // Convert back to Mongo format for response
+        const mongoFormattedIPS = await SQLToMongoSingle(newIPS);
 
-        res.status(201).json(newIPS);
+        res.status(201).json(mongoFormattedIPS);
 
     } catch (err) {
         console.error('Error processing CDA:', err);
@@ -25,3 +30,4 @@ async function addIPSFromCDA(req, res) {
 }
 
 module.exports = { addIPSFromCDA };
+

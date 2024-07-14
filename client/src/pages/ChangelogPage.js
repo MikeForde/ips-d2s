@@ -365,6 +365,16 @@ function ChangeLogPage() {
                                 <li>The idea is give an approximate HL7 v2.8 format - not a perfect one - to judge likely file size and content</li>
                             </ul>
                         </li>
+                        <li>
+                            <h5>Version 0_41 - 14th July 2024</h5>
+                            <ul>
+                                <li><strong>MERN to SERN</strong></li>
+                                <li>Database element of stack changed from MongoDB to SQL (MySQL) - to faciltate deployment on D2S OpenShift</li>
+                                <li>For simplicity and speed of development, the SQL is converted to and from MongoDB format on retreiving and storing</li>
+                                <li>This allows most of the existing code to remain unchanged</li>
+                                <li>This also allows the API calls to remain the same - both payloads and responses</li>
+                            </ul>
+                        </li>
                     </ul>
                 </Col>
             </Row>

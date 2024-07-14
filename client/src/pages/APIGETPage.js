@@ -112,7 +112,7 @@ function APIGETPage() {
     return (
       <div className="app">
         <div className="container">
-          <h3>API GET - IPS Data: {responseSize}<div className="noteFont">- /:id can be the IPS id (the main UUID) or the internal MongoDB _id</div></h3>
+          <h3>API GET - IPS Data: {responseSize}<div className="noteFont">- /:id can be the IPS id (the main UUID) or the internal database _id</div></h3>
           {selectedPatients.length > 0 && selectedPatient && (
             <>
               <div className="dropdown-container">

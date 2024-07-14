@@ -1,4 +1,4 @@
-const { IPSModel } = require('../models/IPSModel');
+// Desc: Controller for converting CDA JSON to IPS BEER format
 const { convertCDAToSchema } = require('./servercontrollerfuncs/convertCDAToSchema');
 const { generateIPSBEER } = require('./servercontrollerfuncs/generateIPSBEER');
 

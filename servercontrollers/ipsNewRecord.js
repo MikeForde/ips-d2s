@@ -1,34 +1,39 @@
-// servercontrollers/ipsNewRecord.js
-const {IPSModel} = require('../models/IPSModel');
+const { IPSModel } = require('../models/IPSModel');
+const { MongoToSQL, MongoToSQLMany } = require('./MySQLHelpers/MongoToSQL');
+const { SQLToMongoSingle, SQLToMongo } = require('./MySQLHelpers/SQLToMongo');
 
-function addIPS(req, res) {
+async function addIPS(req, res) {
     console.log("req.body", req.body);
 
-    const newIPS = new IPSModel(req.body);
+    try {
+        const transformedData = await MongoToSQL(req.body);
+        const newIPS = await IPSModel.create(transformedData);
 
-    newIPS
-        .save()
-        .then((newIPS) => {
-            res.json(newIPS);
-        })
-        .catch((err) => {
-            res.status(400).send(err);
-        });
+        // Convert back to Mongo format for response
+        const mongoFormattedIPS = await SQLToMongoSingle(newIPS);
+
+        res.json(mongoFormattedIPS);
+    } catch (err) {
+        res.status(400).send(err);
+    }
 }
 
-function addIPSMany(req, res) {
+async function addIPSMany(req, res) {
     console.log("req.body", req.body);
 
-    const ipsRecords = req.body; // Array of IPS records
+    try {
+        const transformedDataArray = await MongoToSQLMany(req.body);
+        const newIPSRecords = await IPSModel.bulkCreate(transformedDataArray);
 
-    // Insert all IPS records into the database
-    IPSModel.insertMany(ipsRecords)
-        .then((newIPS) => {
-            res.json(newIPS);
-        })
-        .catch((err) => {
-            res.status(400).send(err);
-        });
+        // Convert back to Mongo format for response
+        const mongoFormattedIPSRecords = await SQLToMongo(newIPSRecords);
+
+        res.json(mongoFormattedIPSRecords);
+    } catch (err) {
+        res.status(400).send(err);
+    }
 }
 
 module.exports = { addIPS, addIPSMany };
+
+

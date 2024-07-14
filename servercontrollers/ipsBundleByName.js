@@ -1,29 +1,36 @@
 const { IPSModel } = require('../models/IPSModel');
 const { generateIPSBundle } = require('./servercontrollerfuncs/generateIPSBundle');
+const { SQLToMongoSingle } = require('./MySQLHelpers/SQLToMongo');
+const { Op } = require('sequelize');
 
-function getIPSBundleByName(req, res) {
+async function getIPSBundleByName(req, res) {
     const { name, given } = req.params;
 
-    // Use regular expressions for case-insensitive matching
-    const nameRegex = new RegExp(`^${name}$`, 'i');
-    const givenRegex = new RegExp(`^${given}$`, 'i');
-
-    IPSModel.findOne({ "patient.name": nameRegex, "patient.given": givenRegex })
-        .exec()
-        .then((ips) => {
-            if (!ips) {
-                return res.status(404).json({ message: "IPS record not found" });
+    try {
+        // Search using case-insensitive matching
+        const query = {
+            where: {
+                patientName: { [Op.iLike]: name },
+                patientGiven: { [Op.iLike]: given }
             }
+        };
 
-            // Constructing the JSON structure
-            const bundle = generateIPSBundle(ips);  
+        const ips = await IPSModel.findOne(query);
 
-            res.json(bundle);
-        })
-        .catch((err) => {
-            res.status(400).send(err);
-        });
+        if (!ips) {
+            return res.status(404).json({ message: "IPS record not found" });
+        }
+
+        // Transform the IPS record to the desired format
+        const transformedIps = await SQLToMongoSingle(ips);
+
+        // Constructing the JSON structure
+        const bundle = generateIPSBundle(transformedIps);
+
+        res.json(bundle);
+    } catch (err) {
+        res.status(400).send(err);
+    }
 }
 
 module.exports = { getIPSBundleByName };
-
