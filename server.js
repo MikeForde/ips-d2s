@@ -18,6 +18,7 @@ const { getORABundleByName } = require('./servercontrollers/oraBundleByName');
 const { getIPSLegacyBundle } = require('./servercontrollers/ipsBundleFormat_old');
 const { getIPSXMLBundle } = require('./servercontrollers/ipsXMLBundleFormat');
 const { getIPSRaw, getAllIPS } = require('./servercontrollers/ipsDatabaseFormats');
+const { getMongoFormatted } = require('./servercontrollers/ipsMongoDisplayFormat');
 const getIPSBasic = require("./servercontrollers/ipsBasicFormat");
 const getIPSBEER = require("./servercontrollers/ipsBEERFormat");
 const getIPSHL72_8 = require("./servercontrollers/ipsHL728Format");
@@ -80,7 +81,7 @@ api.post('/convertcdatobeer', convertCDAToBEER);
 // API GET - CRUD Read
 api.get("/ips/all", getAllIPS);
 api.get("/ipsraw/:id", getIPSRaw);
-//api.get("/ipsmongo/:id", getMongoFormatted);
+api.get("/ipsmongo/:id", getMongoFormatted);
 api.get("/ips/:id", getIPSBundle);
 api.get("/ipsbasic/:id", getIPSBasic);
 api.get("/ipsbeer/:id/:delim?", getIPSBEER);

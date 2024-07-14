@@ -1,5 +1,5 @@
 // servercontrollers/ipsCRUD_UD.js
-const { IPSModel } = require('../models/IPSModel');
+const { IPSModel, Medication, Allergy, Condition, Observation } = require('../models/IPSModel');
 const { MongoToSQL } = require('./MySQLHelpers/MongoToSQL');
 const { SQLToMongoSingle } = require('./MySQLHelpers/SQLToMongo');
 const { Op } = require('sequelize');
@@ -10,7 +10,14 @@ async function updateIPS(req, res) {
 
     if (id) {
         try {
-            const ips = await IPSModel.findByPk(id);
+            const ips = await IPSModel.findByPk(id, {
+                include: [
+                    { model: Medication, as: 'medications' },
+                    { model: Allergy, as: 'allergies' },
+                    { model: Condition, as: 'conditions' },
+                    { model: Observation, as: 'observations' }
+                ]
+            });
 
             if (!ips) {
                 return res.status(404).send("IPS not found.");
@@ -19,8 +26,43 @@ async function updateIPS(req, res) {
             // Transform updated data to MySQL format
             const transformedData = await MongoToSQL(updatedData);
 
-            // Update IPS with new data
+            // Update patient details
             Object.assign(ips, transformedData);
+
+            // Delete existing associated records
+            await Medication.destroy({ where: { IPSModelId: id } });
+            await Allergy.destroy({ where: { IPSModelId: id } });
+            await Condition.destroy({ where: { IPSModelId: id } });
+            await Observation.destroy({ where: { IPSModelId: id } });
+
+            // Recreate associated records if they exist in the transformed data
+            if (transformedData.medications) {
+                await Medication.bulkCreate(transformedData.medications.map(med => ({
+                    ...med,
+                    IPSModelId: id
+                })));
+            }
+
+            if (transformedData.allergies) {
+                await Allergy.bulkCreate(transformedData.allergies.map(allergy => ({
+                    ...allergy,
+                    IPSModelId: id
+                })));
+            }
+
+            if (transformedData.conditions) {
+                await Condition.bulkCreate(transformedData.conditions.map(condition => ({
+                    ...condition,
+                    IPSModelId: id
+                })));
+            }
+
+            if (transformedData.observations) {
+                await Observation.bulkCreate(transformedData.observations.map(observation => ({
+                    ...observation,
+                    IPSModelId: id
+                })));
+            }
 
             // Save the updated IPS
             const updatedIPS = await ips.save();
@@ -30,6 +72,7 @@ async function updateIPS(req, res) {
 
             res.json(mongoFormattedIPS);
         } catch (err) {
+            console.log(err);
             res.status(400).send(err);
         }
     } else {
