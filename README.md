@@ -19,7 +19,7 @@ This project is a SERN (SQL, Express, React, Node.js) stack application designed
 
 ## Overview
 
-This application allows healthcare providers to create, update, delete, and convert patient records stored in MongoDB. The records can be converted into different formats, including BEER (Basic Emergency Exchange Record) and IPS JSON, to facilitate data sharing and interoperability.
+This application allows healthcare providers to create, update, delete, and convert patient records stored in SQL (MySQL). The records can be converted into different formats, including BEER (Basic Emergency Exchange Record) and IPS JSON, to facilitate data sharing and interoperability.
 
 ## Features
 
