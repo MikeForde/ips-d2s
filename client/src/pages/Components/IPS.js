@@ -9,13 +9,9 @@ import { useLoading } from '../../contexts/LoadingContext';
 import "./components.css";
 
 const formatDate = (dateString) => {
-  console.log('dateString:', dateString);
   if (!dateString) return "";
   const [datePart, timePart] = dateString.split("T");
   const time = timePart.split(".")[0];
-  console.log('datePart:', datePart);
-  console.log('timePart:', timePart);
-  console.log('time:', time);
   //return time === "00:00:00" ? datePart : `${datePart} ${time}`;
   return `${datePart} ${time}`;
 };
