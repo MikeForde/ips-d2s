@@ -119,13 +119,14 @@ function APIGETPage() {
                 <DropdownButton 
                   id="dropdown-record" 
                   title={`Patient: ${selectedPatient.patient.given} ${selectedPatient.patient.name}`} 
-                  onSelect={handleRecordChange} 
+                  //onSelect={handleRecordChange} // this worked with MERN code??
                   className="dropdown-button"
                 >
                   {selectedPatients.map(record => (
                     <Dropdown.Item 
                       key={record._id} 
-                      eventKey={record._id} 
+                      //eventKey={record._id} 
+                      onClick={() => handleRecordChange(record._id)} 
                       active={selectedPatient && selectedPatient._id === record._id}
                     >
                       {record.patient.given} {record.patient.name}
