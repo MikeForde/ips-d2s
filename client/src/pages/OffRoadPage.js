@@ -30,7 +30,7 @@ const IPSOffRoadPage = () => {
   const handleTransform = async () => {
     try {
       await axios.post('/ipsbundle', ipsData);
-      setMessage('IPS record successfully transformed and saved to MongoDB');
+      setMessage('IPS record successfully transformed and saved to database');
       setError(null);
     } catch (err) {
       setMessage(err.message);

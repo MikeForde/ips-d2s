@@ -94,6 +94,7 @@ async function deleteIPS(req, res) {
             await ips.destroy();
             res.json({ message: "IPS record deleted.", id: ips.id });
         } catch (err) {
+            console.log(err);
             res.status(400).send(err);
         }
     } else {

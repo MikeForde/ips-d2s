@@ -1,8 +1,5 @@
-// servercontrollers/ipsNewRecord.js
-const { IPSModel } = require('../models/IPSModel');
 const { convertIPSBundleToSchema } = require('./servercontrollerfuncs/convertIPSBundleToSchema');
-const { MongoToSQL } = require('./MySQLHelpers/MongoToSQL');
-const { SQLToMongoSingle } = require('./MySQLHelpers/SQLToMongo');
+const { addIPSRecord } = require('./MySQLHelpers/addIPSRecord');
 
 async function addIPSFromBundle(req, res) {
     // Extract IPS Bundle from request body
@@ -14,14 +11,8 @@ async function addIPSFromBundle(req, res) {
 
         console.log(ipsRecord);
 
-        // Convert to MySQL format
-        const transformedData = await MongoToSQL(ipsRecord);
-
-        // Create a new IPS record using the converted schema
-        const newIPS = await IPSModel.create(transformedData);
-
-        // Convert back to Mongo format for response
-        const mongoFormattedIPS = await SQLToMongoSingle(newIPS);
+        // Add IPS record to MySQL and get the Mongo formatted response
+        const mongoFormattedIPS = await addIPSRecord(ipsRecord);
 
         res.json(mongoFormattedIPS);
     } catch (error) {

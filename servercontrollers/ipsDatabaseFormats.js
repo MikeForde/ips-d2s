@@ -1,6 +1,6 @@
 const { validate: isValidUUID } = require('uuid');
-const { IPSModel } = require('../models/IPSModel');
-const { SQLToMongoSingle } = require('./MySQLHelpers/SQLToMongo');
+const { IPSModel, Medication, Allergy, Condition, Observation } = require('../models/IPSModel');
+const { SQLToMongoSingle, SQLToMongo } = require('./MySQLHelpers/SQLToMongo');
 
 // Define the getIPSRaw function
 async function getIPSRaw(req, res) {
@@ -40,14 +40,23 @@ async function getIPSRaw(req, res) {
 }
 
 // Define the getAllIPS function
-function getAllIPS(req, res) {
-  IPSModel.findAll()
-    .then((ipss) => {
-      res.json(ipss);
-    })
-    .catch((err) => {
-      res.status(400).send(err);
+async function getAllIPS(req, res) {
+  try {
+    const ipss = await IPSModel.findAll({
+      include: [
+        { model: Medication, as: 'medications' },
+        { model: Allergy, as: 'allergies' },
+        { model: Condition, as: 'conditions' },
+        { model: Observation, as: 'observations' }
+      ]
     });
+    
+    const mongoFormattedIPSs = await SQLToMongo(ipss);
+    res.json(mongoFormattedIPSs);
+  } catch (err) {
+    console.log(err);
+    res.status(400).send(err);
+  }
 }
 
 module.exports = { getIPSRaw, getAllIPS };
