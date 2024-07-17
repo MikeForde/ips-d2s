@@ -15,7 +15,11 @@
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
     "@fortawesome/react-fontawesome": "^0.1.15",
-    "react-app-rewired": "^2.1.8"
+    "react-app-rewired": "^2.1.8",
+    "tough-cookie": "4.1.4",
+    "loader-utils": "1.4.2",
+    "shell-quote": "1.8.1",
+    "immer": "10.1.1"
   },
   "scripts": {
     "start": "react-app-rewired start",
