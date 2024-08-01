@@ -186,10 +186,10 @@ Each page in the application is designed to provide specific functionalities for
 
 
 ## Technologies Used
-Frontend: React, React Bootstrap
-Backend: Node.js, Express
-Database: MySQL
-Other: Axios for HTTP requests, Mongoose for MongoDB interaction
+- Frontend: React, React Bootstrap
+- Backend: Node.js, Express
+- Database: MySQL
+- Other: Axios for HTTP requests, Sequelize for MySQL interaction
 
 
 ## Contributing
