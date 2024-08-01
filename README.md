@@ -133,7 +133,7 @@ npm start
 | **API Page**         | View the various API GET endpoints, see their output, and download the output.                        |
 | **QR Page**          | Produce various forms of QR codes and download them. Formats include IPS JSON, BEER, and others.      |
 | **DMICP Page**       | Bulk upload IPS records produced in the SmartDoc format.                                              |
-| **Vitals API Pages** | GET and POST between the VitalsIQ IPS WebApp and the IPS MERN WebApp.                                 |
+| **Vitals API Pages** | GET and POST between the VitalsIQ IPS WebApp and the IPS D2S WebApp.                                 |
 | **NLD API Pages**    | POST to the NLD IPS WebApp.                                                                           |
 | **About Pages**      | Information about IPS, the WebApp, the ChangeLog, and the API Documentation page.                     |
 
@@ -167,7 +167,7 @@ npm start
 5. **Vitals API Pages**
    - **Purpose:** Manage interactions with VitalsIQ IPS WebApp.
    - **Features:** 
-     - GET and POST IPS records between VitalsIQ and the IPS MERN WebApp.
+     - GET and POST IPS records between VitalsIQ and the IPS D2S WebApp.
 
 6. **NLD API Pages**
    - **Purpose:** Interface with the NLD IPS WebApp.
