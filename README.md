@@ -41,8 +41,8 @@ This application allows healthcare providers to create, update, delete, and conv
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/ips-mern-project.git
-   cd ips-mern-project
+   git clone https://github.com/yourusername/ips-d2s.git
+   cd ips-d2s
 Install server dependencies:
 
 bash
@@ -188,7 +188,7 @@ Each page in the application is designed to provide specific functionalities for
 ## Technologies Used
 Frontend: React, React Bootstrap
 Backend: Node.js, Express
-Database: MongoDB
+Database: MySQL
 Other: Axios for HTTP requests, Mongoose for MongoDB interaction
 
 
