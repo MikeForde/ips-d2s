@@ -34,7 +34,7 @@ This application allows healthcare providers to create, update, delete, and conv
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/)
-- [MongoDB](https://www.mongodb.com/)
+- [MySQL](https://www.mysql.com)
 - [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
 
 ### Installation
