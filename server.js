@@ -10,7 +10,8 @@ const {
     Medication,
     Allergy,
     Condition,
-    Observation
+    Observation,
+    Immunization
 } = require("./models/IPSModel");
 const { getIPSBundle } = require('./servercontrollers/ipsBundleFormat');
 const { getIPSBundleByName } = require('./servercontrollers/ipsBundleByName');

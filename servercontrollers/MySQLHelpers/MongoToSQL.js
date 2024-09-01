@@ -1,5 +1,5 @@
 // MongoToSQL.js
-const { Medication, Allergy, Condition, Observation } = require('../../models/IPSModel');
+const { Medication, Allergy, Condition, Observation, Immunization } = require('../../models/IPSModel');
 
 function transformPatientData(patient) {
   return {
@@ -21,7 +21,8 @@ async function MongoToSQL(data) {
     medications: data.medication,
     allergies: data.allergies,
     conditions: data.conditions,
-    observations: data.observations
+    observations: data.observations,
+    immunizations: data.immunizations
   };
 
   // Create associations if necessary
@@ -53,6 +54,14 @@ async function MongoToSQL(data) {
       name: observation.name,
       date: observation.date,
       value: observation.value
+    }));
+  }
+
+  if (data.immunizations && data.immunizations.length > 0) {
+    transformedData.immunizations = data.immunizations.map(immunization => ({
+      name: immunization.name,
+      system: immunization.system,
+      date: immunization.date
     }));
   }
 

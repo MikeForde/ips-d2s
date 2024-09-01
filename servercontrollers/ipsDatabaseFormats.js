@@ -1,5 +1,5 @@
 const { validate: isValidUUID } = require('uuid');
-const { IPSModel, Medication, Allergy, Condition, Observation } = require('../models/IPSModel');
+const { IPSModel, Medication, Allergy, Condition, Observation, Immunization } = require('../models/IPSModel');
 const { SQLToMongoSingle, SQLToMongo } = require('./MySQLHelpers/SQLToMongo');
 
 // Define the getIPSRaw function
@@ -47,7 +47,8 @@ async function getAllIPS(req, res) {
         { model: Medication, as: 'medications' },
         { model: Allergy, as: 'allergies' },
         { model: Condition, as: 'conditions' },
-        { model: Observation, as: 'observations' }
+        { model: Observation, as: 'observations' },
+        { model: Immunization, as: 'immunizations' }
       ]
     });
     

@@ -1,4 +1,3 @@
-// servercontrollers/ipsCRUD_UD.js
 const { IPSModel } = require('../models/IPSModel');
 const { MongoToSQL } = require('./MySQLHelpers/MongoToSQL');
 const { SQLToMongoSingle } = require('./MySQLHelpers/SQLToMongo');
@@ -20,7 +19,7 @@ async function updateIPSByUUID(req, res) {
                 Object.assign(ips.dataValues, MongoToSQL({ patient: updatedData.patient }));
             }
 
-            // Append new medication, allergies, conditions, and observations
+            // Append new medication, allergies, conditions, observations, and immunizations
             if (updatedData.medication) {
                 ips.dataValues.medication = ips.dataValues.medication.concat(updatedData.medication);
             }
@@ -32,6 +31,9 @@ async function updateIPSByUUID(req, res) {
             }
             if (updatedData.observations) {
                 ips.dataValues.observations = ips.dataValues.observations.concat(updatedData.observations);
+            }
+            if (updatedData.immunizations) {
+                ips.dataValues.immunizations = ips.dataValues.immunizations.concat(updatedData.immunizations);
             }
 
             // Save the updated IPS

@@ -32,7 +32,7 @@ function getIPSLegacyBundle(req, res) {
             id: transformedIps.packageUUID, // First ID is the packageUUID
             timestamp: transformedIps.timeStamp, // Time stamp
             type: "collection",
-            total: 2 + (transformedIps.medication.length * 2) + transformedIps.allergies.length + transformedIps.conditions.length + transformedIps.observations.length, // Total resources
+            total: 2 + (transformedIps.medication.length * 2) + transformedIps.allergies.length + transformedIps.conditions.length + transformedIps.observations.length + transformedIps.immunizations.length, // Total resources
             entry: [
                 {
                     resource: {
@@ -175,6 +175,23 @@ function getIPSLegacyBundle(req, res) {
 
                     return observationResource;
                 }),
+                // Immunization entries
+                ...transformedIps.immunizations.map((immunization) => ({
+                    resource: {
+                        resourceType: "Immunization",
+                        id: uuidv4(), // Generate UUID for immunization ID
+                        status: "completed",
+                        vaccineCode: {
+                            coding: [
+                                {
+                                    system: immunization.system, // Immunization coding system
+                                    code: immunization.name, // Immunization name/code
+                                },
+                            ],
+                        },
+                        occurrenceDateTime: immunization.date, // Immunization date
+                    },
+                })),
             ],
         };
 

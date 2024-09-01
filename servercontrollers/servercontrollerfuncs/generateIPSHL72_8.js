@@ -4,20 +4,27 @@ function generateIPSHL72_8(data) {
     // Initialize HL7 message
     let hl7Message = '';
 
-    // MSH Segment - 
+    // MSH Segment
     hl7Message += `MSH|^~\\&|SendingApp|SendingFac|ReceivingApp|ReceivingFac|${moment(data.timeStamp).format('YYYYMMDDHHmmss')}||ORM^O01|${data.packageUUID}|P|2.8\n`;
 
     // PID Segment
     hl7Message += `PID|||123456^^^AssigningAuthority^ISO||${data.patient.name}^${data.patient.given}||${moment(data.patient.dob).format('YYYYMMDD')}|${data.patient.gender.charAt(0)}|||^^^${data.patient.nation}|||\n`;
 
-    // RXA Segments
+    // RXA Segments for Medications
     if (data.medication.length) {
         data.medication.forEach((med, index) => {
             hl7Message += `RXA|0|1|${moment(med.date).format('YYYYMMDDHHmmss')}|${moment(med.date).format('YYYYMMDDHHmmss')}|${med.name}|${med.dosage}\n`;
         });
     }
 
-    // AL1 Segments
+    // RXA Segments for Immunizations
+    if (data.immunizations && data.immunizations.length) {
+        data.immunizations.forEach((immunization, index) => {
+            hl7Message += `RXA|0|1|${moment(immunization.date).format('YYYYMMDDHHmmss')}|${moment(immunization.date).format('YYYYMMDDHHmmss')}|${immunization.name}^${immunization.system}\n`;
+        });
+    }
+
+    // AL1 Segments for Allergies
     if (data.allergies.length) {
         data.allergies.forEach((allergy, index) => {
             let severityCode = 'U'; // Unknown by default
@@ -30,14 +37,14 @@ function generateIPSHL72_8(data) {
         });
     }
 
-    // DG1 Segments
+    // DG1 Segments for Conditions
     if (data.conditions.length) {
         data.conditions.forEach((condition, index) => {
             hl7Message += `DG1|${index + 1}||^${condition.name}^ICD-10-CM||${moment(condition.date).format('YYYYMMDD')}\n`;
         });
     }
 
-    // OBX Segments
+    // OBX Segments for Observations
     if (data.observations.length) {
         data.observations.forEach((obs, index) => {
             let valueType = 'TX'; // Default to Text
@@ -66,4 +73,3 @@ function generateIPSHL72_8(data) {
 }
 
 module.exports = { generateIPSHL72_8 };
-

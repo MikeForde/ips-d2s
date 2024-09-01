@@ -1,5 +1,5 @@
 // servercontrollers/ipsCRUD_UD.js
-const { IPSModel, Medication, Allergy, Condition, Observation } = require('../models/IPSModel');
+const { IPSModel, Medication, Allergy, Condition, Observation, Immunization } = require('../models/IPSModel');
 const { MongoToSQL } = require('./MySQLHelpers/MongoToSQL');
 const { SQLToMongoSingle } = require('./MySQLHelpers/SQLToMongo');
 const { Op } = require('sequelize');
@@ -15,7 +15,8 @@ async function updateIPS(req, res) {
                     { model: Medication, as: 'medications' },
                     { model: Allergy, as: 'allergies' },
                     { model: Condition, as: 'conditions' },
-                    { model: Observation, as: 'observations' }
+                    { model: Observation, as: 'observations' },
+                    { model: Immunization, as: 'immunizations' }  // Include immunizations
                 ]
             });
 
@@ -34,6 +35,7 @@ async function updateIPS(req, res) {
             await Allergy.destroy({ where: { IPSModelId: id } });
             await Condition.destroy({ where: { IPSModelId: id } });
             await Observation.destroy({ where: { IPSModelId: id } });
+            await Immunization.destroy({ where: { IPSModelId: id } });  // Delete immunizations
 
             // Recreate associated records if they exist in the transformed data
             if (transformedData.medications) {
@@ -64,6 +66,13 @@ async function updateIPS(req, res) {
                 })));
             }
 
+            if (transformedData.immunizations) {
+                await Immunization.bulkCreate(transformedData.immunizations.map(immunization => ({
+                    ...immunization,
+                    IPSModelId: id
+                })));
+            }
+
             // Save the updated IPS
             const updatedIPS = await ips.save();
 
@@ -80,6 +89,7 @@ async function updateIPS(req, res) {
     }
 }
 
+
 async function deleteIPS(req, res) {
     const { id } = req.params;
 
@@ -90,7 +100,8 @@ async function deleteIPS(req, res) {
                     { model: Medication, as: 'medications' },
                     { model: Allergy, as: 'allergies' },
                     { model: Condition, as: 'conditions' },
-                    { model: Observation, as: 'observations' }
+                    { model: Observation, as: 'observations' },
+                    { model: Immunization, as: 'immunizations' } // Include immunizations
                 ]
             });
 
@@ -103,6 +114,7 @@ async function deleteIPS(req, res) {
             await Allergy.destroy({ where: { IPSModelId: id } });
             await Condition.destroy({ where: { IPSModelId: id } });
             await Observation.destroy({ where: { IPSModelId: id } });
+            await Immunization.destroy({ where: { IPSModelId: id } }); // Delete immunizations
 
             // Delete the IPS record
             await ips.destroy();
@@ -116,6 +128,7 @@ async function deleteIPS(req, res) {
         res.status(400).send("ID parameter is missing.");
     }
 }
+
 
 async function deleteIPSbyPractitioner(req, res) {
     const { practitioner } = req.params;
@@ -131,7 +144,8 @@ async function deleteIPSbyPractitioner(req, res) {
                     { model: Medication, as: 'medications' },
                     { model: Allergy, as: 'allergies' },
                     { model: Condition, as: 'conditions' },
-                    { model: Observation, as: 'observations' }
+                    { model: Observation, as: 'observations' },
+                    { model: Immunization, as: 'immunizations' }
                 ]
             });
 
@@ -147,6 +161,7 @@ async function deleteIPSbyPractitioner(req, res) {
             await Allergy.destroy({ where: { IPSModelId: ipsIds } });
             await Condition.destroy({ where: { IPSModelId: ipsIds } });
             await Observation.destroy({ where: { IPSModelId: ipsIds } });
+            await Immunization.destroy({ where: { IPSModelId: ipsIds } });
 
             // Delete the IPS records
             await IPSModel.destroy({ where: { id: ipsIds } });
@@ -160,5 +175,6 @@ async function deleteIPSbyPractitioner(req, res) {
         res.status(400).send("Practitioner parameter is missing.");
     }
 }
+
 
 module.exports = { updateIPS, deleteIPS, deleteIPSbyPractitioner };

@@ -73,6 +73,12 @@ const Observation = sequelize.define('Observation', {
     value: DataTypes.STRING
 });
 
+const Immunization = sequelize.define('Immunization', {
+    name: DataTypes.STRING,
+    system: DataTypes.STRING,
+    date: DataTypes.DATE,
+});
+
 IPSModel.hasMany(Medication, { as: 'medications' });
 Medication.belongsTo(IPSModel);
 
@@ -85,8 +91,11 @@ Condition.belongsTo(IPSModel);
 IPSModel.hasMany(Observation, { as: 'observations' });
 Observation.belongsTo(IPSModel);
 
+IPSModel.hasMany(Immunization, { as: 'immunizations'});
+Immunization.belongsTo(IPSModel);
+
 sequelize.sync({ force: false }).then(() => {
     console.log('Database & tables created!');
 });
 
-module.exports = { IPSModel, Medication, Allergy, Condition, Observation };
+module.exports = { IPSModel, Medication, Allergy, Condition, Observation, Immunization };
