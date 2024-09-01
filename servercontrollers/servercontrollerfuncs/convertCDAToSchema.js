@@ -176,7 +176,26 @@ function convertCDAToSchema(cdaJSON) {
             });
         }
 
+        // Extract immunization details
+        const immunizationSection = components.find(c =>
+            getCode(c.section?.[0]?.code?.[0]) === '11369-6' &&
+            c.section?.[0]?.code?.[0]?.$?.codeSystemName === 'LOINC'
+        );
 
+        if (immunizationSection) {
+            immunizationSection.section?.[0]?.entry?.forEach(entry => {
+                const immunization = entry.substanceadministration?.[0];
+                const immunizationName = getCodeValue(immunization?.consumable?.[0]?.manufacturedproduct?.[0]?.manufacturedmaterial?.[0]?.code?.[0]);
+                const immunizationDate = parseTimestamp(immunization?.effectivetime?.[0]?.$?.value);
+                const immunizationSystem = immunization?.consumable?.[0]?.manufacturedproduct?.[0]?.manufacturedmaterial?.[0]?.code?.[0]?.$?.codeSystemName || '';
+
+                immunizations.push({
+                    name: immunizationName,
+                    date: immunizationDate,
+                    system: immunizationSystem
+                });
+            });
+        }
 
     }
 
