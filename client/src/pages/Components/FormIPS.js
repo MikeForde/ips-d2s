@@ -28,6 +28,7 @@ export function FormIPS({ add }) {
     allergies: [{ name: "", criticality: "", date: "" }],
     conditions: [{ name: "", date: "" }],
     observations: [{ name: "", date: "", value: "" }],
+    immunizations: [{ name: "", system: "", date: "" }]
   });
 
   const [showAlert, setShowAlert] = useState(false);
@@ -83,6 +84,16 @@ export function FormIPS({ add }) {
     });
   };
 
+  const handleImmunizationChange = (index, e) => {
+    const { name, value } = e.target;
+    const updatedImmunizations = [...formData.immunizations];
+    updatedImmunizations[index][name] = value;
+    setFormData({
+      ...formData,
+      immunizations: updatedImmunizations,
+    });
+  };
+
   const handleAddMedication = () => {
     setFormData({
       ...formData,
@@ -108,6 +119,13 @@ export function FormIPS({ add }) {
     setFormData({
       ...formData,
       observations: [...formData.observations, { name: "", date: "", value: "" }],
+    });
+  };
+
+  const handleAddImmunization = () => {
+    setFormData({
+      ...formData,
+      immunizations: [...formData.immunizations, { name: "", system: "", date: "" }],
     });
   };
 
@@ -151,6 +169,7 @@ export function FormIPS({ add }) {
       allergies: [{ name: "", criticality: "", date: "" }],
       conditions: [{ name: "", date: "" }],
       observations: [{ name: "", date: "", value: "" }],
+      immunizations: [{ name: "", system: "", date: "" }]
     });
   };
 
@@ -431,6 +450,45 @@ export function FormIPS({ add }) {
               </Form.Group>
             </div>
           ))}
+          <Button className="mb-3 minor-button" onClick={handleAddImmunization}>Add Immunization</Button>
+          {formData.immunizations.map((immunization, index) => (
+            <div key={index}>
+              <Form.Group className="row">
+                <Form.Label className="col-sm-2">Immunization</Form.Label>
+                <div className="col-sm-10">
+                  <Form.Control
+                    type="text"
+                    name="name"
+                    value={immunization.name}
+                    onChange={(e) => handleImmunizationChange(index, e)}
+                    placeholder="Immunization Name or Code" />
+                </div>
+              </Form.Group>
+              <Form.Group className="row">
+                <Form.Label className="col-sm-2">System</Form.Label>
+                <div className="col-sm-10">
+                  <Form.Control
+                    type="text"
+                    name="system"
+                    value={immunization.system}
+                    onChange={(e) => handleImmunizationChange(index, e)}
+                    placeholder="Coding System (e.g., LOINC, SNOMED) or url" />
+                </div>
+              </Form.Group>
+              <Form.Group className="row">
+                <Form.Label className="col-sm-2">Date</Form.Label>
+                <div className="col-sm-10">
+                  <Form.Control
+                    type="datetime-local"
+                    name="date"
+                    value={formatDate(immunization.date)}
+                    onChange={(e) => handleImmunizationChange(index, e)}
+                    placeholder="Date" />
+                </div>
+              </Form.Group>
+            </div>
+          ))}
+
 
           <Button className="submit" variant="primary" type="submit">Submit IPS Data</Button>
           <Toast show={showAlert} onClose={() => setShowAlert(false)} bg="danger" className="fixed-bottom m-3">
