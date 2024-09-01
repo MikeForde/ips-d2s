@@ -69,6 +69,8 @@ function generateIPSHL72_8(data) {
         });
     }
 
+    hl7Message += `PV1|1|N\n`;
+
     return hl7Message;
 }
 

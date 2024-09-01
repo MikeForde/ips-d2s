@@ -280,7 +280,7 @@ function ChangeLogPage() {
                             <ul>
                                 <li><strong>Added Observation and Allergy Dropdowns</strong></li>
                                 <li>Observation dropdown for key vital signs - temperature, blood pressure, pulse, respiration etc</li>
-                                <li>Allergy dropdown for criticality - low, medium, high</li>                   
+                                <li>Allergy dropdown for criticality - low, medium, high</li>
                             </ul>
                         </li>
                         <li>
@@ -313,7 +313,7 @@ function ChangeLogPage() {
                             </ul>
                         </li>
                         <li>
-                            <h5>Version 0_3 - 12th June 2024</h5>
+                            <h5>Version 0_35 - 12th June 2024</h5>
                             <ul>
                                 <li><strong>Added API Documentation Page</strong></li>
                                 <li>Page to allow easy access to all API endpoints and their descriptions</li>
@@ -384,6 +384,18 @@ function ChangeLogPage() {
                                 <li>Format passes IPSViewer checks</li>
                             </ul>
                         </li>
+                        <li>
+                            <h5>Version 0_43 - 1st September 2024</h5>
+                            <ul>
+                                <li><strong>Added Immunization Resource</strong></li>
+                                <li>Integrated Immunization resource into the backend and frontend systems</li>
+                                <li>Immunization resource includes a date, name, and system</li>
+                                <li>Name can be either a textual entry or a code, with the system indicating the coding system used (e.g., SNOMED, WHO ATC) or a reference url</li>
+                                <li>All conversions updated including 'from CDA', 'to HL7 2.8' and 'to and from BEER'</li>
+                                <li>Note: HL7 2.8 message validation may show errors due to lack of data, but the data provided is in the correct positions. Please visit <a href="https://www.parsehog.com/hl7/parser" target="_blank">Parsehog HL7 Parser</a> to validate and check the message structure yourself.</li>
+                            </ul>
+                        </li>
+
                     </ul>
                 </Col>
             </Row>
