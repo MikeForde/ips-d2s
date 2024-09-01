@@ -68,6 +68,7 @@ function convertCDAToSchema(cdaJSON) {
     const allergies = [];
     const conditions = [];
     const observations = [];
+    const immunizations = [];
 
     // Extract patient details
     const recordTarget = cdaObject.recordtarget[0]?.patientrole?.[0]?.patient?.[0];
@@ -185,7 +186,7 @@ function convertCDAToSchema(cdaJSON) {
     const formattedeffectivetime = parseTimestamp(effectivetime);
     const timeStamp = new Date(formattedeffectivetime);
 
-    return { packageUUID, timeStamp, patient, medication, allergies, conditions, observations };
+    return { packageUUID, timeStamp, patient, medication, allergies, conditions, observations, immunizations };
 }
 
 module.exports = { convertCDAToSchema };
