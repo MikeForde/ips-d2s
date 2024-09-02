@@ -395,7 +395,16 @@ function ChangeLogPage() {
                                 <li>Note: HL7 2.8 message validation may show errors due to lack of data, but the data provided is in the correct positions. Please visit <a href="https://www.parsehog.com/hl7/parser" target="_blank" rel="noopener noreferrer">Parsehog HL7 Parser</a> to validate and check the message structure yourself.</li>
                             </ul>
                         </li>
-
+                        <li>
+                            <h5>Version 0_44 - 2nd September 2024</h5>
+                            <ul>
+                                <li><strong>Added PDF Generation Feature</strong></li>
+                                <li>Implemented a new PDF generation function that allows patient reports to be viewed and downloaded as PDF documents</li>
+                                <li>The PDF document is formatted to fit within A4 page dimensions, with automatic text wrapping to ensure readability</li>
+                                <li>Patient data, including Medications, Allergies, Conditions, Observations, and Immunizations, are included in the PDF report</li>
+                                <li>PDF opens in a new tab with a dynamic filename based on the patient's name, allowing for easy download and identification</li>
+                            </ul>
+                        </li>
                     </ul>
                 </Col>
             </Row>
