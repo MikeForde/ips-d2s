@@ -19,7 +19,6 @@
         "dotenv": "^10.0.0",
         "express": "^4.19.2",
         "express-xml-bodyparser": "^0.3.0",
-        "jspdf": "^2.5.1",
         "minimist": "^1.2.8",
         "moment": "^2.29.1",
         "mysql2": "^3.10.2",

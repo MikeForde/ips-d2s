@@ -19,7 +19,8 @@
     "tough-cookie": "4.1.4",
     "loader-utils": "1.4.2",
     "shell-quote": "1.8.1",
-    "immer": "10.1.1"
+    "immer": "10.1.1",
+    "jspdf": "^2.5.1"
   },
   "scripts": {
     "start": "react-app-rewired start",
