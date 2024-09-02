@@ -20,11 +20,11 @@
     "loader-utils": "1.4.2",
     "shell-quote": "1.8.1",
     "immer": "10.1.1",
-    "jspdf": "^2.5.1"
+    "pdf-lib": "1.17.1"
   },
   "scripts": {
     "start": "react-app-rewired start",
-    "build": "NODE_OPTIONS='--max-old-space-size=4096' react-app-rewired build",
+    "build": "react-app-rewired build",
     "test": "react-app-rewired test",
     "eject": "react-scripts eject"
   },

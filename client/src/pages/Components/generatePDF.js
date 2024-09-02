@@ -1,163 +1,112 @@
-import jsPDF from 'jspdf';
+import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 
 const formatDate = (dateString) => {
-    if (!dateString) return "";
-    const [datePart, timePart] = dateString.split("T");
-    const time = timePart.split(".")[0];
-    return `${datePart} ${time}`;
+  if (!dateString) return "";
+  const [datePart, timePart] = dateString.split("T");
+  const time = timePart.split(".")[0];
+  return `${datePart} ${time}`;
 };
 
-export const generatePDF = (ips) =>  {
-    const doc = new jsPDF({
-      unit: 'mm',
-      format: 'a4'
+export const generatePDF = async (ips) => {
+  const pdfDoc = await PDFDocument.create();
+  const page = pdfDoc.addPage([595.28, 841.89]); // A4 size in points
+  const { width, height } = page.getSize();
+
+  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+
+  const fontSize = 10;
+  const margin = 50;
+  let yOffset = height - margin;
+
+  // Modified drawText function to handle text wrapping
+  const drawText = (text, font, size, x, y) => {
+    const lines = text.split('\n');
+    lines.forEach((line, index) => {
+      page.drawText(line, {
+        x,
+        y: y - (index * size * 1.2), // Adjust line height for wrapped text
+        size,
+        font,
+        color: rgb(0, 0, 0),
+        maxWidth: width - 2 * margin,
+        lineHeight: size * 1.2, // Line height adjustment
+      });
     });
 
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
+    return y - (lines.length * size * 1.2); // Return the new yOffset after drawing text
+  };
+  // Add title
+  drawText(`Patient Report: ${ips.patient.given} ${ips.patient.name}`, boldFont, 12, margin, yOffset);
+  yOffset -= 20;
 
-    const margin = 10;
-    const pageWidth = doc.internal.pageSize.getWidth() - margin * 2;
-    const pageHeight = doc.internal.pageSize.getHeight() - margin * 2;
+  const details = [
+    `Name: ${ips.patient.name}`,
+    `Given Name: ${ips.patient.given}`,
+    `DOB: ${ips.patient.dob.split("T")[0]}`,
+    `Gender: ${ips.patient.gender}`,
+    `Country: ${ips.patient.nation}`,
+    `Practitioner: ${ips.patient.practitioner}`,
+    `Organization: ${ips.patient.organization}`
+  ];
 
-    let yOffset = margin;
-
-    doc.text(`Patient Report ${ips.patient.given} ${ips.patient.name}`, margin, yOffset);
-    yOffset += 10;
-
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-
-    doc.text(`Name: ${ips.patient.name}`, margin, yOffset);
-    yOffset += 10;
-
-    doc.text(`Given Name: ${ips.patient.given}`, margin, yOffset);
-    yOffset += 10;
-
-    const details = [
-      `DOB: ${ips.patient.dob.split("T")[0]}`,
-      `Gender: ${ips.patient.gender}`,
-      `Country: ${ips.patient.nation}`,
-      `Practitioner: ${ips.patient.practitioner}`,
-      `Organization: ${ips.patient.organization}`
-    ];
-
-    details.forEach(detail => {
-      if (yOffset + 10 > pageHeight) {
-        doc.addPage();
-        yOffset = margin;
-      }
-      doc.text(detail, margin, yOffset, { maxWidth: pageWidth });
-      yOffset += 10;
-    });
-
-    doc.setFont('helvetica', 'bold');
-    doc.text("Medications", margin, yOffset);
-    yOffset += 10;
-    doc.setFont('helvetica', 'normal');
-
-    ips.medication.forEach((med, index) => {
-      if (yOffset > pageHeight) {
-        doc.addPage();
-        yOffset = margin;
-      }
-      doc.text(`${index + 1}. ${med.name} - Date: ${formatDate(med.date)} - Dosage: ${med.dosage}`, margin, yOffset, { maxWidth: pageWidth });
-      yOffset += 10;
-    });
-
-    if (yOffset > pageHeight) {
-      doc.addPage();
-      yOffset = margin;
+  // Add patient details
+  details.forEach(detail => {
+    if (yOffset < margin) {
+      yOffset = height - margin;
+      pdfDoc.addPage();
     }
+    drawText(detail, font, fontSize, margin, yOffset);
+    yOffset -= 15;
+  });
 
-    doc.setFont('helvetica', 'bold');
-    doc.text("Allergies", margin, yOffset);
-    yOffset += 10;
-    doc.setFont('helvetica', 'normal');
+  yOffset -= 5;
 
-    ips.allergies.forEach((allergy, index) => {
-      if (yOffset > pageHeight) {
-        doc.addPage();
-        yOffset = margin;
-      }
-      doc.text(`${index + 1}. ${allergy.name} - Criticality: ${allergy.criticality} - Date: ${allergy.date.split("T")[0]}`, margin, yOffset, { maxWidth: pageWidth });
-      yOffset += 10;
-    });
+  const sections = [
+    { title: "Medications", items: ips.medication, formatItem: (item, index) => `${index + 1}. ${item.name} - Date: ${formatDate(item.date)} - Dosage: ${item.dosage}` },
+    { title: "Allergies", items: ips.allergies, formatItem: (item, index) => `${index + 1}. ${item.name} - Criticality: ${item.criticality} - Date: ${item.date.split("T")[0]}` },
+    { title: "Conditions", items: ips.conditions, formatItem: (item, index) => `${index + 1}. ${item.name} - Date: ${formatDate(item.date)}` },
+    { title: "Observations", items: ips.observations, formatItem: (item, index) => `${index + 1}. ${item.name} - Date: ${formatDate(item.date)} - Value: ${item.value}` },
+    { title: "Immunizations", items: ips.immunizations, formatItem: (item, index) => `${index + 1}. ${item.name} - Date: ${item.date.split("T")[0]} - System: ${item.system}` }
+  ];
 
-    if (yOffset > pageHeight) {
-      doc.addPage();
-      yOffset = margin;
+  // Adjust yOffset calculation when drawing text
+  sections.forEach(section => {
+    yOffset -= 15;
+    if (yOffset < margin) {
+      yOffset = height - margin;
+      pdfDoc.addPage();
     }
+    drawText(section.title, boldFont, fontSize + 2, margin, yOffset);
+    yOffset -= 15;
 
-    doc.setFont('helvetica', 'bold');
-    doc.text("Conditions", margin, yOffset);
-    yOffset += 10;
-    doc.setFont('helvetica', 'normal');
-
-    ips.conditions.forEach((condition, index) => {
-      if (yOffset > pageHeight) {
-        doc.addPage();
-        yOffset = margin;
+    section.items.forEach((item, index) => {
+      if (yOffset < margin) {
+        yOffset = height - margin;
+        pdfDoc.addPage();
       }
-      doc.text(`${index + 1}. ${condition.name} - Date: ${formatDate(condition.date)}`, margin, yOffset, { maxWidth: pageWidth });
-      yOffset += 10;
+      const text = section.formatItem(item, index);
+      yOffset = drawText(text, font, fontSize, margin, yOffset);
+      yOffset -= 5; // Adjust spacing between items
     });
+  });
 
-    if (yOffset > pageHeight) {
-      doc.addPage();
-      yOffset = margin;
-    }
+  const pdfBytes = await pdfDoc.save();
 
-    doc.setFont('helvetica', 'bold');
-    doc.text("Observations", margin, yOffset);
-    yOffset += 10;
-    doc.setFont('helvetica', 'normal');
+  const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+  const url = URL.createObjectURL(blob);
 
-    ips.observations.forEach((observation, index) => {
-      if (yOffset > pageHeight) {
-        doc.addPage();
-        yOffset = margin;
-      }
-      doc.text(`${index + 1}. ${observation.name} - Date: ${formatDate(observation.date)} - Value: ${observation.value}`, margin, yOffset, { maxWidth: pageWidth });
-      yOffset += 10;
-    });
+  const newWindow = window.open(url);
 
-    if (yOffset > pageHeight) {
-      doc.addPage();
-      yOffset = margin;
-    }
-
-    doc.setFont('helvetica', 'bold');
-    doc.text("Immunizations", margin, yOffset);
-    yOffset += 10;
-    doc.setFont('helvetica', 'normal');
-
-    ips.immunizations.forEach((immunization, index) => {
-      if (yOffset > pageHeight) {
-        doc.addPage();
-        yOffset = margin;
-      }
-      doc.text(`${index + 1}. ${immunization.name} - Date: ${immunization.date.split("T")[0]} - System: ${immunization.system}`, margin, yOffset, { maxWidth: pageWidth });
-      yOffset += 10;
-    });
-
-    const patientName = `${ips.patient.given}_${ips.patient.name}`.replace(/\s+/g, '_');
-    const filename = `Patient_${patientName}_Report.pdf`;
-
-    const pdfBlob = doc.output('blob');
-    const url = URL.createObjectURL(pdfBlob);
-
-    const newWindow = window.open(url);
+  setTimeout(() => {
+    newWindow.document.title = `Patient_${ips.patient.given}_${ips.patient.name}_Report.pdf`;
+    const downloadLink = newWindow.document.createElement('a');
+    downloadLink.href = url;
+    downloadLink.download = `Patient_${ips.patient.given}_${ips.patient.name}_Report.pdf`;
+    newWindow.document.body.appendChild(downloadLink);
 
     setTimeout(() => {
-        newWindow.document.title = filename;
-        const downloadLink = newWindow.document.createElement('a');
-        downloadLink.href = url;
-        downloadLink.download = filename;
-        newWindow.document.body.appendChild(downloadLink);
-
-        setTimeout(() => {
-            downloadLink.parentNode.removeChild(downloadLink);
-        }, 1000);
-    }, 500);
+      downloadLink.parentNode.removeChild(downloadLink);
+    }, 1000);
+  }, 500);
 };
