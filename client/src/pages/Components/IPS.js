@@ -7,7 +7,6 @@ import axios from 'axios';
 import { PatientContext } from '../../PatientContext';
 import { useLoading } from '../../contexts/LoadingContext';
 import "./components.css";
-import { generatePDF } from './generatePDF';
 
 
 const formatDate = (dateString) => {
@@ -96,9 +95,9 @@ export function IPS({ ips, remove, update }) {
     </Tooltip>
   );
 
-  const handleGeneratePDF = () => {
-    generatePDF(ips);
-  };
+  // const handleGeneratePDF = () => {
+  //   generatePDF(ips);
+  // };
 
   return (
     <div className="ips">
@@ -212,11 +211,11 @@ export function IPS({ ips, remove, update }) {
           </Link>
         </OverlayTrigger>
 
-        <OverlayTrigger placement="top" overlay={renderTooltip('Generate PDF')}>
+        {/* <OverlayTrigger placement="top" overlay={renderTooltip('Generate PDF')}>
           <Button variant="outline-secondary" className="qr-button custom-button" onClick={handleGeneratePDF}>
             <FontAwesomeIcon icon={faFileExport} />
           </Button>
-        </OverlayTrigger>
+        </OverlayTrigger> */}
 
 
         <OverlayTrigger placement="top" overlay={renderTooltip('Edit IPS Record')}>
