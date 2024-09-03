@@ -7,7 +7,7 @@ import axios from 'axios';
 import { PatientContext } from '../../PatientContext';
 import { useLoading } from '../../contexts/LoadingContext';
 import "./components.css";
-
+import { generatePDF } from './generatePDF';
 
 const formatDate = (dateString) => {
   if (!dateString) return "";
@@ -89,15 +89,15 @@ export function IPS({ ips, remove, update }) {
     }));
   };
 
+  const handleGeneratePDF = () => {
+    generatePDF(ips);
+  };
+
   const renderTooltip = (text) => (
     <Tooltip id={`tooltip-${text}`}>
       {text}
     </Tooltip>
   );
-
-  // const handleGeneratePDF = () => {
-  //   generatePDF(ips);
-  // };
 
   return (
     <div className="ips">
@@ -211,11 +211,11 @@ export function IPS({ ips, remove, update }) {
           </Link>
         </OverlayTrigger>
 
-        {/* <OverlayTrigger placement="top" overlay={renderTooltip('Generate PDF')}>
+        <OverlayTrigger placement="top" overlay={renderTooltip('Generate PDF')}>
           <Button variant="outline-secondary" className="qr-button custom-button" onClick={handleGeneratePDF}>
             <FontAwesomeIcon icon={faFileExport} />
           </Button>
-        </OverlayTrigger> */}
+        </OverlayTrigger>
 
 
         <OverlayTrigger placement="top" overlay={renderTooltip('Edit IPS Record')}>
@@ -386,7 +386,7 @@ export function IPS({ ips, remove, update }) {
                 </Col>
               </Row>
             ))}
-            <Button variant="primary" onClick={() => handleAddItem('medication')}>
+            <Button variant="primary" className="mb-3" onClick={() => handleAddItem('medication')}>
               Add Medication
             </Button>
 
@@ -437,7 +437,7 @@ export function IPS({ ips, remove, update }) {
                 </Col>
               </Row>
             ))}
-            <Button variant="primary" onClick={() => handleAddItem('allergies')}>
+            <Button variant="primary" className="mb-3" onClick={() => handleAddItem('allergies')}>
               Add Allergy
             </Button>
 
@@ -471,7 +471,7 @@ export function IPS({ ips, remove, update }) {
                 </Col>
               </Row>
             ))}
-            <Button variant="primary" onClick={() => handleAddItem('conditions')}>
+            <Button variant="primary" className="mb-3" onClick={() => handleAddItem('conditions')}>
               Add Condition
             </Button>
 
@@ -532,7 +532,7 @@ export function IPS({ ips, remove, update }) {
                 </Col>
               </Row>
             ))}
-            <Button variant="primary" onClick={() => handleAddItem('observations')}>
+            <Button variant="primary" className="mb-3" onClick={() => handleAddItem('observations')}>
               Add Observation
             </Button>
 
@@ -578,7 +578,7 @@ export function IPS({ ips, remove, update }) {
                 </Col>
               </Row>
             ))}
-            <Button variant="primary" onClick={() => handleAddItem('immunizations')}>
+            <Button variant="primary" className="mb-3" onClick={() => handleAddItem('immunizations')}>
               Add Immunization
             </Button>
 
@@ -588,7 +588,7 @@ export function IPS({ ips, remove, update }) {
           <Button variant="secondary" onClick={() => setShowEditModal(false)}>
             Cancel
           </Button>
-          <Button variant="primary" onClick={handleSaveEdit}>
+          <Button variant="primary" className="mbsave" onClick={handleSaveEdit}>
             Save Changes
           </Button>
         </Modal.Footer>

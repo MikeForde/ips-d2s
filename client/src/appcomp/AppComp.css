@@ -7,3 +7,7 @@
 .search-form .form-control {
     margin-right: 10px;
 }
+
+.navbar {
+    background-color: rgb(6, 4, 41) !important;
+}

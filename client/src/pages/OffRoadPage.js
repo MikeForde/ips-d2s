@@ -61,7 +61,7 @@ const IPSOffRoadPage = () => {
             required
           />
         </Form.Group>
-        <Button variant="primary" type="submit">
+        <Button variant="primary" type="submit" className='mb-3'>
           Submit GET Request
         </Button>
       </Form>

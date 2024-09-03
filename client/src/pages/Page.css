@@ -31,11 +31,41 @@
 
 .dropdown-button {
   height: 30px; 
-  margin-bottom: 5px; 
+  margin-bottom: 5px;
 }
+
+.dropdown-button .btn-primary {
+  background-color: rgb(47, 47, 212) !important;
+  border-color: rgb(102, 51, 153) !important;
+} 
+
+.dropdown-item.active {
+  background-color: rgb(49, 49, 225) !important;
+  border-color: rgb(102, 51, 153) !important;
+}
+
+.dropdown-item:active,
+.dropdown-item:focus,
+.dropdown-item:hover {
+  background-color: rgb(49, 49, 225) !important; /* Background color when active/focused/hovered */
+  color: white !important; /* Text color when active/focused/hovered */
+}
+
 
 .mb-3 {
   margin-right: 5px;
+  background-color: rgb(47, 47, 212) !important;
+  border-color: rgb(102, 51, 153) !important;
+}
+
+.mt-3 .btn-primary {
+  background-color: rgb(47, 47, 212) !important;
+  border-color: rgb(102, 51, 153) !important;
+}
+
+.mbsave {
+  background-color: rgb(25, 25, 126) !important;
+  border-color: rgb(102, 51, 153) !important;
 }
 
 .noteFont {
