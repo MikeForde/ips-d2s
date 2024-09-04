@@ -10,8 +10,8 @@
 /coverage
 
 # production
-/build
-/client/build
+# /build
+# /client/build
 
 # misc
 .vscode
