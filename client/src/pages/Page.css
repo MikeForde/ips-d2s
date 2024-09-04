@@ -58,6 +58,11 @@
   border-color: rgb(102, 51, 153) !important;
 }
 
+.submit {
+  background-color: rgb(130, 47, 212) !important;
+  border-color: rgb(102, 51, 153) !important;
+}
+
 .mt-3 .btn-primary {
   background-color: rgb(47, 47, 212) !important;
   border-color: rgb(102, 51, 153) !important;

@@ -89,7 +89,7 @@ function OffRoadPOSTPage() {
         {message && <Alert variant="success">{message}</Alert>}
         <div className="button-container">
           {selectedPatient && data && (
-            <Button className="mb-3" variant="danger" onClick={handlePushIPS}>Push IPS JSON Data to VitalsIQ WebApp</Button>
+            <Button className="submit" variant="danger" onClick={handlePushIPS}>Push IPS JSON Data to VitalsIQ WebApp</Button>
           )}
         </div>
       </div>
