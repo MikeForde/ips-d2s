@@ -2,6 +2,12 @@
   "name": "client",
   "version": "0.1.0",
   "private": true,
+  "resolutions": {
+    "immer": "9.0.6"
+  },
+  "overrides": {
+    "immer": "10.1.1"
+  },
   "dependencies": {
     "axios": "^0.24.0",
     "bootstrap": "^5.1.3",
