@@ -10,8 +10,8 @@ async function getIPSBundleByName(req, res) {
         // Search using case-insensitive matching
         const query = {
             where: {
-                patientName: { [Op.iLike]: name },
-                patientGiven: { [Op.iLike]: given }
+                patientName: { [Op.like]: `%${name}%` }, // Use LIKE operator
+                patientGiven: { [Op.like]: `%${given}%` } // Use LIKE operator
             }
         };
 
