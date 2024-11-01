@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { Link, useLocation} from 'react-router-dom';
 import { Container, Nav, Navbar, NavDropdown } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBeer, faBrain, faCloud, faCrown, faDownload, faFileMedical, faMountain, faQrcode, faSun, faSwimmer, faUpload, faWineGlass } from '@fortawesome/free-solid-svg-icons';
+import { faBeer, faCloud, faDownload, faFileMedical, faQrcode, faSun, faUpload } from '@fortawesome/free-solid-svg-icons';
 import { PatientContext } from '../PatientContext';
 import { useLoading } from '../contexts/LoadingContext';
 import PatientSearch from './PatientSearch'; // Import the new component
