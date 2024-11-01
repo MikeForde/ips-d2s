@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { Link, useLocation} from 'react-router-dom';
 import { Container, Nav, Navbar, NavDropdown } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBeer, faBrain, faCloud, faDownload, faFileMedical, faQrcode, faUpload } from '@fortawesome/free-solid-svg-icons';
+import { faBeer, faBrain, faCloud, faCrown, faDownload, faFileMedical, faMountain, faQrcode, faSun, faSwimmer, faUpload, faWineGlass } from '@fortawesome/free-solid-svg-icons';
 import { PatientContext } from '../PatientContext';
 import { useLoading } from '../contexts/LoadingContext';
 import PatientSearch from './PatientSearch'; // Import the new component
@@ -76,14 +76,14 @@ function NavigationBar() {
               <FontAwesomeIcon icon={faBeer} /> BEER
             </Nav.Link>
             <NavDropdown
-              title={<span><FontAwesomeIcon icon={faBrain} /> VitalsIQ API</span>}
+              title={<span><FontAwesomeIcon icon={faSun} /> Aus API</span>}
               id="basic-nav-dropdown"
             >
               <NavDropdown.Item as={Link} to="/ipsoffroad" onClick={() => handleNavItemSelect(false)}>
-                <FontAwesomeIcon icon={faUpload} /> VitalsIQ GET
+                <FontAwesomeIcon icon={faUpload} /> Aus GET
               </NavDropdown.Item>
               <NavDropdown.Item as={Link} to="/offroadpost" onClick={() => handleNavItemSelect(true)}>
-                <FontAwesomeIcon icon={faDownload} /> VitalsIQ POST
+                <FontAwesomeIcon icon={faDownload} /> Aus POST
               </NavDropdown.Item>
             </NavDropdown>
             <NavDropdown

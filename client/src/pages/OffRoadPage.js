@@ -41,7 +41,7 @@ const IPSOffRoadPage = () => {
   return (
     <div className="app">
       <div className="container">
-      <h3>VitalsIQ API - GET (Pull)</h3>
+      <h3>Aus IPS API - GET (Pull)</h3>
       <Form onSubmit={handleSubmit}>
         <Form.Group controlId="name">
           <Form.Control
