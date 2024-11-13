@@ -405,6 +405,15 @@ function ChangeLogPage() {
                                 <li>PDF opens in a new tab with a dynamic filename based on the patient's name, allowing for easy download and identification</li>
                             </ul>
                         </li>
+                        <li>
+                            <h5>Version 0_45 - 13th November 2024</h5>
+                            <ul>
+                                <li><strong>HL7 2.8 Conversion Functionality</strong></li>
+                                <li>Added endpoints for chaining HL7 2.8 to MongoDB, then MongoDB to IPS JSON</li>
+                                <li>Extended API documentation with complete list of available endpoints for CRUD operations, conversions, and integrations with external systems</li>
+                                <li>API documentation pages updated to reflect latest changes</li>
+                            </ul>
+                        </li>
                     </ul>
                 </Col>
             </Row>

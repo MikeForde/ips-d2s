@@ -39,6 +39,8 @@ const { convertIPSToBEER } = require('./servercontrollers/convertIPSToBEER');
 const { updateIPSByUUID } = require('./servercontrollers/updateIPSRecordByUUID');
 const { convertCDAToIPS } = require('./servercontrollers/convertCDAToIPS');
 const { convertCDAToBEER } = require('./servercontrollers/convertCDAToBEER');
+const { convertHL72_8ToMongo} = require('./servercontrollers/convertHL72_8ToMongo');
+const { convertHL72_8ToIPS } = require("./servercontrollers/convertHL72_8ToIPS");
 
 const { DB_USER, DB_PASSWORD, DB_NAME, DB_HOST } = process.env;
 
@@ -78,6 +80,8 @@ api.post('/convertbeer2ips', convertBEERToIPS);
 api.post('/convertips2beer', convertIPSToBEER);
 api.post('/convertcdatoips', convertCDAToIPS);
 api.post('/convertcdatobeer', convertCDAToBEER);
+api.post('/converthl728tomongo', convertHL72_8ToMongo);
+api.post('/converthl728toips', convertHL72_8ToIPS)
 
 // API GET - CRUD Read
 api.get("/ips/all", getAllIPS);
