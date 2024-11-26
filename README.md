@@ -44,18 +44,21 @@ This application allows healthcare providers to create, update, delete, and conv
    ```bash
    git clone https://github.com/yourusername/ips-d2s.git
    cd ips-d2s
+   ```
 
 2. Install server dependencies:
 
   ```bash
   cd server
   npm install
+  ```
 
 3. Install client dependencies:
 
   ```bash
   cd ../client
   npm install
+  ```
 
 4. Set up environment variables:
 
@@ -70,12 +73,14 @@ Create a .env file in the server directory with the following content with your 
   ```bash
   cd ../server
   npm run dev
+  ```
 
 6. Start the React development server:
 
   ```bash
   cd ../client
   npm start
+  ```
 
 ## API Documentation
 
