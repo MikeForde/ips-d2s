@@ -44,15 +44,16 @@ This application allows healthcare providers to create, update, delete, and conv
    ```
    git clone https://github.com/yourusername/ips-d2s.git
    cd ips-d2s
+
 Install server dependencies:
 
-```
+  ```
   cd server
   npm install
 
 Install client dependencies:
 
-```
+    ```
   cd ../client
   npm install
 
@@ -66,13 +67,13 @@ Create a .env file in the server directory with the following content with your 
 
 Start the development server:
 
-```
+  ```
   cd ../server
   npm run dev
 
 Start the React development server:
 
-```
+  ```
   cd ../client
   npm start
 
