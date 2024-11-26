@@ -41,23 +41,23 @@ This application allows healthcare providers to create, update, delete, and conv
 ### Installation
 
 1. Clone the repository:
-   ```
+   ```bash
    git clone https://github.com/yourusername/ips-d2s.git
    cd ips-d2s
 
-Install server dependencies:
+2. Install server dependencies:
 
-  ```
+  ```bash
   cd server
   npm install
 
-Install client dependencies:
+3. Install client dependencies:
 
-    ```
+  ```bash
   cd ../client
   npm install
 
-Set up environment variables:
+4. Set up environment variables:
 
 Create a .env file in the server directory with the following content with your own settings:
   DB_USER=
@@ -65,15 +65,15 @@ Create a .env file in the server directory with the following content with your 
   DB_NAME=
   DB_HOST=host.docker.internal (if using docker MySQL instance)
 
-Start the development server:
+5. Start the development server:
 
-  ```
+  ```bash
   cd ../server
   npm run dev
 
-Start the React development server:
+6. Start the React development server:
 
-  ```
+  ```bash
   cd ../client
   npm start
 
