@@ -43,7 +43,7 @@ This application allows healthcare providers to create, update, delete, and conv
 1. Clone the repository:
    ```bash
    git clone https://github.com/yourusername/ips-d2s.git
-   cd ips-d2s
+   cd ips-d2s```
 Install server dependencies:
 
 ```cd server
