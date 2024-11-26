@@ -46,7 +46,7 @@ This application allows healthcare providers to create, update, delete, and conv
    cd ips-d2s
 Install server dependencies:
 
-cd server
+```cd server
 npm install
 Install client dependencies:
 
