@@ -49,8 +49,9 @@ Install server dependencies:
 ```
   cd server
   npm install
-  
+
 Install client dependencies:
+
 ```
   cd ../client
   npm install
@@ -58,19 +59,22 @@ Install client dependencies:
 Set up environment variables:
 
 Create a .env file in the server directory with the following content with your own settings:
-DB_USER=
-DB_PASSWORD=
-DB_NAME=
-DB_HOST=host.docker.internal (if using docker MySQL instance)
+  DB_USER=
+  DB_PASSWORD=
+  DB_NAME=
+  DB_HOST=host.docker.internal (if using docker MySQL instance)
 
 Start the development server:
 
-cd ../server
-npm run dev
+```
+  cd ../server
+  npm run dev
+
 Start the React development server:
 
-cd ../client
-npm start
+```
+  cd ../client
+  npm start
 
 ## API Documentation
 
