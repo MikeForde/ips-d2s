@@ -63,10 +63,12 @@ This application allows healthcare providers to create, update, delete, and conv
 4. Set up environment variables:
 
 Create a .env file in the server directory with the following content with your own settings:
+```
   DB_USER=
   DB_PASSWORD=
   DB_NAME=
   DB_HOST=host.docker.internal (if using docker MySQL instance)
+  ```
 
 5. Start the development server:
 
