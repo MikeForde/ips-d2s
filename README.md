@@ -41,17 +41,20 @@ This application allows healthcare providers to create, update, delete, and conv
 ### Installation
 
 1. Clone the repository:
-   ```bash
+   ```
    git clone https://github.com/yourusername/ips-d2s.git
-   cd ips-d2s```
+   cd ips-d2s
 Install server dependencies:
 
-```cd server
-npm install
+```
+  cd server
+  npm install
+  
 Install client dependencies:
+```
+  cd ../client
+  npm install
 
-cd ../client
-npm install
 Set up environment variables:
 
 Create a .env file in the server directory with the following content with your own settings:
