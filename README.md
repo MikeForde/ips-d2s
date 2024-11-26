@@ -46,32 +46,26 @@ This application allows healthcare providers to create, update, delete, and conv
    cd ips-d2s
 Install server dependencies:
 
-bash
-Copy code
 cd server
 npm install
 Install client dependencies:
 
-bash
-Copy code
 cd ../client
 npm install
 Set up environment variables:
 
-Create a .env file in the server directory with the following content:
-bash
-Copy code
-DB_CONN=mongodb://localhost:27017/ipsDB
+Create a .env file in the server directory with the following content with your own settings:
+DB_USER=
+DB_PASSWORD=
+DB_NAME=
+DB_HOST=host.docker.internal (if using docker MySQL instance)
+
 Start the development server:
 
-bash
-Copy code
 cd ../server
 npm run dev
 Start the React development server:
 
-bash
-Copy code
 cd ../client
 npm start
 
