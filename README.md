@@ -13,6 +13,7 @@ This project is a SERN (SQL, Express, React, Node.js) stack application designed
   - [PUT Endpoints](#put-endpoints)
   - [DELETE Endpoints](#delete-endpoints)
 - [Gzip Support](#gzip-support)
+- [AES-256 Support](#aes-256-encryption-support)
 - [Client-Side Pages](#client-side-pages)
 - [Technologies Used](#technologies-used)
 - [Contributing](#contributing)
@@ -157,6 +158,28 @@ This API supports gzip compression to optimize data transfer.
 
 1. Set the header `Accept-Encoding: gzip`.
 2. The API will return the response in gzip format if supported.
+
+## AES-256 Encryption Support
+
+### Overview
+
+This API supports AES-256 encryption for secure data transfer.
+
+- **Incoming Requests**: To send encrypted data, include the `x-encrypted: true` header and provide an encrypted payload.
+- **Outgoing Responses**: To receive encrypted responses, include the `Accept-Encryption: aes256` header in your request.
+
+### Usage Instructions
+
+#### For Requests
+
+1. Encrypt your payload using AES-256 encryption with the provided key and IV.
+2. Include the `x-encrypted: true` header.
+3. Send the encrypted payload in the request body.
+
+#### For Responses
+
+1. Include the `Accept-Encryption: aes256` header in your request.
+2. The API will return the response encrypted with AES-256.
 
 ## Client-Side Pages
 
