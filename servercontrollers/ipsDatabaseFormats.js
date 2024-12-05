@@ -1,4 +1,4 @@
-const { validate: isValidUUID } = require('uuid');
+const { resolveId } = require('../utils/resolveId');
 const { IPSModel, Medication, Allergy, Condition, Observation, Immunization } = require('../models/IPSModel');
 const { SQLToMongoSingle, SQLToMongo } = require('./MySQLHelpers/SQLToMongo');
 
@@ -7,20 +7,12 @@ async function getIPSRaw(req, res) {
   const id = req.params.id;
   let query;
 
-  // Check if the provided ID is a valid UUID
-  if (isValidUUID(id)) {
-    // Search using packageUUID if it is a valid UUID
-    query = IPSModel.findOne({ where: { packageUUID: id } });
-  } else {
-    // Otherwise, search by primary key (id)
-    query = IPSModel.findByPk(id);
-  }
-
   try {
-    const ips = await query;
+    // Resolve the ID and fetch the IPS record
+    const ips = await resolveId(id);
 
     if (!ips) {
-      return res.status(404).json({ message: "IPS record not found" });
+        return res.status(404).json({ message: "IPS record not found" });
     }
 
     // Transform the IPS record to the desired format
@@ -35,7 +27,8 @@ async function getIPSRaw(req, res) {
       res.json(transformedIps);
     }
   } catch (err) {
-    res.status(400).send(err);
+    console.error("Error fetching IPS record:", error);
+    res.status(400).send(error.message || "Invalid request");
   }
 }
 

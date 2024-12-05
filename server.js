@@ -20,9 +20,9 @@ const { getIPSLegacyBundle } = require('./servercontrollers/ipsBundleFormat_old'
 const { getIPSXMLBundle } = require('./servercontrollers/ipsXMLBundleFormat');
 const { getIPSRaw, getAllIPS } = require('./servercontrollers/ipsDatabaseFormats');
 const { getMongoFormatted } = require('./servercontrollers/ipsMongoDisplayFormat');
-const getIPSBasic = require("./servercontrollers/ipsBasicFormat");
-const getIPSBEER = require("./servercontrollers/ipsBEERFormat");
-const getIPSHL72_8 = require("./servercontrollers/ipsHL728Format");
+const { getIPSBasic } = require("./servercontrollers/ipsBasicFormat");
+const { getIPSBEER } = require("./servercontrollers/ipsBEERFormat");
+const { getIPSHL72_8 } = require("./servercontrollers/ipsHL728Format");
 const { addIPS, addIPSMany } = require('./servercontrollers/ipsNewRecord');
 const { addIPSFromBundle } = require("./servercontrollers/ipsNewRecordFromBundle");
 const { addIPSFromBEER } = require("./servercontrollers/ipsNewRecordFromBEER");
@@ -143,19 +143,22 @@ api.use((req, res, next) => {
 
     res.send = async function (body) {
         try {
-            console.log("body is: ", body);
+            //console.log("body is: ", body);
             let modifiedBody = body;
             const acceptEncoding = req.headers["accept-encoding"] || "";
             const isInternalCall = req.headers["sec-fetch-site"] === "same-origin";
+            const acceptExtra = req.headers["accept-extra"] || "";
             const acceptEncryption = req.headers["accept-encryption"] || "";
 
             let isCompressed = false;
-            let isBase64 = acceptEncoding.includes("base64");
+            let isBase64 = acceptEncoding.includes("base64") || acceptExtra.includes("base64");
 
             let gzipReq = false;
 
+            //console.log(req.headers);
+
             // Apply compression if requested and not an internal call
-            if ((acceptEncoding.includes("gzip") || acceptEncoding.includes("insomzip")) && !isInternalCall) {
+            if ((acceptEncoding.includes("gzip") && !isInternalCall) || acceptEncoding.includes("insomzip") || acceptExtra.includes("insomzip")) {
                 gzipReq = true;
                 console.log("Returning response using gzip compression...");
                 // Convert body to string if it's an object
@@ -190,8 +193,13 @@ api.use((req, res, next) => {
                 console.log("modifiedBody: ", modifiedBody);
 
                 // Encrypt the data directly
-                const { encryptedData, iv } = encrypt(modifiedBody, isBase64); // Pass flag for Base64 encoding
-                modifiedBody = JSON.stringify({ encryptedData, iv });
+                if (acceptExtra.includes("includeKey")) {
+                    const { encryptedData, iv, key } = encrypt(modifiedBody, isBase64); // Pass flag for Base64 encoding
+                    modifiedBody = JSON.stringify({ encryptedData, iv, key });
+                } else {
+                    const { encryptedData, iv } = encrypt(modifiedBody, isBase64); // Pass flag for Base64 encoding
+                    modifiedBody = JSON.stringify({ encryptedData, iv });
+                }
 
                 console.log("Return payload: ", modifiedBody);
                 // Set headers

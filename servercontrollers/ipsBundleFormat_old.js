@@ -1,24 +1,16 @@
-const { v4: uuidv4, validate: isValidUUID } = require('uuid');
-const { IPSModel } = require('../models/IPSModel');
+const { v4: uuidv4 } = require('uuid');
+const { resolveId } = require('../utils/resolveId');
 const { SQLToMongoSingle } = require('./MySQLHelpers/SQLToMongo');
 
 // Helper function to check if a string contains a number
 const containsNumber = (str) => /\d/.test(str);
 
-function getIPSLegacyBundle(req, res) {
+async function getIPSLegacyBundle(req, res) {
     const id = req.params.id;
-    let query;
 
-    // Check if the provided ID is a valid UUID
-    if (isValidUUID(id)) {
-        // Search using packageUUID if it is a valid UUID
-        query = IPSModel.findOne({ where: { packageUUID: id } });
-    } else {
-        // Otherwise, search by primary key (id)
-        query = IPSModel.findByPk(id);
-    }
+    try {
+        const ips = await resolveId(id);
 
-    query.then(async (ips) => {
         if (!ips) {
             return res.status(404).json({ message: "IPS record not found" });
         }
@@ -196,10 +188,9 @@ function getIPSLegacyBundle(req, res) {
         };
 
         res.json(bundle);
-    })
-    .catch((err) => {
-        res.status(400).send(err);
-    });
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
 }
 
 module.exports = { getIPSLegacyBundle };

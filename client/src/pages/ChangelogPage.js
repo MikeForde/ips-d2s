@@ -442,6 +442,17 @@ function ChangeLogPage() {
                                 <li>Introduced support for Base64-encoded encryption via <code>content-encoding: base64</code> and <code>accept-encoding: base64</code> headers</li>
                             </ul>
                         </li>
+                        <li>
+                            <h5>Version 0_49 - 5th December 2024</h5>
+                            <ul>
+                                <li><strong>Enhanced ID Handling and Compression/Encryption Preview</strong></li>
+                                <li>Implemented logic to seamlessly handle IPS records with non-UUID identifiers</li>
+                                <li>All API endpoints now support retrieving records using non-UUID identifiers, resolving issues where such records could not be accessed after creation via API calls using those identifiers</li>
+                                <li>New checkbox feature on API Page allows users to toggle encryption and compression for API responses</li>
+                                <li>The existing file size display can then be used for comparisons</li>
+                                <li>Likewise, the download feature can then be used for the compressed/encrypted versions</li>
+                            </ul>
+                        </li>
                     </ul>
                 </Col>
             </Row>

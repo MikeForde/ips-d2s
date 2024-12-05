@@ -1,25 +1,16 @@
-const { validate: isValidUUID } = require('uuid');
-const { IPSModel } = require('../models/IPSModel');
+const { resolveId } = require('../utils/resolveId');
 const { SQLToMongoSingle } = require('./MySQLHelpers/SQLToMongo');
 
 async function getMongoFormatted(req, res) {
-  const id = req.params.id;
-  let query;
-
-  // Check if the provided ID is a valid UUID
-  if (isValidUUID(id)) {
-    // Search using packageUUID if it is a valid UUID
-    query = IPSModel.findOne({ where: { packageUUID: id } });
-  } else {
-    // Otherwise, search by primary key (id)
-    query = IPSModel.findByPk(id);
-  }
+  const {id} = req.params;
 
   try {
-    const ips = await query;
+    // Resolve the ID and fetch the IPS record
+    const ips = await resolveId(id);
 
+    // If the record is not found, return a 404 error
     if (!ips) {
-      return res.status(404).json({ message: "IPS record not found" });
+        return res.status(404).send('IPS record not found');
     }
 
     // Transform the IPS record to the desired format

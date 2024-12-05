@@ -1,23 +1,13 @@
-const { IPSModel } = require('../models/IPSModel');
-const { validate: isValidUUID } = require('uuid');
+const { resolveId } = require('../utils/resolveId');
 const { SQLToMongoSingle } = require('./MySQLHelpers/SQLToMongo');
 
 // Define the getIPSBasic function
-const getIPSBasic = async (req, res) => {
+async function getIPSBasic(req, res) {
     const id = req.params.id;
-    let query;
-
-    // Check if the provided ID is a valid UUID
-    if (isValidUUID(id)) {
-        // Search using packageUUID if it is a valid UUID
-        query = IPSModel.findOne({ where: { packageUUID: id } });
-    } else {
-        // Otherwise, search by primary key (id)
-        query = IPSModel.findByPk(id);
-    }
-
+    
     try {
-        const ipsRecord = await query;
+        // Resolve the ID and fetch the IPS record
+        const ipsRecord = await resolveId(id);
 
         // If the record is not found, return a 404 error
         if (!ipsRecord) {
@@ -88,4 +78,4 @@ const getIPSBasic = async (req, res) => {
 };
 
 // Export the getIPSBasic function
-module.exports = getIPSBasic;
+module.exports = { getIPSBasic };
