@@ -1,6 +1,6 @@
-const { generateIPSHL72_8 } = require('./servercontrollerfuncs/generateIPSHL72_8');
+const { generateIPSHL72_x } = require('./servercontrollerfuncs/generateIPSHL72_x');
 
-function convertMongoToHL72_8(req, res) {
+function convertMongoToHL72_x(req, res) {
   let mongoRecord;
 
   // Check if 'data' is already an object or needs to be parsed from a string
@@ -25,13 +25,13 @@ function convertMongoToHL72_8(req, res) {
   }
 
   try {
-    const hl728Data = generateIPSHL72_8(mongoRecord);
+    const hl728Data = generateIPSHL72_x(mongoRecord);
     res.send(hl728Data);
   } catch (error) {
-    console.error('Error converting to HL7 2.8 format:', error);
-    res.status(500).send('Error converting to HL7 2.8 format');
+    console.error('Error converting to HL7 2.3 format:', error);
+    res.status(500).send('Error converting to HL7 2.3 format');
   }
 }
 
-module.exports = { convertMongoToHL72_8 };
+module.exports = { convertMongoToHL72_x };
 

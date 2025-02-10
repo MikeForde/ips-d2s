@@ -6,6 +6,8 @@ function convertIPSBundleToSchema(ipsBundle) {
     patient.practitioner = "Unknown";
     let dosage = "";
     let name = "";
+    let medcode = null;
+    let medsystem = null;
 
     // Initialize arrays to store medication, allergy, condition, and observation information
     let medication = [];
@@ -13,6 +15,9 @@ function convertIPSBundleToSchema(ipsBundle) {
     let conditions = [];
     let observations = [];
     let immunizations = [];
+
+    // Create a map for Medication resources (keyed by resource.id)
+    let medicationResourceMap = {};
 
     // Iterate over each entry in the IPS Bundle
     for (const entryItem of entry) {
@@ -27,6 +32,7 @@ function convertIPSBundleToSchema(ipsBundle) {
                 patient.gender = (resource.gender !== undefined) ? resource.gender : "Unknown";
                 patient.nation = resource.address[0].country;
                 break;
+
             case "Practitioner":
                 if (resource.name[0].text !== undefined) {
                     patient.practitioner = resource.name[0].text;
@@ -36,13 +42,15 @@ function convertIPSBundleToSchema(ipsBundle) {
                     patient.practitioner = "Unknown";
                 }
                 break;
+
             case "Organization":
-                if(resource.name !== undefined) {
+                if (resource.name !== undefined) {
                     patient.organization = resource.name;
                 } else {
                     patient.organization = "Unknown";
                 }
                 break;
+
             case "MedicationStatement":
                 if (resource.dosage[0].text !== undefined) {
                     dosage = resource.dosage[0].text;
@@ -52,13 +60,25 @@ function convertIPSBundleToSchema(ipsBundle) {
                         dosage += " " + resource.dosage[0].timing.repeat.frequency + resource.dosage[0].timing.repeat.periodUnit;
                     }
                 }
+                // Create a medication entry.
+                // If medicationReference is present and has a reference id, capture it for later matching.
+                let medRef = undefined;
+                if (resource.medicationReference && resource.medicationReference.reference) {
+                    medRef = resource.medicationReference.reference;
+                }
                 medication.push({
-                    name: resource.medicationReference.display,
+                    name: resource.medicationReference.display, // display name
                     date: new Date(resource.effectivePeriod.start).toISOString(),
-                    dosage: dosage
+                    dosage: dosage,
+                    system: null, // to be added from Medication resource if available
+                    code: null,   // to be added from Medication resource if available
+                    status: "Unknown",
+                    medRef: medRef  // temporary field to aid matching
                 });
                 break;
+
             case "MedicationRequest":
+                // Process dosage
                 if (resource.dosageInstruction[0].text !== undefined) {
                     dosage = resource.dosageInstruction[0].text;
                 } else if (resource.dosageInstruction[0].timing !== undefined) {
@@ -66,43 +86,83 @@ function convertIPSBundleToSchema(ipsBundle) {
                 } else {
                     dosage = "Unknown";
                 }
-                if (resource.medicationReference != undefined) {
-                    name = resource.medicationReference.display
-                } else if (resource.medicationCodeableConcept != undefined) {
-                    name = resource.medicationCodeableConcept.text
-                } else if (name = resource.contained != undefined) {
-                    name = resource.contained[0].code.text
+                // Initialize variables for medication name and reference
+                medsystem = null;
+                medcode = null;
+                let medReferenceId = undefined;
+                if (resource.medicationReference !== undefined) {
+                    // medicationReference contains a reference id and a display value.
+                    name = resource.medicationReference.display;
+                    if (resource.medicationReference.reference) {
+                        medReferenceId = resource.medicationReference.reference;
+                    }
+                } else if (resource.medicationCodeableConcept !== undefined) {
+                    name = resource.medicationCodeableConcept.text;
+                    medsystem = (resource.medicationCodeableConcept.coding[0].system !== undefined)
+                        ? resource.medicationCodeableConcept.coding[0].system
+                        : null;
+                    medcode = (resource.medicationCodeableConcept.coding[0].code !== undefined)
+                        ? resource.medicationCodeableConcept.coding[0].code
+                        : null;
+                } else if (resource.contained !== undefined) {
+                    name = resource.contained[0].code.text;
                 } else {
                     name = "Unknown";
                 }
+
                 medication.push({
                     name: name,
                     date: new Date(resource.authoredOn).toISOString(),
-                    dosage: dosage
+                    dosage: dosage,
+                    system: medsystem,  // if available from medicationCodeableConcept
+                    code: medcode,      // if available from medicationCodeableConcept
+                    status: resource.status ? resource.status : "Unknown",
+                    medRef: medReferenceId  // temporary field for matching later
                 });
                 break;
+
+            case "Medication":
+                // Store the Medication resource data in the map so that it can later be applied to any
+                // medication entries referencing it.
+                if (resource.code && resource.code.coding && resource.code.coding[0]) {
+                    medicationResourceMap[resource.id] = {
+                        name: resource.code.coding[0].display,
+                        system: resource.code.coding[0].system,
+                        code: resource.code.coding[0].code
+                    };
+                }
+                break;
+
             case "AllergyIntolerance":
                 allergies.push({
                     name: resource.code.coding[0].display,
                     criticality: resource.criticality,
-                    date: new Date(resource.onsetDateTime).toISOString()
+                    date: new Date(resource.onsetDateTime).toISOString(),
+                    system: resource.code.coding[0].system !== undefined ? resource.code.coding[0].system : null,
+                    code: resource.code.coding[0].code !== undefined ? resource.code.coding[0].code : null
                 });
                 break;
+
             case "Condition":
                 conditions.push({
                     name: resource.code.coding[0].display,
                     // If not onsetDateTime, use the current date
-                    date: (resource.onsetDateTime !== undefined) ? new Date(resource.onsetDateTime).toISOString() : new Date().toISOString()
+                    date: resource.onsetDateTime !== undefined
+                        ? new Date(resource.onsetDateTime).toISOString()
+                        : new Date().toISOString(),
+                    system: resource.code.coding[0].system !== undefined ? resource.code.coding[0].system : null,
+                    code: resource.code.coding[0].code !== undefined ? resource.code.coding[0].code : null
                 });
                 break;
+
             case "Observation":
                 const observation = {
                     name: resource.code.coding[0].display,
                 };
-                if(resource.effectiveDateTime !== undefined){
-                    observation.date  = new Date(resource.effectiveDateTime).toISOString()
+                if (resource.effectiveDateTime !== undefined) {
+                    observation.date = new Date(resource.effectiveDateTime).toISOString()
                 } else if (resource.issued !== undefined) {
-                    observation.date  = new Date(resource.issued).toISOString()
+                    observation.date = new Date(resource.issued).toISOString()
                 }
                 if (resource.valueQuantity !== undefined) {
                     observation.value = `${resource.valueQuantity.value} ${resource.valueQuantity.unit}`;
@@ -113,12 +173,13 @@ function convertIPSBundleToSchema(ipsBundle) {
                 }
                 observations.push(observation);
                 break;
+
             case "Immunization":
                 // Extract the first code and occurrenceDateTime
                 const immunizationCode = resource.vaccineCode.coding[0].code;
                 const immunizationSystem = resource.vaccineCode.coding[0].system;
                 const immunizationDate = new Date(resource.occurrenceDateTime).toISOString();
-                
+
                 immunizations.push({
                     name: immunizationCode,
                     system: immunizationSystem,
@@ -129,6 +190,22 @@ function convertIPSBundleToSchema(ipsBundle) {
                 break;
         }
     }
+
+    // Post-process the medication array:
+    // For any medication entry that has a medication reference (medRef) and there is a corresponding
+    // Medication resource in our map, update the entry with system and code.
+    medication = medication.map((med) => {
+        if (med.medRef && medicationResourceMap[med.medRef]) {
+            // Update with the data from the Medication resource
+            med.system = medicationResourceMap[med.medRef].system;
+            med.code = medicationResourceMap[med.medRef].code;
+            // Optionally, could also override the name if needed:
+            // med.name = medicationResourceMap[med.medRef].name;
+        }
+        // Remove the temporary medRef field before returning the final object.
+        delete med.medRef;
+        return med;
+    });
 
     return { packageUUID, timeStamp, patient, medication, allergies, conditions, observations, immunizations };
 }

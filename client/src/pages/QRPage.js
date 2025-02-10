@@ -44,7 +44,7 @@ function QRPage() {
         axios.get(endpoint)
           .then(response => {
             let responseData;
-            if (mode === 'ipsminimal' || mode === 'ipsbeer' || mode === 'ipsbeerwithdelim' || mode === 'ipshl728') {
+            if (mode === 'ipsminimal' || mode === 'ipsbeer' || mode === 'ipsbeerwithdelim' || mode === 'ipshl72x') {
               responseData = response.data;
             } else {
               responseData = JSON.stringify(response.data);
@@ -103,15 +103,9 @@ function QRPage() {
         </div>
         {selectedPatients.length > 0 && selectedPatient && <>
           <div className="dropdown-container">
-            <DropdownButton id="dropdown-record" title={`Patient: ${selectedPatient.patient.given} ${selectedPatient.patient.name}`} 
-            //onSelect={handleRecordChange} 
-            className="dropdown-button">
+            <DropdownButton id="dropdown-record" title={`Patient: ${selectedPatient.patient.given} ${selectedPatient.patient.name}`} onSelect={handleRecordChange} className="dropdown-button">
               {selectedPatients.map(record => (
-                <Dropdown.Item 
-                key={record._id} 
-                //eventKey={record._id} 
-                onClick={() => handleRecordChange(record._id)} 
-                active={selectedPatient && selectedPatient._id === record._id}>
+                <Dropdown.Item key={record._id} eventKey={record._id} active={selectedPatient && selectedPatient._id === record._id}>
                   {record.patient.given} {record.patient.name}
                 </Dropdown.Item>
               ))}
@@ -120,13 +114,14 @@ function QRPage() {
           <div className="dropdown-container">
             <DropdownButton id="dropdown-mode" title={`Mode: ${mode}`} onSelect={handleModeChange} className="dropdown-button">
               <Dropdown.Item eventKey="ipsurl">IPS URL</Dropdown.Item>
+              <Dropdown.Item eventKey="ipsunified">IPS Unified JSON Bundle</Dropdown.Item>
               <Dropdown.Item eventKey="ips">IPS JSON Bundle</Dropdown.Item>
               <Dropdown.Item eventKey="ipsbasic">IPS Minimal</Dropdown.Item>
               <Dropdown.Item eventKey="ipsmongo">IPS MongoDB</Dropdown.Item>
               <Dropdown.Item eventKey="ipslegacy">IPS Legacy JSON Bundle</Dropdown.Item>
               <Dropdown.Item eventKey="ipsbeer">IPS BEER (newline)</Dropdown.Item>
               <Dropdown.Item eventKey="ipsbeerwithdelim">IPS BEER with Delimiter (pipe |)</Dropdown.Item>
-              <Dropdown.Item eventKey="ipshl728">IPS HL7 v2.8</Dropdown.Item>
+              <Dropdown.Item eventKey="ipshl72x">IPS HL7 v2.3</Dropdown.Item>
             </DropdownButton>
           </div>
         </>}

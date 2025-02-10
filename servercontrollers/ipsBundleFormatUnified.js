@@ -1,78 +1,78 @@
-const { v4: uuidv4 } = require('uuid');
 const { resolveId } = require('../utils/resolveId');
+//const { v4: uuidv4 } = require('uuid');
 const { SQLToMongoSingle } = require('./MySQLHelpers/SQLToMongo');
+
 
 // Helper function to check if a string contains a number
 const containsNumber = (str) => /\d/.test(str);
 
-async function getIPSLegacyBundle(req, res) {
+async function getIPSUnifiedBundle(req, res) {
     const id = req.params.id;
 
-    try {
-        const ips = await resolveId(id);
+    var medcount = 0;
+    var algcount = 0;
+    var condcount = 0;
+    var obscount = 0;
 
-        if (!ips) {
+    try {
+        const ipssql = await resolveId(id);
+
+        if (!ipssql) {
             return res.status(404).json({ message: "IPS record not found" });
         }
 
         // Transform the IPS record to the desired format
-        const transformedIps = await SQLToMongoSingle(ips);
+        const ips = await SQLToMongoSingle(ipssql);
 
-        // Constructing the JSON structure
+        // Construct the JSON structure
         const bundle = {
             resourceType: "Bundle",
-            id: transformedIps.packageUUID, // First ID is the packageUUID
-            timestamp: transformedIps.timeStamp, // Time stamp
+            id: ips.packageUUID, // First ID is the packageUUID
+            timestamp: ips.timeStamp, // Time stamp
             type: "collection",
-            total: 2 + (transformedIps.medication.length * 2) + transformedIps.allergies.length + transformedIps.conditions.length + transformedIps.observations.length + transformedIps.immunizations.length, // Total resources
+            total: 2 + (ips.medication.length * 2) + ips.allergies.length + ips.conditions.length + ips.observations.length,
             entry: [
                 {
                     resource: {
                         resourceType: "Patient",
-                        id: uuidv4(), // Generate UUID for patient ID
+                        id: "pt1",
                         name: [
                             {
-                                family: transformedIps.patient.name,
-                                text: `${transformedIps.patient.given} ${transformedIps.patient.name}`,
-                                given: [transformedIps.patient.given, transformedIps.patient.given.charAt(0)],
+                                family: ips.patient.name,
+                                given: [ips.patient.given],
                             },
                         ],
-                        gender: transformedIps.patient.gender,
-                        birthDate: transformedIps.patient.dob, // Date of birth
+                        gender: ips.patient.gender,
+                        birthDate: ips.patient.dob,
                         address: [
                             {
-                                country: transformedIps.patient.nation, // Nationality
+                                country: ips.patient.nation,
                             },
                         ],
                     },
                 },
                 {
                     resource: {
-                        resourceType: "Practitioner",
-                        id: uuidv4(), // Generate UUID for practitioner ID
-                        name: [
-                            {
-                                text: transformedIps.patient.practitioner, // Practitioner name
-                            },
-                        ],
-                    },
+                        resourceType: "Organization",
+                        id: "org1",
+                        name: ips.patient.organization,
+                    }, 
                 },
                 // Medication entries
-                ...transformedIps.medication.flatMap((med) => [
+                ...ips.medication.flatMap((med) => [
                     {
                         resource: {
                             resourceType: "MedicationRequest",
-                            id: uuidv4(), // Generate UUID for medication request ID
+                            id: "medreq" + ++medcount,
                             intent: "order",
                             medicationReference: {
-                                reference: `urn:uuid:${uuidv4()}`, // Generate UUID for medication reference
-                                display: med.name, // Medication name
+                                reference: "med" + medcount,
+                                display: med.name,
                             },
-                            authoredOn: med.date, // Date
+                            authoredOn: med.date,
                             dosageInstruction: [
                                 {
-                                    text: med.dosage, // Dosage
-                                    // Other dosage instructions
+                                    text: med.dosage,
                                 },
                             ],
                         },
@@ -80,7 +80,7 @@ async function getIPSLegacyBundle(req, res) {
                     {
                         resource: {
                             resourceType: "Medication",
-                            id: uuidv4(), // Generate UUID for medication ID
+                            id: "med" + medcount,
                             code: {
                                 coding: [
                                     {
@@ -94,10 +94,10 @@ async function getIPSLegacyBundle(req, res) {
                     },
                 ]),
                 // Allergy entries
-                ...transformedIps.allergies.map((allergy) => ({
+                ...ips.allergies.map((allergy) => ({
                     resource: {
                         resourceType: "AllergyIntolerance",
-                        id: uuidv4(), // Generate UUID for allergy ID
+                        id: "allergy" + ++algcount,
                         category: ["medication"],
                         criticality: "high",
                         code: {
@@ -109,14 +109,14 @@ async function getIPSLegacyBundle(req, res) {
                                 },
                             ],
                         },
-                        onsetDateTime: allergy.date, // Onset date
+                        onsetDateTime: allergy.date,
                     },
                 })),
                 // Condition entries
-                ...transformedIps.conditions.map((condition) => ({
+                ...ips.conditions.map((condition) => ({
                     resource: {
                         resourceType: "Condition",
-                        id: uuidv4(), // Generate UUID for condition ID
+                        id: "condition" + ++condcount,
                         code: {
                             coding: [
                                 {
@@ -126,12 +126,12 @@ async function getIPSLegacyBundle(req, res) {
                                 },
                             ],
                         },
-                        onsetDateTime: condition.date, // Onset date
+                        onsetDateTime: condition.date,
                     },
                 })),
                 // Observation entries
-                ...transformedIps.observations.map((observation) => {
-                    const observationUUID = uuidv4();
+                ...ips.observations.map((observation) => {
+                    const observationUUID = "ob" + ++obscount;
                     let observationResource = {
                         resource: {
                             resourceType: "Observation",
@@ -145,13 +145,12 @@ async function getIPSLegacyBundle(req, res) {
                                     },
                                 ],
                             },
-                            effectiveDateTime: observation.date, // Effective date
+                            effectiveDateTime: observation.date,
                         }
                     };
 
                     if (observation.value) {
                         if (containsNumber(observation.value)) {
-                            // Value contains a number, assume it's numerical value with units
                             const valueMatch = observation.value.match(/(\d+\.?\d*)(\D+)/);
                             if (valueMatch) {
                                 observationResource.resource.valueQuantity = {
@@ -162,7 +161,6 @@ async function getIPSLegacyBundle(req, res) {
                                 };
                             }
                         } else {
-                            // Value is just text, assume it's body site related
                             observationResource.resource.bodySite = {
                                 coding: [
                                     {
@@ -175,23 +173,6 @@ async function getIPSLegacyBundle(req, res) {
 
                     return observationResource;
                 }),
-                // Immunization entries
-                ...transformedIps.immunizations.map((immunization) => ({
-                    resource: {
-                        resourceType: "Immunization",
-                        id: uuidv4(), // Generate UUID for immunization ID
-                        status: "completed",
-                        vaccineCode: {
-                            coding: [
-                                {
-                                    system: immunization.system, // Immunization coding system
-                                    code: immunization.name, // Immunization name/code
-                                },
-                            ],
-                        },
-                        occurrenceDateTime: immunization.date, // Immunization date
-                    },
-                })),
             ],
         };
 
@@ -201,4 +182,4 @@ async function getIPSLegacyBundle(req, res) {
     }
 }
 
-module.exports = { getIPSLegacyBundle };
+module.exports = { getIPSUnifiedBundle };

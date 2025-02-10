@@ -25,7 +25,9 @@ function generateIPSBundle(ipsRecord) {
                 "code": {
                     "coding": [
                         {
-                            "display": med.name
+                            "display": med.name,
+                            "system": med.system,
+                            "code": med.code
                         }
                     ]
                 }
@@ -76,7 +78,9 @@ function generateIPSBundle(ipsRecord) {
                 "code": {
                     "coding": [
                         {
-                            "display": allergy.name
+                            "display": allergy.name,
+                            "system": allergy.system,
+                            "code": allergy.code
                         }
                     ]
                 },
@@ -100,7 +104,9 @@ function generateIPSBundle(ipsRecord) {
                 "code": {
                     "coding": [
                         {
-                            "display": condition.name
+                            "display": condition.name,
+                            "system": condition.system,
+                            "code": condition.code
                         }
                     ]
                 },
@@ -123,7 +129,9 @@ function generateIPSBundle(ipsRecord) {
                 "code": {
                     "coding": [
                         {
-                            "display": observation.name
+                            "display": observation.name,
+                            "system": observation.system,
+                            "code": observation.code
                         }
                     ]
                 },

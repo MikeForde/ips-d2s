@@ -1,9 +1,9 @@
 const { resolveId } = require('../utils/resolveId');
-const { generateIPSHL72_8 } = require('./servercontrollerfuncs/generateIPSHL72_8');
+const { generateIPSHL72_x } = require('./servercontrollerfuncs/generateIPSHL72_x');
 const { SQLToMongoSingle } = require('./MySQLHelpers/SQLToMongo');
 
 // Define the getIPSHL72_8 function
-async function getIPSHL72_8 (req, res) {
+async function getIPSHL72_x (req, res) {
     const { id } = req.params;
     
     try {
@@ -19,17 +19,17 @@ async function getIPSHL72_8 (req, res) {
         const transformedIpsRecord = await SQLToMongoSingle(ipsRecord);
 
         // Convert the IPS record to HL7 2.8 format
-        const hl728Data = generateIPSHL72_8(transformedIpsRecord);
+        const hl728Data = generateIPSHL72_x(transformedIpsRecord);
 
         // Send the plain text response
         res.set('Content-Type', 'text/plain');
         res.send(hl728Data);
     } catch (error) {
-        console.error('Error fetching HL7 2.8 record format:', error);
+        console.error('Error fetching HL7 2.3 record format:', error);
         res.status(500).send('Internal Server Error');
     }
 };
 
 // Export the getIPSHL72_8 function
-module.exports = { getIPSHL72_8 };
+module.exports = { getIPSHL72_x };
 

@@ -30,7 +30,10 @@ async function MongoToSQL(data) {
     transformedData.medications = data.medication.map(med => ({
       name: med.name,
       date: med.date,
-      dosage: med.dosage
+      dosage: med.dosage,
+      system: med.system,
+      code: med.code,
+      status: med.status
     }));
   }
 
@@ -38,14 +41,18 @@ async function MongoToSQL(data) {
     transformedData.allergies = data.allergies.map(allergy => ({
       name: allergy.name,
       criticality: allergy.criticality,
-      date: allergy.date
+      date: allergy.date,
+      system: allergy.system,
+      code: allergy.code
     }));
   }
 
   if (data.conditions && data.conditions.length > 0) {
     transformedData.conditions = data.conditions.map(condition => ({
       name: condition.name,
-      date: condition.date
+      date: condition.date,
+      system: condition.system,
+      code: condition.code
     }));
   }
 
@@ -53,7 +60,11 @@ async function MongoToSQL(data) {
     transformedData.observations = data.observations.map(observation => ({
       name: observation.name,
       date: observation.date,
-      value: observation.value
+      value: observation.value,
+      system: observation.system,
+      code: observation.code,
+      valueCode: observation.valueCode,
+      bodySite: observation.bodySite,
     }));
   }
 
@@ -61,7 +72,9 @@ async function MongoToSQL(data) {
     transformedData.immunizations = data.immunizations.map(immunization => ({
       name: immunization.name,
       system: immunization.system,
-      date: immunization.date
+      date: immunization.date,
+      code: immunization.code,
+      status: immunization.status
     }));
   }
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext} from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { Button, Alert, Form, DropdownButton, Dropdown } from 'react-bootstrap';
 import './Page.css';
@@ -9,15 +9,15 @@ function APIGETPage() {
   const { selectedPatients, selectedPatient, setSelectedPatient } = useContext(PatientContext);
   const { startLoading, stopLoading } = useLoading();
   const [data, setData] = useState('');
-  const [mode, setMode] = useState('ips');
-  const [modeText, setModeText] = useState('IPS JSON Bundle - /ips/:id or /ipsbyname/:name/:given');
+  const [mode, setMode] = useState('ipsunified');
+  const [modeText, setModeText] = useState('IPS Unified JSON Bundle - /ipsunified/:id');
   const [showNotification, setShowNotification] = useState(false);
   const [responseSize, setResponseSize] = useState(0);
   const [useCompressionAndEncryption, setUseCompressionAndEncryption] = useState(false);
   const [useIncludeKey, setUseIncludeKey] = useState(false);
 
   const handleRecordChange = (recordId) => {
-    const record = selectedPatients.find(record => record._id === recordId);
+    const record = selectedPatients.find((record) => record._id === recordId);
     startLoading();
     setSelectedPatient(record);
   };
@@ -49,7 +49,7 @@ function APIGETPage() {
           if(useCompressionAndEncryption) {
             setResponseSize(JSON.stringify(response.data).length);
             responseData = JSON.stringify(response.data, null, 2);
-          } else if (mode === 'ipsbasic' || mode === 'ipsbeer' || mode === 'ipsbeerwithdelim' || mode === 'ipshl728') {
+          } else if (mode === 'ipsbasic' || mode === 'ipsbeer' || mode === 'ipsbeerwithdelim' || mode === 'ipshl72x') {
             responseData = response.data;
             setResponseSize(responseData.length);
           } else if (mode === 'ipsxml') {
@@ -72,7 +72,7 @@ function APIGETPage() {
 
       fetchData();
     }
-  }, [selectedPatient, mode, useCompressionAndEncryption, stopLoading, startLoading , useIncludeKey]);
+  }, [selectedPatient, mode, useCompressionAndEncryption, stopLoading, startLoading, useIncludeKey]);
 
   const handleDownloadData = () => {
     const blob = new Blob([data], { type: 'text/plain' });
@@ -90,16 +90,19 @@ function APIGETPage() {
     setMode(selectedMode);
     switch (selectedMode) {
       case 'ips':
-        setModeText('IPS JSON Bundle - /ips/:id or /ipsbyname/:name/:given');
+        setModeText('IPS Prev JSON Bundle - /ips/:id or /ipsbyname/:name/:given');
         break;
       case 'ipsxml':
-        setModeText('IPS XML Bundle - /ipsxml/:id');
+        setModeText('IPS Prev XML Bundle - /ipsxml/:id');
         break;
       case 'ipslegacy':
         setModeText('IPS Legacy JSON Bundle - /ipslegacy/:id');
         break;
-      case 'ipsraw':
-        setModeText('IPS MongoDB - /ipsmongo/:id');
+        case 'ipsunified':
+          setModeText('IPS Unified JSON Bundle - /ipsunified/:id');
+          break;
+      case 'ipsmongo':
+        setModeText('IPS NoSQL - /ipsmongo/:id');
         break;
       case 'ipsbasic':
         setModeText('IPS Minimal - /ipsbasic/:id');
@@ -110,63 +113,67 @@ function APIGETPage() {
       case 'ipsbeerwithdelim':
         setModeText('IPS BEER - /ipsbeer/:id/pipe)');
         break;
-      case 'ipshl728':
-        setModeText('IPS HL7 2.8 - /ipshl728/:id');
+      case 'ipshl72x':
+        setModeText('IPS HL7 2.x - /ipshl72x/:id');
         break;
-     
-        default:
-          setModeText('IPS JSON Bundle - /ips/:id');
-      }
-    };
-  
-    const formatXML = (xml) => {
-      const formatted = xml.replace(/></g, '>\n<');
-      return formatted;
-    };
-  
-    return (
-      <div className="app">
-        <div className="container">
-          <h3>API GET - IPS Data: {responseSize}<div className="noteFont">- /:id can be the IPS id (the main UUID) or the internal database _id</div></h3>
-          {selectedPatients.length > 0 && selectedPatient && (
-            <>
-              <div className="dropdown-container">
-                <DropdownButton 
-                  id="dropdown-record" 
-                  title={`Patient: ${selectedPatient.patient.given} ${selectedPatient.patient.name}`} 
-                  //onSelect={handleRecordChange} // this worked with MERN code??
-                  className="dropdown-button"
-                >
-                  {selectedPatients.map(record => (
-                    <Dropdown.Item 
-                      key={record._id} 
-                      //eventKey={record._id} 
-                      onClick={() => handleRecordChange(record._id)} 
-                      active={selectedPatient && selectedPatient._id === record._id}
-                    >
-                      {record.patient.given} {record.patient.name}
-                    </Dropdown.Item>
-                  ))}
-                </DropdownButton>
-              </div>
-              <div className="dropdown-container">
-                <DropdownButton 
-                  id="dropdown-mode" 
-                  title={`API: ${modeText}`} 
-                  onSelect={handleModeChange} 
-                  className="dropdown-button"
-                >
-                  <Dropdown.Item eventKey="ips">IPS JSON Bundle - /ips/:id or /ipsbyname/:name/:given</Dropdown.Item>
-                  <Dropdown.Item eventKey="ipsxml">IPS XML Bundle - /ipsxml/:id</Dropdown.Item>
-                  <Dropdown.Item eventKey="ipslegacy">IPS Legacy JSON Bundle - /ipslegacy/:id</Dropdown.Item>
-                  <Dropdown.Item eventKey="ipsmongo">IPS MongoDB - /ipsmongo/:id</Dropdown.Item>
-                  <Dropdown.Item eventKey="ipsbasic">IPS Minimal - /ipsbasic/:id</Dropdown.Item>
-                  <Dropdown.Item eventKey="ipsbeer">IPS BEER - /ipsbeer/:id</Dropdown.Item>
-                  <Dropdown.Item eventKey="ipsbeerwithdelim">IPS BEER - /ipsbeer/:id/pipe</Dropdown.Item>
-                  <Dropdown.Item eventKey="ipshl728">IPS HL7 2.8 - /ipshl728/:id</Dropdown.Item>
-                </DropdownButton>
-              </div>
-              <div className="form-check">
+      default:
+        setModeText('IPS Unified JSON Bundle - /ipsunified/:id');
+    }
+  };
+
+  const formatXML = (xml) => {
+    const formatted = xml.replace(/></g, '>\n<');
+    return formatted;
+  };
+
+  return (
+    <div className="app">
+      <div className="container">
+        <h3>
+          API GET - IPS Data: {responseSize}
+          <div className="noteFont">
+            - /:id can be the IPS id (the main UUID) or the internal MongoDB _id
+          </div>
+        </h3>
+        {selectedPatients.length > 0 && selectedPatient && (
+          <>
+            <div className="dropdown-container">
+              <DropdownButton
+                id="dropdown-record"
+                title={`Patient: ${selectedPatient.patient.given} ${selectedPatient.patient.name}`}
+                onSelect={handleRecordChange}
+                className="dropdown-button"
+              >
+                {selectedPatients.map((record) => (
+                  <Dropdown.Item
+                    key={record._id}
+                    eventKey={record._id}
+                    active={selectedPatient && selectedPatient._id === record._id}
+                  >
+                    {record.patient.given} {record.patient.name}
+                  </Dropdown.Item>
+                ))}
+              </DropdownButton>
+            </div>
+            <div className="dropdown-container">
+              <DropdownButton
+                id="dropdown-mode"
+                title={`API: ${modeText}`}
+                onSelect={handleModeChange}
+                className="dropdown-button"
+              >
+                <Dropdown.Item eventKey="ipsunified">IPS Unified JSON Bundle - /ipsunified/:id</Dropdown.Item>
+                <Dropdown.Item eventKey="ipshl72x">IPS HL7 2.3 - /ipshl72x/:id</Dropdown.Item>
+                <Dropdown.Item eventKey="ipsmongo">IPS NoSQL - /ipsmongo/:id</Dropdown.Item>
+                <Dropdown.Item eventKey="ipsbeer">IPS BEER - /ipsbeer/:id</Dropdown.Item>
+                <Dropdown.Item eventKey="ipsbeerwithdelim">IPS BEER - /ipsbeer/:id/pipe</Dropdown.Item>
+                <Dropdown.Item eventKey="ipsbasic">IPS Minimal - /ipsbasic/:id</Dropdown.Item>
+                <Dropdown.Item eventKey="ips">IPS Prev JSON Bundle - /ips/:id or /ipsbyname/:name/:given</Dropdown.Item>
+                <Dropdown.Item eventKey="ipsxml">IPS Prev XML Bundle - /ipsxml/:id</Dropdown.Item>
+                <Dropdown.Item eventKey="ipslegacy">IPS Legacy JSON Bundle - /ipslegacy/:id</Dropdown.Item>
+              </DropdownButton>
+            </div>
+            <div className="form-check">
               <input
                 type="checkbox"
                 className="form-check-input"
@@ -190,32 +197,33 @@ function APIGETPage() {
                 Include key in response
               </label>
             </div>
-            </>
-          )}
-          {showNotification ? (
-            <Alert variant="danger">Data is too large to display. Please try a different mode.</Alert>
-          ) : (
-            <div className="text-area">
-              <Form.Control as="textarea" rows={10} value={data} readOnly />
-            </div>
-          )}
-          <br />
-          <div className="button-container">
-            <Button className="mb-3" onClick={handleDownloadData}>Download Data</Button>
-            {mode === 'ips' && (
-              <Button 
-                variant="primary" 
-                className="mb-3" 
-                onClick={() => window.open('https://ipsviewer.com', '_blank')}
-              >
-                Open IPS Viewer
-              </Button>
-            )}
+          </>
+        )}
+        {showNotification ? (
+          <Alert variant="danger">Data is too large to display. Please try a different mode.</Alert>
+        ) : (
+          <div className="text-area">
+            <Form.Control as="textarea" rows={10} value={data} readOnly />
           </div>
+        )}
+        <br />
+        <div className="button-container">
+          <Button className="mb-3" onClick={handleDownloadData}>
+            Download Data
+          </Button>
+          {mode === 'ips' && (
+            <Button
+              variant="primary"
+              className="mb-3"
+              onClick={() => window.open('https://ipsviewer.com', '_blank')}
+            >
+              Open IPS Viewer
+            </Button>
+          )}
         </div>
       </div>
-    );
-  }
-  
-  export default APIGETPage;
-  
+    </div>
+  );
+}
+
+export default APIGETPage;

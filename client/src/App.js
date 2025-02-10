@@ -1,3 +1,4 @@
+
 // src/App.js
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
@@ -9,9 +10,11 @@ import NavigationBar from './appcomp/NavigationBar';
 import ChangeLogPage from './pages/ChangelogPage';
 import AboutWebAppPage from './pages/AboutWebappPage';
 import APIGETPage from './pages/APIGETPage';
-import OffRoadPage from './pages/OffRoadPage';
-import OffRoadPOSTPage from './pages/OffRoadPOSTPage';
-import NLDPOSTPage from './pages/NLDPOSTPage';
+// import OffRoadPage from './pages/OffRoadPage';
+// import OffRoadPOSTPage from './pages/OffRoadPOSTPage';
+// import NLDPOSTPage from './pages/NLDPOSTPage';
+import UnifiedPostPage from './pages/UnifiedPostPage';
+import UnifiedIPSGetPage from './pages/UnifiedIPSGetPage';
 import BEERGardenPage from './pages/BEERGardenPage';
 import APIDocumentationPage from './pages/APIDocumentationPage';
 import { PatientProvider } from './PatientContext';
@@ -34,11 +37,12 @@ function App() {
               <Route path="/changelog" element={<ChangeLogPage />} />
               <Route path="/aboutwebapp" element={<AboutWebAppPage />} />
               <Route path="/api/:id?" element={<APIGETPage />} />
-              <Route path="/ipsoffroad" element={<OffRoadPage />} />
-              <Route path="/offroadpost/:id?" element={<OffRoadPOSTPage />} />
+              {/* <Route path="/ipsoffroad" element={<OffRoadPage />} />
+              <Route path="/offroadpost/:id?" element={<OffRoadPOSTPage />} /> */}
               <Route path="/beergarden/:id?" element={<BEERGardenPage />} />
               <Route path="/apidocumentation" element={<APIDocumentationPage />} />
-              <Route path="/pushipsnld" element={<NLDPOSTPage />} />
+              <Route path="/puships" element={<UnifiedPostPage />} />
+              <Route path="/fetchips" element={<UnifiedIPSGetPage />} />
             </Routes>
           </div>
         </Router>

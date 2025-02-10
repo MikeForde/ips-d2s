@@ -234,6 +234,8 @@ function generateXMLBundle(ipsRecord) {
                 <code>
                     <coding>
                         <display value="${med.name}"/>
+                        <system value="${med.system}"/>
+                        <code value="${med.code}"/>
                     </coding>
                 </code>
             </Medication>
@@ -254,6 +256,8 @@ function generateXMLBundle(ipsRecord) {
                 <code>
                     <coding>
                         <display value="${allergy.name}"/>
+                        <system value="${allergy.system}"/>
+                        <code value="${allergy.code}"/>
                     </coding>
                 </code>
                 <patient>
@@ -275,6 +279,8 @@ function generateXMLBundle(ipsRecord) {
                 <code>
                     <coding>
                         <display value="${condition.name}"/>
+                        <system value="${condition.system}"/>
+                        <code value="${condition.code}"/>
                     </coding>
                 </code>
                 <subject>
@@ -296,6 +302,8 @@ ipsRecord.observations.forEach((observation, index) => {
                 <code>
                     <coding>
                         <display value="${observation.name}"/>
+                        <system value="${observation.system}"/>
+                        <code value="${observation.code}"/>
                     </coding>
                 </code>
                 <subject>

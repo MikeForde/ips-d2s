@@ -453,6 +453,23 @@ function ChangeLogPage() {
                                 <li>Likewise, the download feature can then be used for the compressed/encrypted versions</li>
                             </ul>
                         </li>
+                        <li>
+                            <h5>Version 0_50 - 10th Feburary 2025</h5>
+                            <ul>
+                                <li><strong>Added Unified Schema Changes</strong></li>
+                                <li>API GET allows the return of an IPS Bundle with the unified schema using the endpoint /ipsunified/:id</li>
+                                <li>Common Code System changes added - system + code - for all clinical resources</li>
+                                <li>HL7 2.x is now 2.3 and not 2.8 but only difference is minor change to MSH segment</li>
+                                <li>IPS FHiR Bundle to Schema conversion still accepts all variations so far used</li>
+                                <li>UI changes made to better accomodate increased number of fields per resource</li>
+                                <li><strong>Generic External GET and POST Pages</strong></li>
+                                <li>Added target drop-down for external endpoint selection (VitalsIQ, NLD, IPS SERN) and allowed manual endpoint editing</li>
+                                <li>Implemented data format selection options: IPS Unified, IPS Prev JSON, and IPS Legacy</li>
+                                <li>Introduced a HL7 wrapper toggle to optionally wrap fetched IPS data</li>
+                                <li>Modified GET page to dynamically construct API calls based on selected data format and endpoint</li>
+                                <li>Updated UI to conditionally render section headers (e.g. Medications, Allergies, Conditions, Observations, Immunizations) only when data is present</li>
+                            </ul>
+                        </li>
                     </ul>
                 </Col>
             </Row>

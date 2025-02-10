@@ -54,29 +54,42 @@ const Medication = sequelize.define('Medication', {
     name: DataTypes.STRING,
     date: DataTypes.DATE,
     dosage: DataTypes.STRING,
+    system: DataTypes.STRING,
+    code: DataTypes.STRING,
+    status: DataTypes.STRING,
 });
 
 const Allergy = sequelize.define('Allergy', {
     name: DataTypes.STRING,
     criticality: DataTypes.STRING,
-    date: DataTypes.DATE
+    date: DataTypes.DATE,
+    system: DataTypes.STRING,
+    code: DataTypes.STRING,
 });
 
 const Condition = sequelize.define('Condition', {
     name: DataTypes.STRING,
-    date: DataTypes.DATE
+    date: DataTypes.DATE,
+    system: DataTypes.STRING,
+    code: DataTypes.STRING,
 });
 
 const Observation = sequelize.define('Observation', {
     name: DataTypes.STRING,
     date: DataTypes.DATE,
-    value: DataTypes.STRING
+    value: DataTypes.STRING,
+    system: DataTypes.STRING,
+    code: DataTypes.STRING,
+    valueCode: DataTypes.STRING,
+    bodySite: DataTypes.STRING,
 });
 
 const Immunization = sequelize.define('Immunization', {
     name: DataTypes.STRING,
     system: DataTypes.STRING,
     date: DataTypes.DATE,
+    code: DataTypes.STRING,
+    status: DataTypes.STRING,
 });
 
 IPSModel.hasMany(Medication, { as: 'medications' });
