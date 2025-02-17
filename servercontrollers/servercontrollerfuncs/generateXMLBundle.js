@@ -15,7 +15,6 @@ function generateXMLBundle(ipsRecord) {
     const observationUUIDs = ipsRecord.observations.map(() => uuidv4());
     const immunizationUUIDs = ipsRecord.immunizations.map(() => uuidv4());
 
-
     // Get current date/time
     const currentDateTime = new Date().toISOString();
 
@@ -163,6 +162,7 @@ function generateXMLBundle(ipsRecord) {
     // Add Patient, Practitioner, and Organization entries
     xml += `
     <entry>
+        <fullUrl value="urn:uuid:${patientUUID}"/>
         <resource>
             <Patient>
                 <id value="${patientUUID}"/>
@@ -179,6 +179,7 @@ function generateXMLBundle(ipsRecord) {
         </resource>
     </entry>
     <entry>
+        <fullUrl value="urn:uuid:${practitionerUUID}"/>
         <resource>
             <Practitioner>
                 <id value="${practitionerUUID}"/>
@@ -189,6 +190,7 @@ function generateXMLBundle(ipsRecord) {
         </resource>
     </entry>
     <entry>
+        <fullUrl value="urn:uuid:${organizationUUID}"/>
         <resource>
             <Organization>
                 <id value="${organizationUUID}"/>
@@ -202,6 +204,7 @@ function generateXMLBundle(ipsRecord) {
         const medicationStatementUUID = medicationStatementUUIDs[index];
         xml += `
     <entry>
+        <fullUrl value="urn:uuid:${medicationStatementUUID}"/>
         <resource>
             <MedicationStatement>
                 <id value="${medicationStatementUUID}"/>
@@ -228,6 +231,7 @@ function generateXMLBundle(ipsRecord) {
     ipsRecord.medication.forEach((med, index) => {
         xml += `
     <entry>
+        <fullUrl value="urn:uuid:${medicationUUIDs[index]}"/>
         <resource>
             <Medication>
                 <id value="${medicationUUIDs[index]}"/>
@@ -247,6 +251,7 @@ function generateXMLBundle(ipsRecord) {
     ipsRecord.allergies.forEach((allergy, index) => {
         xml += `
     <entry>
+        <fullUrl value="urn:uuid:${allergyIntoleranceUUIDs[index]}"/>
         <resource>
             <AllergyIntolerance>
                 <id value="${allergyIntoleranceUUIDs[index]}"/>
@@ -273,6 +278,7 @@ function generateXMLBundle(ipsRecord) {
     ipsRecord.conditions.forEach((condition, index) => {
         xml += `
     <entry>
+        <fullUrl value="urn:uuid:${conditionUUIDs[index]}"/>
         <resource>
             <Condition>
                 <id value="${conditionUUIDs[index]}"/>
@@ -296,6 +302,7 @@ function generateXMLBundle(ipsRecord) {
 ipsRecord.observations.forEach((observation, index) => {
     xml += `
     <entry>
+        <fullUrl value="urn:uuid:${observationUUIDs[index]}"/>
         <resource>
             <Observation>
                 <id value="${observationUUIDs[index]}"/>
@@ -350,6 +357,7 @@ ipsRecord.observations.forEach((observation, index) => {
     ipsRecord.immunizations.forEach((immunization, index) => {
         xml += `
     <entry>
+        <fullUrl value="urn:uuid:${immunizationUUIDs[index]}"/>
         <resource>
             <Immunization>
                 <id value="${immunizationUUIDs[index]}"/>

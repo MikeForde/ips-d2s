@@ -204,8 +204,9 @@ function generateIPSBundle(ipsRecord) {
                 "vaccineCode": {
                     "coding": [
                         {
+                            "display": immunization.name,
                             "system": immunization.system,
-                            "code": immunization.name
+                            "code": immunization.code
                         }
                     ]
                 },

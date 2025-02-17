@@ -25,8 +25,8 @@ function convertMongoToHL72_x(req, res) {
   }
 
   try {
-    const hl728Data = generateIPSHL72_x(mongoRecord);
-    res.send(hl728Data);
+    const hl72xData = generateIPSHL72_x(mongoRecord);
+    res.send(hl72xData);
   } catch (error) {
     console.error('Error converting to HL7 2.3 format:', error);
     res.status(500).send('Error converting to HL7 2.3 format');

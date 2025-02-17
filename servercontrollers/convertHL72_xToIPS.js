@@ -26,11 +26,11 @@ async function convertHL72_xToIPS(req, res) {
         // Generate IPS JSON bundle from MongoDB schema format
         const ipsBundle = generateIPSBundle(ipsRecord);
 
-        // Send the generated IPS JSON bundle as response
+        // Send the generated IPS FHiR JSON bundle as response
         res.json(ipsBundle);
     } catch (error) {
-        console.error('Error converting HL7 2.x to IPS JSON format:', error);
-        res.status(500).send('Error converting HL7 2.x to IPS JSON format');
+        console.error('Error converting HL7 2.x to IPS FHiR JSON format:', error);
+        res.status(500).send('Error converting HL7 2.x to IPS FHiR JSON format');
     }
 }
 

@@ -2,7 +2,7 @@ import React from 'react';
 import { Container, Row, Col, Card } from 'react-bootstrap';
 
 function AboutWebAppPage() {
-    const isHostedOnAzure = window.location.href.includes("localhost");
+    const isHostedOnD2S = window.location.href.includes("d2s");
     return (
         <Container className="mt-5">
             <Row>
@@ -37,7 +37,7 @@ function AboutWebAppPage() {
                     <Card>
                         <Card.Body>
                             <Card.Text>
-                                {!isHostedOnAzure ? (
+                                {isHostedOnD2S ? (
                                     <>
                                         This web application is currently being hosted on a cloud service.<br />
                                         It can be hosted easily on a closed network, and stood-up via standalone Linux, virtual machine (VM), or a container e.g. Docker.

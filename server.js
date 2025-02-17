@@ -13,6 +13,8 @@ const {
     Observation,
     Immunization
 } = require("./models/IPSModel");
+const xml2js = require('xml2js');
+const getRawBody = require('raw-body');
 const { getIPSBundle } = require('./servercontrollers/ipsBundleFormat');
 const { getIPSBundleByName } = require('./servercontrollers/ipsBundleByName');
 const { getORABundleByName } = require('./servercontrollers/oraBundleByName');
@@ -29,6 +31,7 @@ const { addIPS, addIPSMany } = require('./servercontrollers/ipsNewRecord');
 const { addIPSFromBundle } = require("./servercontrollers/ipsNewRecordFromBundle");
 const { addIPSFromBEER } = require("./servercontrollers/ipsNewRecordFromBEER");
 const { addIPSFromCDA } = require('./servercontrollers/addIPSFromCDA');
+const { addIPSFromHL72x } = require('./servercontrollers/ipsNewRecordFromHL72x');
 const { postIPSBundle } = require('./servercontrollers/postIPSBundle');
 const { postIPSBundleNLD } = require('./servercontrollers/postIPSBundleNLD');
 const { postIPSBundleUnified } = require('./servercontrollers/puships');
@@ -42,10 +45,13 @@ const { convertIPSToBEER } = require('./servercontrollers/convertIPSToBEER');
 const { updateIPSByUUID } = require('./servercontrollers/updateIPSRecordByUUID');
 const { convertCDAToIPS } = require('./servercontrollers/convertCDAToIPS');
 const { convertCDAToBEER } = require('./servercontrollers/convertCDAToBEER');
-const { convertHL72_xToMongo} = require('./servercontrollers/convertHL72_xToMongo');
+const { convertCDAToMongo } = require('./servercontrollers/convertCDAToMongo');
+const { convertHL72_xToMongo } = require('./servercontrollers/convertHL72_xToMongo');
 const { convertHL72_xToIPS } = require("./servercontrollers/convertHL72_xToIPS");
 const { gzipDecode, gzipEncode } = require("./compression/gzipUtils");
 const { encrypt, decrypt } = require('./encryption/aesUtils');
+const { convertXmlEndpoint } = require('./servercontrollers/convertXmlEndpoint');
+const { convertFhirXmlEndpoint } = require('./servercontrollers/convertFhirXmlEndpoint');
 
 const { DB_USER, DB_PASSWORD, DB_NAME, DB_HOST } = process.env;
 
@@ -60,6 +66,15 @@ sequelize.authenticate()
 
 const api = express();
 api.use(cors()); // enable CORS on all our requests
+
+// output request data to console
+api.use((req, res, next) => {
+    console.log("Incoming request:", req.method, req.url);
+    console.log("Request headers:", req.headers);
+    //console.log("Request body:", req.body);
+    console.log("Request path:", req.path);
+    next();
+});
 
 // Combined middleware to handle decryption and decompression
 api.use(async (req, res, next) => {
@@ -111,10 +126,25 @@ api.use(async (req, res, next) => {
             }
 
             // Attempt to parse as JSON, fallback to plain text
+            const rawStr = data.toString('utf8');
+
+            // If the endpoint is /test, do not attempt to parse as JSON or XML.
+            if (req.path === '/test') {
+                req.body = rawStr;
+                return next();
+            }
+
             try {
-                req.body = JSON.parse(data.toString('utf8')); // Parse as JSON
-            } catch {
-                req.body = data.toString('utf8'); // Keep as plain text if not JSON
+                // First, try to parse as JSON.
+                req.body = JSON.parse(rawStr);
+            } catch (jsonError) {
+                try {
+                    // Next, try to parse as XML.
+                    req.body = await xml2js.parseStringPromise(rawStr, { explicitArray: false, normalizeTags: false });
+                } catch (xmlError) {
+                    // If both JSON and XML parsing fail, fallback to plain text.
+                    req.body = rawStr;
+                }
             }
 
             next();
@@ -138,7 +168,28 @@ api.use((req, res, next) => {
 });
 api.use(express.urlencoded({ extended: false })); // parses incoming requests with urlencoded payloads
 api.use(express.text());
-api.use(xmlparser());
+api.use(async (req, res, next) => {
+    if (req.path === '/test') {
+        // If Content-Type indicates text, just proceed.
+        if (req.headers['content-type'] && req.headers['content-type'].includes('text')) {
+            return next();
+        }
+        // Otherwise, if not already parsed, read the raw body as UTF-8 text.
+        try {
+            // Only read if req.body is not already set or is empty.
+            if (!req.body || Object.keys(req.body).length === 0) {
+                req.body = await getRawBody(req, { encoding: 'utf8' });
+            }
+            //console.log("Raw text from /test:", req.body);
+            next();
+        } catch (err) {
+            next(err);
+        }
+    } else {
+        // For all other routes, use the XML parser middleware.
+        xmlparser({ normalizeTags: false })(req, res, next);
+    }
+});
 
 // Middleware to handle requests for data to be returned gzipped, encrypted, or both
 api.use((req, res, next) => {
@@ -239,6 +290,7 @@ api.post('/pushipsnld', postIPSBundleNLD);
 api.post('/puships', postIPSBundleUnified);
 api.post('/ipsfrombeer', addIPSFromBEER);
 api.post('/ipsfromcda', addIPSFromCDA);
+api.post('/ipsfromhl72x', addIPSFromHL72x);
 api.post('/convertmongo2beer', convertMongoToBEER);
 api.post('/convertmongo2hl7', convertMongoToHL72_x);
 api.post('/convertbeer2mongo', convertBEERToMongo);
@@ -246,8 +298,12 @@ api.post('/convertbeer2ips', convertBEERToIPS);
 api.post('/convertips2beer', convertIPSToBEER);
 api.post('/convertcdatoips', convertCDAToIPS);
 api.post('/convertcdatobeer', convertCDAToBEER);
+api.post('/convertcdatomongo', convertCDAToMongo);
 api.post('/converthl72xtomongo', convertHL72_xToMongo);
 api.post('/converthl72xtoips', convertHL72_xToIPS)
+api.post('/convertxml', convertXmlEndpoint);
+api.post('/convertfhirxml', convertFhirXmlEndpoint);
+
 // Add a /test POST endpoint for echoing back request data
 api.post('/test', (req, res) => {
     console.log("Request received at /test");
@@ -271,7 +327,7 @@ api.get("/ipsbyname/:name/:given", getIPSBundleByName);
 api.get("/ips/search/:name", getIPSSearch);
 api.get('/fetchipsora/:name/:givenName', getORABundleByName);
 api.get("/fetchips", getIPSBundleGeneric);
-  
+
 // API PUT - CRUD Update
 api.put("/ips/:id", updateIPS);
 api.put("/ipsuuid/:uuid", updateIPSByUUID);

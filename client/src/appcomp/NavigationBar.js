@@ -46,6 +46,8 @@ function NavigationBar() {
     setExpanded(false);
   };
 
+  const isHostedOnD2S = window.location.href.includes("d2s");
+
   return (
     <Navbar expanded={expanded} expand="lg" bg="dark" variant="dark" fixed="top">
       <Container>
@@ -58,7 +60,17 @@ function NavigationBar() {
             alt="IPS Logo"
             style={{ marginRight: '10px' }}
           />
-          IPS SERN D2S 0_50
+          IPS SERN
+          {isHostedOnD2S ? (
+            <>
+              {' '} D2S {' '}
+            </>
+          ) : (
+            <>
+              {' '} Local {' '}
+            </>
+          )}
+          0_52
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" onClick={() => setExpanded(!expanded)} />
         <Navbar.Collapse id="basic-navbar-nav">

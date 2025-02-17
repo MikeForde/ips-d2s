@@ -41,14 +41,14 @@ async function getMongoFormatted(req, res) {
         name: allergy.name,
         criticality: allergy.criticality, 
         date: allergy.date,
-        system: allergy.system,
-        code: allergy.code
+        code: allergy.code,
+        system: allergy.system
       })),
       conditions: transformedIps.conditions.map(condition => ({
         name: condition.name,
         date: condition.date,
-        system: condition.system,
-        code: condition.code
+        code: condition.code,
+        system: condition.system
       })),
       observations: transformedIps.observations.map(observation => ({
         name: observation.name,
@@ -77,6 +77,7 @@ async function getMongoFormatted(req, res) {
       res.json(formattedData);
     }
   } catch (err) {
+    console.error('Error fetching Mongo formatted record:', err);
     res.status(400).send(err);
   }
 }
