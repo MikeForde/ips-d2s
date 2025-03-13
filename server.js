@@ -52,6 +52,8 @@ const { gzipDecode, gzipEncode } = require("./compression/gzipUtils");
 const { encrypt, decrypt } = require('./encryption/aesUtils');
 const { convertXmlEndpoint } = require('./servercontrollers/convertXmlEndpoint');
 const { convertFhirXmlEndpoint } = require('./servercontrollers/convertFhirXmlEndpoint');
+//const { initXMPP_WebSocket } = require("./xmpp/xmppConnection");
+const xmppRoutes = require("./xmpp/xmppRoutes");
 
 const { DB_USER, DB_PASSWORD, DB_NAME, DB_HOST } = process.env;
 
@@ -328,6 +330,9 @@ api.get("/ips/search/:name", getIPSSearch);
 api.get('/fetchipsora/:name/:givenName', getORABundleByName);
 api.get("/fetchips", getIPSBundleGeneric);
 
+// XMPP endpoints
+api.use("/xmpp", xmppRoutes);
+
 // API PUT - CRUD Update
 api.put("/ips/:id", updateIPS);
 api.put("/ipsuuid/:uuid", updateIPSByUUID);
@@ -340,6 +345,15 @@ api.use(express.static(path.join(__dirname, "client", "build")));
 api.get("/*", (req, res) => {
     res.sendFile(path.join(__dirname, "client", "build", "index.html"));
 });
+
+// // Initialize XMPP once
+// initXMPP_WebSocket()
+//   .then(() => {
+//     console.log("XMPP connection initialized.");
+//   })
+//   .catch((err) => {
+//     console.error("Failed to init XMPP:", err);
+//   });
 
 const port = process.env.PORT || 5000;
 api.listen(port, () => {
