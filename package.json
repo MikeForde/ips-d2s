@@ -28,7 +28,8 @@
         "uuid": "^8.3.2",
         "xml-js": "1.6.11",
         "raw-body": "^2.4.0",
-        "@xmpp/client": "0.13.4"
+        "@xmpp/client": "0.13.1",
+        "@xmpp/resolve": "0.13.1"
     },
     "devDependencies": {
         "npm-force-resolutions": "^0.0.10"
