@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Button, Form, Toast } from "react-bootstrap";
+import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
 import "./components.css";
 

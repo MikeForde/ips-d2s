@@ -3,7 +3,6 @@ const express = require("express");
 const axios = require('axios');
 const cors = require("cors");
 const path = require("path");
-const xmlparser = require("express-xml-bodyparser");
 const { Sequelize } = require("sequelize");
 
 const xml2js = require('xml2js');

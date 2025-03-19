@@ -13,9 +13,12 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "axios": "^0.24.0",
+        "@xmpp/client": "0.13.1",
+        "@xmpp/resolve": "0.13.1",
+        "axios": "^1.8.3",
         "concurrently": "^6.4.0",
         "cors": "^2.8.5",
+        "crypto-browserify": "^3.12.1",
         "dotenv": "^10.0.0",
         "express": "^4.19.2",
         "express-xml-bodyparser": "^0.3.0",
@@ -24,12 +27,11 @@
         "mysql2": "^3.10.2",
         "nodemon": "^2.0.15",
         "path": "^0.12.7",
+        "raw-body": "^2.4.0",
+        "react-native-get-random-values": "^1.11.0",
         "sequelize": "^6.37.3",
         "uuid": "^8.3.2",
-        "xml-js": "1.6.11",
-        "raw-body": "^2.4.0",
-        "@xmpp/client": "0.13.1",
-        "@xmpp/resolve": "0.13.1"
+        "xml-js": "1.6.11"
     },
     "devDependencies": {
         "npm-force-resolutions": "^0.0.10"
