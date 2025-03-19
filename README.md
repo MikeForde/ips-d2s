@@ -219,7 +219,7 @@ his API also supports sending and receiving raw binary data via application/octe
   - Compress it with gzip.
   - Encrypt it using AES-256-CBC.
   - Compute the MAC for integrity.
-  - Return a binary payload consisting of [16-byte IV] + [32-byte MAC] + [Encrypted Gzipped Data]
+  - Return a binary payload consisting of [16-byte IV] + [16-byte MAC] + [Encrypted Gzipped Data]
 3. The response will have: 
 - Content-Type: `application/octet-stream`
 - X-Encrypted: true
