@@ -1,6 +1,7 @@
 // servercontrollers/ipsNewRecord.js
 const { IPSModel } = require('../models/IPSModel');
 const { parseHL72_xToMongo} = require('./servercontrollerfuncs/convertHL72_xToSchema');
+const { addIPSRecord } = require('./MySQLHelpers/addIPSRecord');
 
 async function addIPSFromHL72x(req, res) {
     // Extract IPS Bundle from request body

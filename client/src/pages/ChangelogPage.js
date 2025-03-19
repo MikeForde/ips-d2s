@@ -508,6 +508,24 @@ function ChangeLogPage() {
                                 </li>
                             </ul>
                         </li>
+                        <li>
+                            <h5>Version 0_54 - 18th March 2025</h5>
+                            <ul>
+                                <li><strong>Updated Encryption System with HMAC</strong></li>
+                                <li>Encryption and decryption functions to use a 16-byte (128-bit) HMAC instead of the full 32-byte version for compatibility with joint project requirements.</li>
+                                <li>Refactored middleware to validate and process encrypted JSON payloads, ensuring HMAC verification before decryption. Improved error handling and logging for malformed requests.</li>
+                                <li>Encryption now includes the truncated HMAC (16 bytes) alongside the IV and ciphertext, ensuring integrity while reducing payload size.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <h5>Version 0_55 - 19th March 2025</h5>
+                            <ul>
+                                <li><strong>New Raw Binary Format for Encrypted Payloads</strong></li>
+                                <li>Introduced support for <code>application/octet-stream</code> requests and responses, featuring a 16-byte IV, 16-byte HMAC, and gzipped data.</li>
+                                <li>This allows clients to send and receive encrypted &amp; compressed data more efficiently without JSON overhead, improving performance.</li>
+                                <li>Updated documentation to clarify how to use the binary format alongside existing JSON encryption methods.</li>
+                            </ul>
+                        </li>
                     </ul>
                 </Col>
             </Row>

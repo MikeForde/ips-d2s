@@ -196,6 +196,34 @@ To facilitate compatibility and efficient data transfer, the API supports return
 2. Optionally, include the `Accept-Encoding: base64` header to receive the encrypted data and iv encoded in Base64.
 3. The response will be a JSON with two elements: encryptedData and iv.
 
+## Raw Binary Format (IV + MAC + Gzipped Data) 
+his API also supports sending and receiving raw binary data via application/octet-stream. This is useful when you want a single binary payload that includes:
+1. A 16-byte IV (initialization vector).
+2. A 16-byte MAC (HMAC-SHA256 for integrity).
+3. The encrypted + gzipped data.
+
+## Usage Instructions
+
+### Incoming Requests (Raw Binary)
+1. Set the header: `Content-Type: application/octet-stream`
+2. The first 16 bytes of your binary payload must be the IV, the next 16 bytes must be the MAC, and the remainder is the AES-256-CBC-encrypted, gzip-compressed data. 
+3. The server will:
+  - Verify the MAC to check integrity.
+  - Decrypt the payload using AES-256-CBC.
+  - Decompress the result from gzip.
+
+### Responses (Raw Binary)
+1. Send a request with: `Accept: application/octet-stream`
+2. The server will:
+  - Take the plaintext response body.
+  - Compress it with gzip.
+  - Encrypt it using AES-256-CBC.
+  - Compute the MAC for integrity.
+  - Return a binary payload consisting of [16-byte IV] + [32-byte MAC] + [Encrypted Gzipped Data]
+3. The response will have: 
+- Content-Type: `application/octet-stream`
+- X-Encrypted: true
+
 ## Client-Side Pages
 
 | Page                 | Description                                                                                           |

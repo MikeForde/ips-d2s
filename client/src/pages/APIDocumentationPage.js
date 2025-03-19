@@ -122,6 +122,25 @@ function APIDocumentationPage() {
         </>
       ),
     },
+    {
+      feature: 'Raw Binary (IV + MAC + Gzipped Data)',
+      incoming: (
+        <>
+          - Set <code>Content-Type: application/octet-stream</code>.
+          <br />- The payload <strong>must</strong> start with a 16-byte IV, followed by a 16-byte HMAC, and then the gzipped+encrypted data.
+          <br />- The server will verify HMAC, decrypt using AES-256-CBC, then decompress.
+          <br />- No JSON or Base64 fields are required in the body.
+        </>
+      ),
+      outgoing: (
+        <>
+          - Set <code>Accept: application/octet-stream</code> to get a binary response.
+          <br />- The server will compress, encrypt, and prepend 16-byte IV + 16-byte MAC to the payload.
+          <br />- The response has <code>Content-Type: application/octet-stream</code>, and <code>X-Encrypted: true</code>.
+          <br />- You can save this binary file and send it back in future requests.
+        </>
+      ),
+    },
   ];
 
   return (

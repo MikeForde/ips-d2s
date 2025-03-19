@@ -1,5 +1,6 @@
 const { convertIPSBundleToSchema } = require('./servercontrollerfuncs/convertIPSBundleToSchema');
 const { addIPSRecord } = require('./MySQLHelpers/addIPSRecord');
+const { convertFhirXmlToJson } = require('./servercontrollerfuncs/convertFHIRXMLtoJSON');
 
 async function addIPSFromBundle(req, res) {
     // Extract IPS Bundle from request body
