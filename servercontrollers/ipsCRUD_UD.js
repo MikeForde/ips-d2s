@@ -1,7 +1,7 @@
 // servercontrollers/ipsCRUD_UD.js
 const { IPSModel, Medication, Allergy, Condition, Observation, Immunization } = require('../models/IPSModel');
-const { MongoToSQL } = require('./MySQLHelpers/MongoToSQL');
 const { SQLToMongoSingle } = require('./MySQLHelpers/SQLToMongo');
+const { updateSQL } = require('./MySQLHelpers/updateSQL');
 const { Op } = require('sequelize');
 
 async function updateIPS(req, res) {
@@ -24,57 +24,8 @@ async function updateIPS(req, res) {
                 return res.status(404).send("IPS not found.");
             }
 
-            // Transform updated data to MySQL format
-            const transformedData = await MongoToSQL(updatedData);
-
-            // Update patient details
-            Object.assign(ips, transformedData);
-
-            // Delete existing associated records
-            await Medication.destroy({ where: { IPSModelId: id } });
-            await Allergy.destroy({ where: { IPSModelId: id } });
-            await Condition.destroy({ where: { IPSModelId: id } });
-            await Observation.destroy({ where: { IPSModelId: id } });
-            await Immunization.destroy({ where: { IPSModelId: id } });  // Delete immunizations
-
-            // Recreate associated records if they exist in the transformed data
-            if (transformedData.medications) {
-                await Medication.bulkCreate(transformedData.medications.map(med => ({
-                    ...med,
-                    IPSModelId: id
-                })));
-            }
-
-            if (transformedData.allergies) {
-                await Allergy.bulkCreate(transformedData.allergies.map(allergy => ({
-                    ...allergy,
-                    IPSModelId: id
-                })));
-            }
-
-            if (transformedData.conditions) {
-                await Condition.bulkCreate(transformedData.conditions.map(condition => ({
-                    ...condition,
-                    IPSModelId: id
-                })));
-            }
-
-            if (transformedData.observations) {
-                await Observation.bulkCreate(transformedData.observations.map(observation => ({
-                    ...observation,
-                    IPSModelId: id
-                })));
-            }
-
-            if (transformedData.immunizations) {
-                await Immunization.bulkCreate(transformedData.immunizations.map(immunization => ({
-                    ...immunization,
-                    IPSModelId: id
-                })));
-            }
-
-            // Save the updated IPS
-            const updatedIPS = await ips.save();
+            // Use the helper function to update the IPS record
+            const updatedIPS = await updateSQL(ips, updatedData, id);
 
             // Convert back to Mongo format for response
             const mongoFormattedIPS = await SQLToMongoSingle(updatedIPS);

@@ -53,7 +53,9 @@ const { convertFhirXmlEndpoint } = require('./servercontrollers/convertFhirXmlEn
 
 // ───── XMPP ─────
 //const { initXMPP_WebSocket } = require("./xmpp/xmppConnection");
-const xmppRoutes = require("./xmpp/xmppRoutes");
+//const xmppRoutes = require("./xmpp/xmppRoutes");
+
+const { startGrpcServer } = require("./proto/grpcServer");
 
 const { DB_USER, DB_PASSWORD, DB_NAME, DB_HOST } = process.env;
 
@@ -179,7 +181,7 @@ api.get('/fetchipsora/:name/:givenName', getORABundleByName);
 api.get("/fetchips", getIPSBundleGeneric);
 
 // XMPP endpoints
-api.use("/xmpp", xmppRoutes);
+//api.use("/xmpp", xmppRoutes);
 
 // API PUT - CRUD Update
 api.put("/ips/:id", updateIPS);
@@ -207,3 +209,6 @@ const port = process.env.PORT || 5000;
 api.listen(port, () => {
     console.log(`Server is running on port: ${port}`)
 });
+
+// Start the gRPC server
+startGrpcServer();
