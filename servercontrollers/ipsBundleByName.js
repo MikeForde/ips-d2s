@@ -1,5 +1,5 @@
 const { IPSModel } = require('../models/IPSModel');
-const { generateIPSBundle } = require('./servercontrollerfuncs/generateIPSBundle');
+const { pickIPSFormat } = require('../utils/ipsFormatPicker');
 const { SQLToMongoSingle } = require('./MySQLHelpers/SQLToMongo');
 const { Op } = require('sequelize');
 
@@ -25,7 +25,11 @@ async function getIPSBundleByName(req, res) {
         const transformedIps = await SQLToMongoSingle(ips);
 
         // Constructing the JSON structure
-        const bundle = generateIPSBundle(transformedIps);
+        const generateBundleFunction = pickIPSFormat(req.headers['x-ips-format']);
+        const bundle = generateBundleFunction(transformedIps);
+        if (!bundle) {
+            return res.status(500).json({ message: "Error generating IPS bundle" });
+        }
 
         res.json(bundle);
     } catch (err) {

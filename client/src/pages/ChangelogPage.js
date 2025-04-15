@@ -536,6 +536,34 @@ function ChangeLogPage() {
                                 <li>Likewise, the download QR feature can then be used for the compressed/encrypted versions</li>
                             </ul>
                         </li>
+                        <li>
+                            <h5>Version 0_57 - 29th March 2025</h5>
+                            <ul>
+                                <li><strong>MMP PMR API Integration</strong></li>
+                                <li>New feature: IPS records can now be sent as PMR messages to the MMP server.</li>
+                                <li>The PMR message is generated in XML format, with dynamic values for patient ID and demographics.</li>
+                                <li>Note: The MMP server must be accessible to the IPS server. This is typically achieved when the IPS server is on the same intranet or connected via a VPN, as the MMP server is usually not available on the public internet.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <h5>Version 0_58 - 13th April 2025</h5>
+                            <ul>
+                                <li><strong>TAK Endpoint Experiments</strong></li>
+                                <li>POC: IPS records are transmitted using a new POST endpoint /tak/ips with the body containing a JSON with the id (record or packageUUID). IPS data is compressed (gzip) and encoded (Base64), then embedded in a custom XML element to avoid exposing sensitive information in standard displays.</li>
+                                <li>This feature require the presence of a TAK server and proper certificate configuration. The certs folder must contain the appropriate truststore and client PEM files (converted from the original p12 files) to establish secure connections.</li>
+                                <li>Note: The ability to view and process IPS data on ATAK or WinTAK depends on the installation of the corresponding IPS plugin on each platform.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <h5>Version 0_59 - 15th April 2025</h5>
+                            <ul>
+                                <li><strong>Post-Hackathon Changes and IPS Unified As Default</strong></li>
+                                <li>Corrections and changes - some reversions - to accomodate commonality issues in parsing.</li>
+                                <li>BP is now outputted as standard component-based (Systolic + Diastolic) Observation - SNOMED assumed. With compression, the impact on file size is low.</li>
+                                <li>IPS Unified format is made the default, both in-app (e.g., BEER garden and External POST) and for API calls that return an IPS bundle.</li>
+                                <li>For API calls, backwards compatibility is maintained by use of optional header x-ips-format, which can be set to "inter" or "legacy" for the composition-based or original format respectively. The latter retained more for comparison purposes.</li>
+                            </ul>
+                        </li>
                     </ul>
                 </Col>
             </Row>

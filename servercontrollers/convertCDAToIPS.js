@@ -1,6 +1,6 @@
 // Desc: Controller function to convert CDA JSON to IPS JSON format
 const { convertCDAToSchema } = require('./servercontrollerfuncs/convertCDAToSchema');
-const { generateIPSBundle } = require('./servercontrollerfuncs/generateIPSBundle');
+const { pickIPSFormat } = require('../utils/ipsFormatPicker');
 
 async function convertCDAToIPS(req, res) {
     try {
@@ -9,7 +9,8 @@ async function convertCDAToIPS(req, res) {
 
         // Convert CDA JSON to IPS schema
         const ipsRecord = convertCDAToSchema(cdaJSON);
-        const ipsBundle = generateIPSBundle(ipsRecord);
+        const generateBundleFunction = pickIPSFormat(req.headers['x-ips-format']);
+        const ipsBundle = generateBundleFunction(ipsRecord);
         res.json(ipsBundle);
     } catch (error) {
         console.error('Error converting CDA to IPS FHiR JSON format:', error);

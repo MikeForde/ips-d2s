@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
-import { Button, Modal, Form, OverlayTrigger, Tooltip, Row, Col } from "react-bootstrap";
+import { Button, Modal, Form, OverlayTrigger, Tooltip, Row, Col, Alert } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { faFileMedical, faQrcode, faTrash, faBeer, faEdit, faFileExport, faUpload } from '@fortawesome/free-solid-svg-icons';
+import { faFileMedical, faQrcode, faTrash, faBeer, faEdit, faFileExport, faUpload, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
 import { PatientContext } from '../../PatientContext';
@@ -24,6 +24,10 @@ export function IPS({ ips, remove, update }) {
   const [editIPS, setEditIPS] = useState({ ...ips });
   const { setSelectedPatient } = useContext(PatientContext);
   const { startLoading, stopLoading } = useLoading();
+  const [pmrMessage, setPmrMessage] = useState('');
+  const [pmrAlertVariant, setPmrAlertVariant] = useState('success'); // "success" for success, "danger" for errors
+  const [showPmrAlert, setShowPmrAlert] = useState(false);
+
 
   const handleRemove = () => setShowConfirmModal(true);
 
@@ -98,6 +102,28 @@ export function IPS({ ips, remove, update }) {
       {text}
     </Tooltip>
   );
+
+  // Inside your IPS component, add the new function:
+  const handleSendPMR = () => {
+    startLoading();
+    axios.post(`/api/pmr/${ips._id}`)
+      .then(response => {
+        setPmrMessage("PMR Response: " + JSON.stringify(response.data, null, 2));
+        setPmrAlertVariant("success");
+        setShowPmrAlert(true);
+      })
+      .catch(error => {
+        const errorMsg = error.response && error.response.data 
+          ? error.response.data 
+          : error.message;
+        console.error("Error sending PMR:", errorMsg);
+        setPmrMessage(errorMsg);
+        setPmrAlertVariant("danger");
+        setShowPmrAlert(true);
+      })
+      .finally(() => stopLoading());
+  };
+
 
   return (
     <div className="ips">
@@ -306,6 +332,12 @@ export function IPS({ ips, remove, update }) {
           </Button>
         </OverlayTrigger>
 
+        <OverlayTrigger placement="top" overlay={renderTooltip('Send PMR to MMP')}>
+          <Button variant="outline-secondary" className="qr-button custom-button" onClick={handleSendPMR}>
+            <FontAwesomeIcon icon={faPaperPlane} />
+          </Button>
+        </OverlayTrigger>
+
         <OverlayTrigger placement="top" overlay={renderTooltip('Edit IPS Record')}>
           <Button variant="outline-secondary" className="custom-button" onClick={handleEdit}>
             <FontAwesomeIcon icon={faEdit} />
@@ -333,6 +365,12 @@ export function IPS({ ips, remove, update }) {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      {showPmrAlert && (
+        <Alert variant={pmrAlertVariant} onClose={() => setShowPmrAlert(false)} dismissible>
+          <pre>{pmrMessage}</pre>
+        </Alert>
+      )}
 
       <Modal show={showEditModal} onHide={() => setShowEditModal(false)} dialogClassName="edit-modal">
         <Modal.Header closeButton>
@@ -387,10 +425,10 @@ export function IPS({ ips, remove, update }) {
                     onChange={handleEditChange}
                   >
                     <option value="">Select Gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
-                    <option value="Unknown">Unknown</option>
+                    <option value="male">male</option>
+                    <option value="female">female</option>
+                    <option value="other">other</option>
+                    <option value="unknown">unknown</option>
                   </Form.Control>
                 </Form.Group>
               </Col>
@@ -548,9 +586,9 @@ export function IPS({ ips, remove, update }) {
                         onChange={(e) => handleChangeItem("allergies", index, e)}
                       >
                         <option value="">Select Criticality</option>
-                        <option value="High">High</option>
-                        <option value="Medium">Medium</option>
-                        <option value="Low">Low</option>
+                        <option value="high">high</option>
+                        <option value="medium">medium</option>
+                        <option value="low">low</option>
                       </Form.Control>
                     </td>
                     <td>

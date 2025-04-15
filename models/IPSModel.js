@@ -1,5 +1,6 @@
 const { Sequelize, DataTypes } = require('sequelize');
 const dotenv = require('dotenv');
+const { status } = require('@grpc/grpc-js');
 
 // Load environment variables from .env file
 dotenv.config();
@@ -46,6 +47,10 @@ const IPSModel = sequelize.define('IPSModel', {
         type: DataTypes.STRING,
         allowNull: true
     },
+    patientIdentifier: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
 }, {
     tableName: 'ipsAlt'
 });
@@ -82,6 +87,7 @@ const Observation = sequelize.define('Observation', {
     code: DataTypes.STRING,
     valueCode: DataTypes.STRING,
     bodySite: DataTypes.STRING,
+    status: DataTypes.STRING,
 });
 
 const Immunization = sequelize.define('Immunization', {
@@ -107,7 +113,10 @@ Observation.belongsTo(IPSModel);
 IPSModel.hasMany(Immunization, { as: 'immunizations'});
 Immunization.belongsTo(IPSModel);
 
-sequelize.sync({ force: false }).then(() => {
+// Sync all models with the database 
+// This will create the tables if they do not exist and add/remove fields if they have changed
+// Note: This should be removed in production as it can lead to data loss = usual setting is force: false
+sequelize.sync({ alter: true }).then(() => {
     console.log('Database & tables created!');
 });
 

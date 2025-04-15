@@ -6,7 +6,7 @@ function APIDocumentationPage() {
   const apiEndpoints = [
     { method: 'POST', endpoint: '/ips', description: 'Create a new IPS record.', request: 'MongoDb JSON object representing the new IPS record.', response: 'MongoDb JSON object of the created IPS record.' },
     { method: 'POST', endpoint: '/ipsmany', description: 'Create multiple IPS records.', request: 'Array of MongoDb JSON objects representing the new IPS records', response: 'Array of MongoDb JSON objects of the created IPS records.' },
-    { method: 'POST', endpoint: '/ipsbundle', description: 'Create IPS records from an IPS Bundle.', request: 'IPS Bundle - FHiR JSON or XML', response: 'MongoDb - JSON as confirmation of record creation.' },
+    { method: 'POST', endpoint: '/ipsbundle', description: 'Create IPS records from an IPS Bundle.', request: 'IPS Bundle - JSON', response: 'MongoDb - JSON as confirmation of record creation.' },
     { method: 'POST', endpoint: '/pushipsora', description: 'Push IPS data to an external ORA system.', request: 'IPS Bundle - JSON', response: 'Response from the ORA system.' },
     { method: 'POST', endpoint: '/pushipsnld', description: 'Push IPS data to an external NLD system.', request: 'IPS Bundle - JSON', response: 'Response from the NLD system.' },
     { method: 'POST', endpoint: '/ipsfrombeer', description: 'Create MongoDb IPS records from BEER format.', request: 'BEER - Plain Text', response: 'MongoDb - JSON as confirmation of record creation.' },
@@ -15,26 +15,26 @@ function APIDocumentationPage() {
     { method: 'POST', endpoint: '/convertmongo2beer', description: 'Convert MongoDB format to BEER format.', request: 'MongoDB - JSON', response: 'BEER - Plain Text' },
     { method: 'POST', endpoint: '/convertmongo2hl7', description: 'Convert MongoDB format to HL7 2.3 format.', request: 'MongoDB - JSON', response: 'HL7 2.3 - Plain Text' },
     { method: 'POST', endpoint: '/convertbeer2mongo', description: 'Convert BEER format to MongoDB format.', request: 'BEER - Plain Text', response: 'MongoDB - JSON' },
-    { method: 'POST', endpoint: '/convertbeer2ips', description: 'Convert BEER format to IPS JSON format.', request: 'BEER - Plain Text', response: 'IPS Bundle - JSON' },
-    { method: 'POST', endpoint: '/convertips2beer', description: 'Convert IPS JSON format to BEER format.', request: 'IPS Bundle - FHiR JSON or XML', response: 'BEER - Plain Text' },
-    { method: 'POST', endpoint: '/convertcdatoips', description: 'Convert CDA XML format to IPS JSON format.', request: 'CDA - XML', response: 'IPS Bundle - JSON' },
+    { method: 'POST', endpoint: '/convertbeer2ips', description: 'Convert BEER format to IPS JSON format.', request: 'BEER - Plain Text', response: '*Unified IPS format - JSON' },
+    { method: 'POST', endpoint: '/convertips2beer', description: 'Convert IPS JSON format to BEER format.', request: 'IPS Bundle - JSON', response: 'BEER - Plain Text' },
+    { method: 'POST', endpoint: '/convertcdatoips', description: 'Convert CDA XML format to IPS JSON format.', request: 'CDA - XML', response: '*Unified IPS format - JSON' },
     { method: 'POST', endpoint: '/convertcdatobeer', description: 'Convert CDA XML format to BEER format.', request: 'CDA - XML', response: 'BEER - Plain Text' },
     { method: 'POST', endpoint: '/convertcdatomongo', description: 'Convert CDA XML format to MongoDB format.', request: 'CDA - XML', response: 'MongoDB - JSON' },
     { method: 'POST', endpoint: '/converthl72xtomongo', description: 'Convert HL7 2.x format to MongoDB format.', request: 'HL7 2.x - Plain Text', response: 'MongoDB - JSON' },
-    { method: 'POST', endpoint: '/converthl72xtoips', description: 'Convert HL7 2.x format to IPS JSON format.', request: 'HL7 2.x - Plain Text', response: 'IPS Bundle - JSON' },
+    { method: 'POST', endpoint: '/converthl72xtoips', description: 'Convert HL7 2.x format to IPS JSON format.', request: 'HL7 2.x - Plain Text', response: '*Unified IPS format - JSON' },
     { method: 'POST', endpoint: '/convertxml', description: 'Generic convert XML format to JSON format.', request: 'XML', response: 'JSON' },
     { method: 'POST', endpoint: '/convertfhirxml', description: 'Convert FHIR XML format to FHIR JSON format.', request: 'FHIR XML', response: 'FHIR JSON' },
     { method: 'GET', endpoint: '/ips/all', description: 'Retrieve all IPS records.', request: 'None.', response: 'Array of JSON objects representing IPS records.' },
     { method: 'GET', endpoint: '/ipsraw/:id', description: 'Retrieve raw IPS record by ID.', request: 'IPS record ID as URL parameter.', response: 'JSON object of the raw IPS record.' },
     { method: 'GET', endpoint: '/ipsmongo/:id', description: 'Retrieve IPS record in MongoDB format by ID.', request: 'IPS record ID as URL parameter.', response: 'MongoDB - JSON' },
-    { method: 'GET', endpoint: '/ips/:id', description: 'Retrieve IPS record in expanded format by ID.', request: 'IPS record ID as URL parameter.', response: 'Expanded IPS - FHiR JSON' },
+    { method: 'GET', endpoint: '/ips/:id', description: 'Retrieve IPS record in expanded format by ID.', request: 'IPS record ID as URL parameter.', response: 'Expanded Composition IPS format- FHiR JSON' },
     { method: 'GET', endpoint: '/ipsbasic/:id', description: 'Retrieve IPS record in basic format by ID.', request: 'IPS record ID as URL parameter.', response: 'Basic format - Plain Text' },
     { method: 'GET', endpoint: '/ipsbeer/:id/:delim?', description: 'Retrieve IPS record in BEER format by ID with optional delimiter.', request: 'IPS record ID and optional delimiter as URL parameters.', response: 'BEER - Plain Text' },
     { method: 'GET', endpoint: '/ipshl72x/:id', description: 'Retrieve IPS record in HL7 2.3 format by ID.', request: 'IPS record ID as URL parameter.', response: 'HL7 2.3 - Plain Text' },
     { method: 'GET', endpoint: '/ipsxml/:id', description: 'Retrieve IPS record in expanded FHiR XML format by ID.', request: 'IPS record ID as URL parameter.', response: 'IPS Bundle - FHiR XML' },
     { method: 'GET', endpoint: '/ipslegacy/:id', description: 'Retrieve IPS record in legacy format by ID.', request: 'IPS record ID as URL parameter.', response: 'Legacy format of the IPS record - FHiR JSON' },
-    { method: 'GET', endpoint: '/ipsunified/:id', description: 'Retrieve IPS record in compact unified format by ID.', request: 'IPS record ID as URL parameter.', response: 'Compact unified format of the IPS record - FHiR JSON' },
-    { method: 'GET', endpoint: '/ipsbyname/:name/:given', description: 'Retrieve expanded IPS FHiR by patient name and given name. Case insensitive.', request: 'Patient name and given name as URL parameters.', response: 'Expanded IPS Bundle - FHiR JSON' },
+    { method: 'GET', endpoint: '/ipsunified/:id', description: 'Retrieve IPS record in compact unified format by ID.', request: 'IPS record ID as URL parameter.', response: 'Unified IPS format - FHiR JSON' },
+    { method: 'GET', endpoint: '/ipsbyname/:name/:given', description: 'Retrieve expanded IPS FHiR by patient name and given name. Case insensitive.', request: 'Patient name and given name as URL parameters.', response: '*Unified IPS format - FHiR JSON' },
     { method: 'GET', endpoint: '/ips/search/:name', description: 'Search IPS records by patient name.', request: 'Patient name as URL parameter.', response: 'Array of JSON objects representing IPS records.' },
     { method: 'GET', endpoint: '/fetchipsora/:name/:givenName', description: 'Fetch IPS data from ORA by patient name and given name.', request: 'Patient name and given name as URL parameters.', response: 'JSON object from ORA system.' },
     { method: 'PUT', endpoint: '/ips/:id', description: 'Update an IPS record by ID.', request: 'Partial JSON object representing the updated IPS record.', response: 'MongoDB object of the updated IPS record - JSON' },
@@ -68,40 +68,46 @@ function APIDocumentationPage() {
       request: 'JSON body: { "id": "<IPS record ID>", "from": "<occupant name or user>" }',
       response: 'JSON response confirming the record was retrieved and sent privately.'
     },
+    {
+      method: 'POST',
+      endpoint: '/tak/test',
+      description: 'Sends a test CoT message. A custom CoT message can be provided via the "cot" property in the JSON body.',
+      request: 'JSON: { "cot": "<CoT XML message>" }',
+      response: 'JSON: { "message": "<result>" }'
+    },
+    {
+      method: 'POST',
+      endpoint: '/tak/ips',
+      description: 'Resolves an IPS record by id (either packageUUID or ObjectId), compresses it into a gzipped, Base64-encoded payload, and embeds it in the custom <ipsData> element of a CoT message.',
+      request: 'JSON: { "id": "<IPS record ID or packageUUID>" }',
+      response: 'JSON: { "message": "<result>", "cot": "<Complete CoT message with <ipsData> element>" }'
+    },
+    {
+      method: 'GET',
+      endpoint: '/tak/browser/:id',
+      description: 'Returns an HTML page with nicely formatted IPS record details for display in a browser, using the IPS record identified by packageUUID.',
+      request: 'URL parameter: id (IPS record ID/packageUUID)',
+      response: 'HTML page with formatted IPS record details (patient info, medications, etc.)'
+    }
   ];
 
+  // Additional instructions for encryption, compression, and raw binary usage
   const encodingEncryptionInstructions = [
-    {
-      feature: 'Gzip Compression',
-      incoming: (
-        <>
-          - Include the header <code>Content-Encoding: gzip</code> for incoming requests.
-          <br />- Compress your payload using gzip before sending.
-        </>
-      ),
-      outgoing: (
-        <>
-          - Include the header <code>Accept-Encoding: gzip</code> for responses.
-          <br />- The response will be returned in gzip format if supported.
-        </>
-      ),
-    },
     {
       feature: 'AES-256 Encryption',
       incoming: (
         <>
-          - Include the header <code>X-Encrypted: true</code> for incoming requests.
-          <br />- Encrypt your payload using AES-256 before sending.
-          <br />- Default format for the encrypted payload and IV is <code>hex</code>.
-          <br />- To send in Base64 format, include the header <code>Content-Encoding: base64</code>. Ensure both <code>encryptedData</code> and <code>iv</code> are Base64-encoded.
+          - Include header <code>X-Encrypted: true</code> for AES-256-encrypted requests.
+          <br />- Encrypt your payload with AES-256 before sending.
+          <br />- Default format is <code>hex</code> for <em>encryptedData</em>, <em>iv</em>, and <em>mac</em>.
+          <br />- To send in Base64, include header <code>Content-Encoding: base64</code>.
         </>
       ),
       outgoing: (
         <>
-          - Include the header <code>Accept-Encryption: aes256</code> for responses.
-          <br />- The response will be encrypted using AES-256 if supported.
-          <br />- Default format for the encrypted payload and IV is <code>hex</code>.
-          <br />- To receive in Base64 format, include the header <code>Accept-Encoding: base64</code>.
+          - Include header <code>Accept-Encryption: aes256</code> if you want the response encrypted.
+          <br />- Default format is <code>hex</code>.
+          <br />- To receive Base64, include <code>Accept-Encoding: base64</code>.
         </>
       ),
     },
@@ -109,16 +115,16 @@ function APIDocumentationPage() {
       feature: 'Combined (AES-256 + Gzip)',
       incoming: (
         <>
-          - Use both <code>Content-Encoding: gzip</code> and <code>X-Encrypted: true</code>.
-          <br />- Compress your payload with gzip first, then encrypt with AES-256.
-          <br />- To send in Base64 format, include <code>Content-Encoding: gzip, base64</code>.
+          - Use <code>Content-Encoding: gzip</code> <em>and</em> <code>X-Encrypted: true</code>.
+          <br />- Compress your payload with gzip, then encrypt via AES-256.
+          <br />- If using Base64, set <code>Content-Encoding: gzip, base64</code>.
         </>
       ),
       outgoing: (
         <>
-          - Use both <code>Accept-Encoding: gzip</code> and <code>Accept-Encryption: aes256</code>.
-          <br />- The response will first be compressed with gzip, then encrypted with AES-256.
-          <br />- To receive in Base64 format, include <code>Accept-Encoding: gzip, base64</code>.
+          - Use <code>Accept-Encoding: gzip</code> <em>and</em> <code>Accept-Encryption: aes256</code>.
+          <br />- The server gzips the response first, then encrypts.
+          <br />- Add <code>base64</code> in <code>Accept-Encoding</code> if you need Base64 output.
         </>
       ),
     },
@@ -188,6 +194,17 @@ function APIDocumentationPage() {
           ))}
         </tbody>
       </Table>
+
+      <h3 className="mt-5">*IPS Unified Format</h3>
+      <p>
+        The more expanded composition FHiR JSON format can be obtained instead for the marked API calls by using the optional header x-ips-format: inter. Likewise, the legacy format with x-ips-format: legacy.
+      </p>
+
+      <h3 className="mt-5">TAK Endpoints</h3>
+      <p>
+        The /tak/... endpoints are used for TAK integration. Note that these features will only work if a TAK server is available and the <code>certs</code> folder contains the appropriate truststore and client PEM files (converted from the original p12 files).
+        Additionally, the ability to view IPS data on ATAK or WinTAK platforms depends on having the respective IPS plugin installed on those platforms.
+      </p>
     </Container>
   );
 }

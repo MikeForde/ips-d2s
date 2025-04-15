@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Button, Form, Toast } from "react-bootstrap";
-import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
 import "./components.css";
 
@@ -146,10 +145,10 @@ export function FormIPS({ add }) {
       return;
     }
 
-    if (!formData.patient.gender) { formData.patient.gender = "Unknown"; }
+    if (!formData.patient.gender) { formData.patient.gender = "unknown"; }
     if (!formData.patient.nation) { formData.patient.nation = "UK"; }
     if (!formData.patient.practitioner) { formData.patient.practitioner = "Dr No"; }
-    if (!formData.patient.organization) { formData.patient.organization = "UK DMS"; }
+    if (!formData.patient.organization) { formData.patient.organization = "GBR"; }
 
     // Proceed with the submission if all required fields are filled
     if (!formData.packageUUID) return;
@@ -250,10 +249,10 @@ export function FormIPS({ add }) {
                   value={formData.patient.gender}
                   onChange={handlePatientChange} >
                   <option value="">Select Gender</option>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other</option>
-                  <option value="Unknown">Unknown</option>
+                  <option value="male">male</option>
+                  <option value="female">female</option>
+                  <option value="other">other</option>
+                  <option value="unknown">unknown</option>
                 </Form.Control>
               </div>
             </Form.Group>
@@ -395,9 +394,9 @@ export function FormIPS({ add }) {
                     onChange={(e) => handleAllergyChange(index, e)}
                     placeholder="Criticality" >
                     <option value="">Select Criticality</option>
-                    <option value="high">High</option>
-                    <option value="medium">Medium</option>
-                    <option value="low">Low</option>
+                    <option value="high">high</option>
+                    <option value="medium">medium</option>
+                    <option value="low">low</option>
                   </Form.Control>
                 </div>
               </Form.Group>

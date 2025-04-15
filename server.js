@@ -57,6 +57,12 @@ const { convertFhirXmlEndpoint } = require('./servercontrollers/convertFhirXmlEn
 
 const { startGrpcServer } = require("./proto/grpcServer");
 
+// ----- MMP ------
+const pmrRoutes = require('./mmp/pmr');
+
+// ──────── TAK ───────────────────────────
+const takRoutes = require('./tak/takRoutes');
+
 const { DB_USER, DB_PASSWORD, DB_NAME, DB_HOST } = process.env;
 
 const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASSWORD, {
@@ -182,6 +188,12 @@ api.get("/fetchips", getIPSBundleGeneric);
 
 // XMPP endpoints
 //api.use("/xmpp", xmppRoutes);
+
+// MMP endpoints
+api.use('/api', pmrRoutes);
+
+// Mount the TAK routes on the /tak path
+api.use('/tak', takRoutes);
 
 // API PUT - CRUD Update
 api.put("/ips/:id", updateIPS);
