@@ -4,6 +4,8 @@ const axios = require('axios');
 const cors = require("cors");
 const path = require("path");
 const { Sequelize } = require("sequelize");
+const swaggerUi = require('swagger-ui-express');
+const fs = require('fs');
 
 const xml2js = require('xml2js');
 const getRawBody = require('raw-body');
@@ -63,6 +65,13 @@ const pmrRoutes = require('./mmp/pmr');
 // ──────── TAK ───────────────────────────
 const takRoutes = require('./tak/takRoutes');
 
+// ───────────── GraphQL Apollo ─────────────────────────────
+const { ApolloServer } = require('@apollo/server');
+const { expressMiddleware } = require('@apollo/server/express4');
+const typeDefs = require('./graphql/schema');
+const resolvers = require('./graphql/resolvers');
+const playground = require('graphql-playground-middleware-express').default;
+
 const { DB_USER, DB_PASSWORD, DB_NAME, DB_HOST } = process.env;
 
 const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASSWORD, {
@@ -76,6 +85,13 @@ sequelize.authenticate()
 
 const api = express();
 api.use(cors()); // enable CORS on all our requests
+
+// Load the Swagger definition
+const apiDefinition = JSON.parse(
+    fs.readFileSync(path.join(__dirname, 'apidefinition.json'), 'utf-8')
+  );
+  
+api.use('/docs', swaggerUi.serve, swaggerUi.setup(apiDefinition));
 
 // ──────────────────────────────────────────────────────────
 //                  Logging Middleware
@@ -203,6 +219,16 @@ api.put("/ipsuuid/:uuid", updateIPSByUUID);
 api.delete("/ips/:id", deleteIPS);
 api.delete("/ipsdeletebypractitioner/:practitioner", deleteIPSbyPractitioner);
 
+// GraphQL
+api.get('/playground', playground({ endpoint: '/graphql' }));
+async function startApolloServer() {
+    const apolloServer = new ApolloServer({ typeDefs, resolvers, introspection: true, playground : true });
+    await apolloServer.start();
+    api.use('/graphql', express.json(), expressMiddleware(apolloServer));
+  }
+  
+  startApolloServer();
+
 api.use(express.static(path.join(__dirname, "client", "build")));
 api.get("/*", (req, res) => {
     res.sendFile(path.join(__dirname, "client", "build", "index.html"));
@@ -217,7 +243,7 @@ api.get("/*", (req, res) => {
 //     console.error("Failed to init XMPP:", err);
 //   });
 
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 5050;
 api.listen(port, () => {
     console.log(`Server is running on port: ${port}`)
 });
