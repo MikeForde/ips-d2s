@@ -1,6 +1,7 @@
 const express = require('express');
 const axios = require('axios');
 const { resolveId } = require('../utils/resolveId'); // your function to get the IPS record
+const { SQLToMongoSingle } = require('../servercontrollers/MySQLHelpers/SQLToMongo');
 
 const router = express.Router();
 
@@ -15,10 +16,13 @@ router.post('/pmr/:id', async (req, res) => {
 
   try {
     // 1. Retrieve the IPS record from MongoDB
-    const ipsRecord = await resolveId(id);
-    if (!ipsRecord) {
+    const ips = await resolveId(id);
+    if (!ips) {
       return res.status(404).send('IPS record not found');
     }
+
+    // Transform the IPS record to the desired format
+    const ipsRecord = await SQLToMongoSingle(ips);
 
     // Extract the first three letters of the first name and surname, and convert them to uppercase.
     const firstNameSub = (ipsRecord.patient.given || 'UNK').substring(0, 3).toUpperCase();
