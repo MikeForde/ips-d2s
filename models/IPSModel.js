@@ -116,8 +116,21 @@ Immunization.belongsTo(IPSModel);
 // Sync all models with the database 
 // This will create the tables if they do not exist and add/remove fields if they have changed
 // Note: This should be removed in production as it can lead to data loss = usual setting is force: false
-sequelize.sync({ alter: true }).then(() => {
-    console.log('Database & tables created!');
-});
+// We'll control whether the setting is alter: true or force: false based on an environment variable called DB_SYNC, which will either be true vs (false or absent)
+
+const dbSync = process.env.DB_SYNC === 'true' || process.env.DB_SYNC === true;
+
+if (dbSync) {
+    console.log('Syncing database...');
+    sequelize.sync({ alter: true }).then(() => {
+        console.log('Database & tables created!');
+    });
+}
+else {
+    console.log('Not syncing database...');
+    sequelize.sync({ force: false }).then(() => {
+        console.log('Database & tables created!');
+    });
+}
 
 module.exports = { IPSModel, Medication, Allergy, Condition, Observation, Immunization };
