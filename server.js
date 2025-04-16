@@ -219,15 +219,15 @@ api.put("/ipsuuid/:uuid", updateIPSByUUID);
 api.delete("/ips/:id", deleteIPS);
 api.delete("/ipsdeletebypractitioner/:practitioner", deleteIPSbyPractitioner);
 
-// GraphQL
-api.get('/playground', playground({ endpoint: '/graphql' }));
-async function startApolloServer() {
-    const apolloServer = new ApolloServer({ typeDefs, resolvers, introspection: true, playground : true });
-    await apolloServer.start();
-    api.use('/graphql', express.json(), expressMiddleware(apolloServer));
-  }
+// // GraphQL
+// api.get('/playground', playground({ endpoint: '/graphql' }));
+// async function startApolloServer() {
+//     const apolloServer = new ApolloServer({ typeDefs, resolvers, introspection: true, playground : true });
+//     await apolloServer.start();
+//     api.use('/graphql', express.json(), expressMiddleware(apolloServer));
+//   }
   
-  startApolloServer();
+//   startApolloServer();
 
 api.use(express.static(path.join(__dirname, "client", "build")));
 api.get("/*", (req, res) => {
