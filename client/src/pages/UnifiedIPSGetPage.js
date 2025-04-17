@@ -116,7 +116,7 @@ const UnifiedIPSGetPage = () => {
               <Form.Control as="textarea" rows={10} value={JSON.stringify(ipsData, null, 2)} readOnly />
             </div>
             <Button variant="success" onClick={handleTransform}>
-              Transform to IPS MERN Record
+              Transform to IPS SERN Record
             </Button>
           </div>
         )}

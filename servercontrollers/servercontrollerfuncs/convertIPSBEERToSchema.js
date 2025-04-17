@@ -48,12 +48,12 @@ function parseBEER(dataPacket, delimiter) {
     // Helper function to map gender
     function mapGender(gender) {
         const genderMap = {
-            'm': 'Male',
-            'f': 'Female',
-            'u': 'Unknown',
-            'o': 'Other'
+            'm': 'male',
+            'f': 'female',
+            'u': 'unknown',
+            'o': 'other'
         };
-        return genderMap[gender] || 'Unknown';
+        return genderMap[gender] || 'unknown';
     }
 
     // Parsing basic info
@@ -118,11 +118,11 @@ function parseBEER(dataPacket, delimiter) {
     // Helper function to parse allergies criticality
     function mapCriticality(criticality) {
         const criticalityMap = {
-            'l': 'Low',
-            'm': 'Medium',
-            'h': 'High'
+            'l': 'low',
+            'm': 'medium',
+            'h': 'high'
         };
-        return criticalityMap[criticality] || 'Unknown';
+        return criticalityMap[criticality] || 'unknown';
     }
 
     const parseAllergies = (count) => {
@@ -216,7 +216,7 @@ function parseBEER(dataPacket, delimiter) {
     }
 
     // Medication entries on or after timeStamp
-    if (/^\d{12}$/.test(lines[currentIndex])) {
+    if (/^\d{12}$/.test(lines[currentIndex]) && lines[currentIndex+1] && lines[currentIndex+1].startsWith('m')) {
         let earliestMedTime = new Date(
             lines[currentIndex++].replace(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})$/, '$1-$2-$3T$4:$5:00.000Z')
         );
@@ -228,7 +228,7 @@ function parseBEER(dataPacket, delimiter) {
     }
 
     // Observation entries on or after timeStamp
-    if (/^\d{12}$/.test(lines[currentIndex])) {
+    if (/^\d{12}$/.test(lines[currentIndex]) && lines[currentIndex+1] && lines[currentIndex+1].startsWith('v')) {
         let earliestObservationTime = new Date(
             lines[currentIndex++].replace(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})$/, '$1-$2-$3T$4:$5:00.000Z')
         );
@@ -267,7 +267,7 @@ function parseBEER(dataPacket, delimiter) {
                     const date = new Date(earliestObservationTime.getTime() + minutes * 60000);
                     
                     // Need to add units to value
-                    vitalSigns.push({ name: obsName, date, value: `${value}${units}` });
+                    vitalSigns.push({ name: obsName, date, value: `${value} ${units}` });
                 });
             }
             

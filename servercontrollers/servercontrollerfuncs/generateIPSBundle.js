@@ -145,14 +145,66 @@ function generateIPSBundle(ipsRecord) {
         if (observation.value) {
             if (containsNumber(observation.value)) {
                 // Check if the value is in the blood pressure format
-                if (observation.value.includes('-') && observation.value.endsWith('mmHg')) {
-                    const bpValues = observation.value.split('-');
-                    observationResource.resource.valueQuantity = {
-                        value: bpValues[0] + '-' + parseFloat(bpValues[1]), // retain the full <number>-<number> part
-                        unit: 'mmHg',
-                        system: "http://unitsofmeasure.org",
-                        code: 'mmHg'
-                    };
+                if (observation.value.includes('-')) {
+                    if (observation.value.endsWith('mmHg') || observation.value.endsWith('mm[Hg]')) {
+                        const bpValues = observation.value.replace('mmHg', '').split('-').map(v => parseFloat(v.trim()));
+                        observationResource.resource.component = [
+                            {
+                                code: {
+                                    coding: [
+                                        {
+                                            system: "http://snomed.info/sct",
+                                            code: "271649006",
+                                            display: "Systolic blood pressure"
+                                        }
+                                    ]
+                                },
+                                valueQuantity: {
+                                    value: bpValues[0],
+                                    unit: "mm[Hg]",
+                                    system: "http://unitsofmeasure.org",
+                                    code: "mm[Hg]"
+                                }
+                            },
+                            {
+                                code: {
+                                    coding: [
+                                        {
+                                            system: "http://snomed.info/sct",
+                                            code: "271650006",
+                                            display: "Diastolic blood pressure"
+                                        }
+                                    ]
+                                },
+                                valueQuantity: {
+                                    value: bpValues[1],
+                                    unit: "mm[Hg]",
+                                    system: "http://unitsofmeasure.org",
+                                    code: "mm[Hg]"
+                                }
+                            }
+                        ];
+                    } else {
+                        // More genenic solution to hyphenated values that are not therefore BP values - we won't include the code element and we take the unit and code from the last part of the string for both elements
+                        const otherValues = observation.value.split('-').map(v => parseFloat(v.trim()));
+                        // the unit is the last part of the string after the last space
+                        const unit = observation.value.substring(observation.value.lastIndexOf(' ') + 1).trim();
+                        observationResource.resource.component = otherValues.map((value, index) => ({
+                            code: {
+                                coding: [
+                                    {
+                                        display: `Component ${index + 1}`
+                                    }
+                                ]
+                            },
+                            valueQuantity: {
+                                value: value,
+                                unit: unit,
+                                system: "http://unitsofmeasure.org",
+                                code: unit
+                            }
+                        }));
+                    }
                 } else if (observation.value.includes('.')) {
                     // Value contains a decimal point, assume it's a numerical value with units
                     const valueMatch = observation.value.match(/(\d+\.\d+)(\D+)/);
@@ -178,11 +230,22 @@ function generateIPSBundle(ipsRecord) {
                 }
             }
              else {
-                // Value is just text, assume it's body site related
+                // Value is just text, for now assume it's body site related but we need to fix in future
                 observationResource.resource.bodySite = {
                     coding: [
                         {
                             display: observation.value
+                        }
+                    ]
+                };
+            }
+
+            // Eventually we will confine bodySite to just its field in the database but for now we'll cope with both options
+            if (observation.bodySite) {
+                observationResource.resource.bodySite = {
+                    "coding": [
+                        {
+                            "display": observation.bodySite
                         }
                     ]
                 };
