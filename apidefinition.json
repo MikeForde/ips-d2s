@@ -7,7 +7,7 @@
     },
     "servers": [
       {
-        "url": "http://ips-d2s-uksc-medsnomed-medsno.apps.ocp1.azure.dso.digital.mod.uk",
+        "url": "https://ips-d2s-uksc-medsnomed-medsno.apps.ocp1.azure.dso.digital.mod.uk",
         "description": "Production Server"
       },
       {
