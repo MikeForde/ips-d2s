@@ -65,7 +65,7 @@ const pmrRoutes = require('./mmp/pmr');
 // ──────── TAK ───────────────────────────
 const takRoutes = require('./tak/takRoutes');
 
-// ───────────── GraphQL Apollo ─────────────────────────────
+// // ───────────── GraphQL Apollo ─────────────────────────────
 const { ApolloServer } = require('@apollo/server');
 const { expressMiddleware } = require('@apollo/server/express4');
 const typeDefs = require('./graphql/schema');
@@ -220,14 +220,14 @@ api.delete("/ips/:id", deleteIPS);
 api.delete("/ipsdeletebypractitioner/:practitioner", deleteIPSbyPractitioner);
 
 // // GraphQL
-// api.get('/playground', playground({ endpoint: '/graphql' }));
-// async function startApolloServer() {
-//     const apolloServer = new ApolloServer({ typeDefs, resolvers, introspection: true, playground : true });
-//     await apolloServer.start();
-//     api.use('/graphql', express.json(), expressMiddleware(apolloServer));
-//   }
+api.get('/playground', playground({ endpoint: '/graphql' }));
+async function startApolloServer() {
+    const apolloServer = new ApolloServer({ typeDefs, resolvers, introspection: true, playground : true });
+    await apolloServer.start();
+    api.use('/graphql', express.json(), expressMiddleware(apolloServer));
+  }
   
-//   startApolloServer();
+  startApolloServer();
 
 api.use(express.static(path.join(__dirname, "client", "build")));
 api.get("/*", (req, res) => {
