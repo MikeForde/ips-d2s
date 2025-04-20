@@ -102,6 +102,28 @@
   align-items: center;
 } 
 
+/* slightly smaller fonts/buttons on tablets and below */
+@media (max-width: 768px) {
+  .dropdown-button {
+    height: 28px;
+  }
+  .button-container .btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* even more compact on phones */
+@media (max-width: 576px) {
+  .app {
+    padding: 20px;
+  }
+  .noteFont {
+    font-size: 12px;
+  }
+}
+
+
 
 
 
