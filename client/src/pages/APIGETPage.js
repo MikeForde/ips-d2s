@@ -280,7 +280,7 @@ function APIGETPage() {
           autohide
         >
           <Toast.Header>
-            <strong className="me-auto">IPS MERN NFC</strong>
+            <strong className="me-auto">IPS SERN NFC</strong>
           </Toast.Header>
           <Toast.Body className={toastVariant === 'light' ? '' : 'text-white'}>
             {toastMsg}
