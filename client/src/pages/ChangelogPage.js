@@ -574,6 +574,17 @@ function ChangeLogPage() {
                                 <li>Configuration settings can allow these endpoints to be enabled during development while restricting access in production environments for security.</li> 
                             </ul> 
                         </li>
+                        <li>
+                            <h5>Version 0_61 - 22nd April 2025</h5>
+                            <ul>
+                                <li><strong>Added NFC Read and Write Capability</strong></li>
+                                <li>Requires Web App to be running on compatible device and browser e.g. Chrome on Android.</li>
+                                <li>Using the API Page, the currently displayed IPS data can be written to a NFC tag - including as binary custom MIME format.</li>
+                                <li>Added NFC Reader Page: featuring live card info (UID &amp; record count and mime-type if applicable) plus payload textarea</li>
+                                <li>Binary Format Support: supports custom MIME type <code>application/x.ips.gzip.aes256.v1-0</code>; raw bytes are POSTed to the <code>/test</code> endpoint for AES‑256 decryption and gzip decompression</li>
+    
+                            </ul>
+                        </li>
                     </ul>
                 </Col>
             </Row>
