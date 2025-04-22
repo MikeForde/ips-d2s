@@ -1,7 +1,7 @@
 // servercontrollers/ipsNewRecord.js
 const { IPSModel } = require('../models/IPSModel');
 const { parseHL72_xToMongo} = require('./servercontrollerfuncs/convertHL72_xToSchema');
-const { addIPSRecord } = require('./MySQLHelpers/addIPSRecord');
+const { upsertIPSRecord } = require('./MySQLHelpers/upsertIPSRecord');
 
 async function addIPSFromHL72x(req, res) {
     // Extract IPS Bundle from request body
@@ -16,7 +16,7 @@ async function addIPSFromHL72x(req, res) {
         console.log(ipsRecord);
 
         // Add IPS record to MySQL and get the Mongo formatted response
-        const mongoFormattedIPS = await addIPSRecord(ipsRecord);
+        const mongoFormattedIPS = await upsertIPSRecord(ipsRecord);
 
         res.json(mongoFormattedIPS);
     } catch (error) {

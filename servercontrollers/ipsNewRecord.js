@@ -1,10 +1,10 @@
-const { addIPSRecord } = require('./MySQLHelpers/addIPSRecord');
+const { upsertIPSRecord } = require('./MySQLHelpers/upsertIPSRecord');
 
 async function addIPS(req, res) {
     console.log("req.body", req.body);
 
     try {
-        const mongoFormattedIPS = await addIPSRecord(req.body);
+        const mongoFormattedIPS = await upsertIPSRecord(req.body);
         res.json(mongoFormattedIPS);
     } catch (err) {
         res.status(400).send(err);
@@ -18,7 +18,7 @@ async function addIPSMany(req, res) {
         const createdIPSRecords = await Promise.all(
             req.body.map(async ipsData => {
                 // Create IPS record and associated records
-                return await addIPSRecord(ipsData);
+                return await upsertIPSRecord(ipsData);
             })
         );
 

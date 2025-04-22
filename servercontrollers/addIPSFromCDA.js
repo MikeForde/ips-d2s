@@ -1,5 +1,5 @@
 const { convertCDAToSchema } = require('./servercontrollerfuncs/convertCDAToSchema');
-const { addIPSRecord } = require('./MySQLHelpers/addIPSRecord');
+const { upsertIPSRecord } = require('./MySQLHelpers/upsertIPSRecord');
 
 async function addIPSFromCDA(req, res) {
     try {
@@ -10,7 +10,7 @@ async function addIPSFromCDA(req, res) {
         const ipsRecord = convertCDAToSchema(cdaJSON);
 
         // Add IPS record to MySQL and get the Mongo formatted response
-        const mongoFormattedIPS = await addIPSRecord(ipsRecord);
+        const mongoFormattedIPS = await upsertIPSRecord(ipsRecord);
 
         res.status(201).json(mongoFormattedIPS);
     } catch (err) {

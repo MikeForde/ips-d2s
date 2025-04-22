@@ -36,6 +36,7 @@ const { convertMongoToHL72_x } = require('./servercontrollers/convertMongoToHL72
 const { convertBEERToMongo } = require('./servercontrollers/convertBEERToMongo');
 const { convertBEERToIPS } = require('./servercontrollers/convertBEERToIPS');
 const { convertIPSToBEER } = require('./servercontrollers/convertIPSToBEER');
+const { convertIPSToMongo } = require('./servercontrollers/convertIPSToMongo');
 const { updateIPSByUUID } = require('./servercontrollers/updateIPSRecordByUUID');
 const { convertCDAToIPS } = require('./servercontrollers/convertCDAToIPS');
 const { convertCDAToBEER } = require('./servercontrollers/convertCDAToBEER');
@@ -170,6 +171,7 @@ api.post('/convertmongo2hl7', convertMongoToHL72_x);
 api.post('/convertbeer2mongo', convertBEERToMongo);
 api.post('/convertbeer2ips', convertBEERToIPS);
 api.post('/convertips2beer', convertIPSToBEER);
+api.post('/convertips2mongo', convertIPSToMongo);
 api.post('/convertcdatoips', convertCDAToIPS);
 api.post('/convertcdatobeer', convertCDAToBEER);
 api.post('/convertcdatomongo', convertCDAToMongo);
@@ -180,8 +182,6 @@ api.post('/convertfhirxml', convertFhirXmlEndpoint);
 
 // Add a /test POST endpoint for echoing back request data
 api.post('/test', (req, res) => {
-    console.log("Request received at /test");
-
     // Respond with the raw request body
     res.send(req.body);
 });

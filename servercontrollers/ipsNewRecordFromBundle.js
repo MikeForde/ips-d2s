@@ -1,5 +1,5 @@
 const { convertIPSBundleToSchema } = require('./servercontrollerfuncs/convertIPSBundleToSchema');
-const { addIPSRecord } = require('./MySQLHelpers/addIPSRecord');
+const { upsertIPSRecord } = require('./MySQLHelpers/upsertIPSRecord');
 const { convertFhirXmlToJson } = require('./servercontrollerfuncs/convertFHIRXMLtoJSON');
 
 async function addIPSFromBundle(req, res) {
@@ -24,7 +24,7 @@ async function addIPSFromBundle(req, res) {
         console.log(ipsRecord);
 
         // Add IPS record to MySQL and get the Mongo formatted response
-        const mongoFormattedIPS = await addIPSRecord(ipsRecord);
+        const mongoFormattedIPS = await upsertIPSRecord(ipsRecord);
 
         res.json(mongoFormattedIPS);
     } catch (error) {

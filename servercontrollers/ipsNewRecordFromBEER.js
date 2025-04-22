@@ -1,5 +1,5 @@
 const { parseBEER } = require('./servercontrollerfuncs/convertIPSBEERToSchema');
-const { addIPSRecord } = require('./MySQLHelpers/addIPSRecord');
+const { upsertIPSRecord } = require('./MySQLHelpers/upsertIPSRecord');
 
 async function addIPSFromBEER(req, res) {
     // Extract IPS Bundle from request body
@@ -13,7 +13,7 @@ async function addIPSFromBEER(req, res) {
         const ipsRecord = parseBEER(ipsBEER, delimiter);
 
         // Add IPS record to MySQL and get the Mongo formatted response
-        const mongoFormattedIPS = await addIPSRecord(ipsRecord);
+        const mongoFormattedIPS = await upsertIPSRecord(ipsRecord);
 
         res.json(mongoFormattedIPS);
     } catch (error) {
