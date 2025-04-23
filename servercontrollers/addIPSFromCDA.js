@@ -12,6 +12,12 @@ async function addIPSFromCDA(req, res) {
         // Add IPS record to MySQL and get the Mongo formatted response
         const mongoFormattedIPS = await upsertIPSRecord(ipsRecord);
 
+        // emit the new/updated record
+        const io = req.app.get('io');
+        if (io) {
+            io.emit('ipsUpdated', mongoFormattedIPS);
+        }
+
         res.status(201).json(mongoFormattedIPS);
     } catch (err) {
         console.error('Error processing CDA:', err);

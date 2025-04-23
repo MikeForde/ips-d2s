@@ -22,6 +22,12 @@ async function addIPSMany(req, res) {
             })
         );
 
+        // emit the new/updated record
+        const io = req.app.get('io');
+        if (io) {
+            io.emit('ipsUpdated', createdIPSRecords);
+        }
+
         res.json(createdIPSRecords);
     } catch (err) {
         res.status(400).send(err);

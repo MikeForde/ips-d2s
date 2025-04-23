@@ -26,6 +26,13 @@ async function addIPSFromBundle(req, res) {
         // Add IPS record to MySQL and get the Mongo formatted response
         const mongoFormattedIPS = await upsertIPSRecord(ipsRecord);
 
+        // emit the new/updated record
+        const io = req.app.get('io');
+        if (io) {
+            io.emit('ipsUpdated', mongoFormattedIPS);
+        }
+        
+
         res.json(mongoFormattedIPS);
     } catch (error) {
         console.error("Error in addIPSFromBundle:", error);

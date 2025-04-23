@@ -18,7 +18,7 @@ async function updateIPSByUUID(req, res) {
       return res.status(404).send("IPS not found.");
     }
 
-    // 2) Delegate to your SQL‑helper to handle field transforms + assoc updates
+    // 2) Delegate to SQL‑helper to handle field transforms + assoc updates
     await updateSQL(existing, updatedData, existing.id);
 
     // 3) Reload with associations
@@ -32,8 +32,16 @@ async function updateIPSByUUID(req, res) {
       ]
     });
 
+
     // 4) Convert back to Mongo‑format and return
     const mongoFormattedIPS = await SQLToMongoSingle(reloaded);
+
+    // ── EMIT VIA WEBSOCKETS ──────────────────────────
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('ipsUpdated', mongoFormattedIPS );
+    }
+
     res.json(mongoFormattedIPS);
 
   } catch (err) {

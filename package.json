@@ -38,7 +38,8 @@
         "react-native-get-random-values": "^1.11.0",
         "sequelize": "^6.37.3",
         "uuid": "^8.3.2",
-        "xml-js": "1.6.11"
+        "xml-js": "1.6.11",
+        "socket.io": "^4.7.2"
     },
     "devDependencies": {
         "npm-force-resolutions": "^0.0.10"
