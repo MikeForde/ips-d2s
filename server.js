@@ -57,8 +57,8 @@ const { convertXmlEndpoint } = require('./servercontrollers/convertXmlEndpoint')
 const { convertFhirXmlEndpoint } = require('./servercontrollers/convertFhirXmlEndpoint');
 
 // ───── XMPP ─────
-//const { initXMPP_WebSocket } = require("./xmpp/xmppConnection");
-//const xmppRoutes = require("./xmpp/xmppRoutes");
+const { initXMPP_WebSocket } = require("./xmpp/xmppConnection");
+const xmppRoutes = require("./xmpp/xmppRoutes");
 
 const { startGrpcServer } = require("./proto/grpcServer");
 
@@ -205,7 +205,7 @@ api.get('/fetchipsora/:name/:givenName', getORABundleByName);
 api.get("/fetchips", getIPSBundleGeneric);
 
 // XMPP endpoints
-//api.use("/xmpp", xmppRoutes);
+api.use("/xmpp", xmppRoutes);
 
 // MMP endpoints
 api.use('/api', pmrRoutes);
@@ -236,19 +236,21 @@ api.get("/*", (req, res) => {
     res.sendFile(path.join(__dirname, "client", "build", "index.html"));
 });
 
-// // Initialize XMPP once
-// initXMPP_WebSocket()
-//   .then(() => {
-//     console.log("XMPP connection initialized.");
-//   })
-//   .catch((err) => {
-//     console.error("Failed to init XMPP:", err);
-//   });
-
-// const port = process.env.PORT || 5050;
-// api.listen(port, () => {
-//     console.log(`Server is running on port: ${port}`)
-// });
+// Initialize XMPP (OpenFire) once - this may only be reachable via a VPN that may not be available
+initXMPP_WebSocket()
+    .then((xmppInstance) => {
+        if (xmppInstance) {
+            console.log("XMPP connection initialized.");
+            // Start the XMPP server
+            const portXmpp = process.env.PORT || 5052;
+            api.listen(portXmpp, '0.0.0.0', () => {
+                console.log(`Server is running on port: ${portXmpp}`);
+            });
+        }
+    })
+    .catch((err) => {
+        console.error("Failed to init XMPP:", err);
+    });
 
 // ─── Socket.IO ─────────────────────────────────────────────
 // wrap the express app in a raw HTTP server
