@@ -9,7 +9,8 @@ function transformPatientData(patient) {
     patientGender: patient.gender,
     patientNation: patient.nation,
     patientPractitioner: patient.practitioner,
-    patientOrganization: patient.organization
+    patientOrganization: patient.organization,
+    patientIdentifier: patient.identifier,
   };
 }
 
