@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
-import { Button, Modal, Form, OverlayTrigger, Tooltip, Row, Col } from "react-bootstrap";
+import { Button, Modal, Form, OverlayTrigger, Tooltip, Row, Col, Spinner } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { faFileMedical, faQrcode, faTrash, faBeer, faEdit, faFileExport, faUpload, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+import { faFileMedical, faQrcode, faTrash, faBeer, faEdit, faFileExport, faUpload, faPaperPlane, faCommentDots } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
 import { PatientContext } from '../../PatientContext';
@@ -12,11 +12,22 @@ import { Toast, ToastContainer } from 'react-bootstrap';
 
 
 const formatDate = (dateString) => {
+  console.log("formatDate", dateString);
+  // cope with null dateString
+  if (dateString === null) return "";
   if (!dateString) return "";
   const [datePart, timePart] = dateString.split("T");
   const time = timePart.split(".")[0];
   //return time === "00:00:00" ? datePart : `${datePart} ${time}`;
   return `${datePart} ${time}`;
+};
+
+const formatDateNoTime = (dateString) => {
+  console.log("formatDate", dateString);
+  if (dateString === null || dateString === undefined) return "";
+  const [datePart,] = dateString.split("T");
+  //return time === "00:00:00" ? datePart : `${datePart} ${time}`;
+  return `${datePart}`;
 };
 
 export function IPS({ ips, remove, update }) {
@@ -29,7 +40,17 @@ export function IPS({ ips, remove, update }) {
   const [pmrMessage, setPmrMessage] = useState('');
   const [pmrAlertVariant, setPmrAlertVariant] = useState('success'); // "success" for success, "danger" for errors
   const [showPmrAlert, setShowPmrAlert] = useState(false);
+  const [showEditAlert, setShowEditAlert] = useState(false);
+  const [editAlertMessage, setEditAlertMessage] = useState("");
 
+  // XMPP send state
+  const [showXMPPModal, setShowXMPPModal] = useState(false);
+  const [occupants, setOccupants] = useState([]);
+  const [loadingOccupants, setLoadingOccupants] = useState(false);
+  const [selectedOccupant, setSelectedOccupant] = useState('');
+  const [sendMode, setSendMode] = useState('room'); // 'room' or 'private'
+  const [xmppMessageStatus, setXmppMessageStatus] = useState('');
+  const [xmppError, setXmppError] = useState('');
 
   const handleRemove = () => setShowConfirmModal(true);
 
@@ -63,6 +84,19 @@ export function IPS({ ips, remove, update }) {
   };
 
   const handleSaveEdit = () => {
+    // Validate the form data before sending it to the server
+    // enforce “number + space + unit” for observations
+    const obsPattern = /^(?:\d+(?:\.\d+)?(?:-\d+(?:\.\d+)?)?)\s+[a-zA-Z%/]+$/;
+    for (let { value } of editIPS.observations) {
+      if (value && !obsPattern.test(value)) {
+        setEditAlertMessage(
+          'Observation must be num[-num] + space + units, e.g. "60 bpm or 120-80 mmHg or 37.5 C"'
+        );
+        setShowEditAlert(true);
+        return;
+      }
+    }
+
     startLoading();
     axios.put(`/ips/${ips._id}`, editIPS)
       .then(response => {
@@ -126,11 +160,42 @@ export function IPS({ ips, remove, update }) {
       .finally(() => stopLoading());
   };
 
+  // XMPP logic: open modal & load occupants
+  const openXMPPModal = () => {
+    setShowXMPPModal(true);
+    setXmppMessageStatus('');
+    setXmppError('');
+    setLoadingOccupants(true);
+    axios.get('/xmpp/xmpp-occupants')
+      .then(res => setOccupants(res.data.occupants || []))
+      .catch(err => setXmppError('Failed to load occupants - is XMPP reachable?'))
+      .finally(() => setLoadingOccupants(false));
+  };
+  const closeXMPPModal = () => {
+    setShowXMPPModal(false);
+    setSelectedOccupant('');
+    setSendMode('room');
+  };
+  const handleSendXMPP = () => {
+    setXmppMessageStatus(''); setXmppError('');
+    const payload = { id: ips.packageUUID };
+    let url;
+    if (sendMode === 'private') {
+      payload.from = selectedOccupant;
+      url = '/xmpp/xmpp-ips-private';
+    } else {
+      url = '/xmpp/xmpp-ips';
+    }
+    axios.post(url, payload)
+      .then(() => setXmppMessageStatus('Message sent!'))
+      .catch(() => setXmppError('Failed to send message'));
+  };
+
 
   return (
     <div className="ips" onDoubleClick={() => setExpanded(expanded ? false : true)}>
       <div className="ips-buttons">
-      <OverlayTrigger placement="top" overlay={renderTooltip('View IPS API Page')}>
+        <OverlayTrigger placement="top" overlay={renderTooltip('View IPS API Page')}>
           <Link to="/api">
             <Button variant="outline-secondary" className="qr-button custom-button" onClick={handleSelection}>
               <FontAwesomeIcon icon={faFileMedical} />
@@ -174,6 +239,12 @@ export function IPS({ ips, remove, update }) {
           </Button>
         </OverlayTrigger>
 
+        <OverlayTrigger placement="top" overlay={renderTooltip('Send to XMPP')}>
+          <Button variant="outline-secondary" className="qr-button custom-button" onClick={openXMPPModal}>
+            <FontAwesomeIcon icon={faCommentDots} />
+          </Button>
+        </OverlayTrigger>
+
         <OverlayTrigger placement="top" overlay={renderTooltip('Edit IPS Record')}>
           <Button variant="outline-secondary" className="custom-button" onClick={handleEdit}>
             <FontAwesomeIcon icon={faEdit} />
@@ -204,7 +275,7 @@ export function IPS({ ips, remove, update }) {
             <h4>Patient Details:</h4>
             <p>Name: {ips.patient.name}</p>
             <p>Given Name: {ips.patient.given}</p>
-            <p>DOB: {ips.patient.dob.split("T")[0]}</p>
+            <p>DOB: {formatDateNoTime(ips.patient.dob)}</p>
             <p>Gender: {ips.patient.gender}</p>
             <p>Country: {ips.patient.nation}</p>
             <p>Practitioner: {ips.patient.practitioner}</p>
@@ -261,7 +332,7 @@ export function IPS({ ips, remove, update }) {
                           <td>{allergy.code}</td>
                           <td>{allergy.system}</td>
                           <td>{allergy.criticality}</td>
-                          <td>{formatDate(allergy.date)}</td>
+                          <td>{formatDateNoTime(allergy.date)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -289,7 +360,7 @@ export function IPS({ ips, remove, update }) {
                           <td>{condition.name}</td>
                           <td>{condition.code}</td>
                           <td>{condition.system}</td>
-                          <td>{formatDate(condition.date)}</td>
+                          <td>{formatDateNoTime(condition.date)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -403,7 +474,18 @@ export function IPS({ ips, remove, update }) {
           <Modal.Title className="ipsedit">Edit Patient</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form>
+          {/* validation error */}
+          <ToastContainer className="fixed-bottom m-3">
+            <Toast
+              show={showEditAlert}
+              onClose={() => setShowEditAlert(false)}
+              bg="danger"
+              autohide
+              delay={5000}
+            >
+              <Toast.Body>{editAlertMessage}</Toast.Body>
+            </Toast>
+          </ToastContainer>          <Form>
             {/* Patient Details */}
             <Row>
               <Col>
@@ -578,7 +660,7 @@ export function IPS({ ips, remove, update }) {
             <h4 className="ipsedit">Allergies:</h4>
             <div className="table-responsive">
               <table className="table table-bordered table-sm">
-              <colgroup>
+                <colgroup>
                   <col style={{ width: '50%' }} />  {/* Name */}
                   <col style={{ width: '7%' }} />  {/* Code */}
                   <col style={{ width: '7%' }} />  {/* System */}
@@ -640,7 +722,7 @@ export function IPS({ ips, remove, update }) {
                         <Form.Control
                           type="date"
                           name="date"
-                          value={allergy.date.split("T")[0]}
+                          value={formatDateNoTime(allergy.date)}
                           onChange={(e) => handleChangeItem("allergies", index, e)}
                         />
                       </td>
@@ -662,7 +744,7 @@ export function IPS({ ips, remove, update }) {
             <h4 className="ipsedit">Conditions:</h4>
             <div className="table-responsive">
               <table className="table table-bordered table-sm">
-              <colgroup>
+                <colgroup>
                   <col style={{ width: '40%' }} />  {/* Name */}
                   <col style={{ width: '4%' }} />  {/* Code */}
                   <col style={{ width: '4%' }} />  {/* System */}
@@ -709,7 +791,7 @@ export function IPS({ ips, remove, update }) {
                         <Form.Control
                           type="date"
                           name="date"
-                          value={condition.date.split("T")[0]}
+                          value={formatDateNoTime(condition.date)}
                           onChange={(e) => handleChangeItem("conditions", index, e)}
                         />
                       </td>
@@ -728,10 +810,10 @@ export function IPS({ ips, remove, update }) {
             </Button>
 
             {/* Observations Table */}
-            <h4 className="ipsedit">Observations:</h4>
+            <h4 className="ipsedit">Observations: Enter Value as val-space-unit e.g. 60 bpm</h4>
             <div className="table-responsive">
               <table className="table table-bordered table-sm">
-              <colgroup>
+                <colgroup>
                   <col style={{ width: '50%' }} />  {/* Name */}
                   <col style={{ width: '4%' }} />  {/* Code */}
                   <col style={{ width: '4%' }} />  {/* System */}
@@ -788,6 +870,8 @@ export function IPS({ ips, remove, update }) {
                         <Form.Control
                           type="text"
                           name="value"
+                          // Add hover
+                          placeholder="Val Unit"
                           value={observation.value}
                           onChange={(e) => handleChangeItem("observations", index, e)}
                         />
@@ -877,6 +961,65 @@ export function IPS({ ips, remove, update }) {
           <Button variant="primary" onClick={handleSaveEdit}>
             Save Changes
           </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* XMPP Send Modal */}
+      <Modal show={showXMPPModal} onHide={closeXMPPModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Send IPS to XMPP</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {loadingOccupants && <Spinner animation="border" />}
+          {xmppError && <div className="text-danger">{xmppError}</div>}
+          {!loadingOccupants && !xmppError && (
+            <Form>
+              <Form.Group>
+                <Form.Check
+                  inline
+                  type="radio"
+                  label="Room"
+                  name="sendMode"
+                  id="mode-room"
+                  checked={sendMode === 'room'}
+                  onChange={() => setSendMode('room')}
+                />
+                <Form.Check
+                  inline
+                  type="radio"
+                  label="Private"
+                  name="sendMode"
+                  id="mode-private"
+                  checked={sendMode === 'private'}
+                  onChange={() => setSendMode('private')}
+                />
+              </Form.Group>
+              {sendMode === 'private' && (
+                <Form.Group controlId="selectOccupant">
+                  <Form.Label>Select User</Form.Label>
+                  <Form.Control
+                    as="select"
+                    value={selectedOccupant}
+                    onChange={e => setSelectedOccupant(e.target.value)}
+                  >
+                    <option value="">-- choose --</option>
+                    {occupants.map(name => (
+                      <option key={name} value={name}>{name}</option>
+                    ))}
+                  </Form.Control>
+                </Form.Group>
+              )}
+            </Form>
+          )}
+          {xmppMessageStatus && <div className="text-success mt-2">{xmppMessageStatus}</div>}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={closeXMPPModal}>Cancel</Button>
+          <Button
+            variant="primary"
+            disabled={sendMode === 'private' && !selectedOccupant}
+            onClick={handleSendXMPP}
+          >Send</Button>
         </Modal.Footer>
       </Modal>
     </div>
