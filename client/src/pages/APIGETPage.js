@@ -91,7 +91,8 @@ function APIGETPage() {
     const yyyymmdd = `${today.getFullYear()}${pad(today.getMonth() + 1)}${pad(today.getDate())}`;
   
     // 2) Pull patient info
-    const { _id: packageUUID, patient: { name: familyName, given: givenName } } = selectedPatient;
+    const { packageUUID, patient: { name: familyName, given: givenName } } = selectedPatient;
+
   
     // 3) Decide extension & MIME type
     let extension, mimeType;
