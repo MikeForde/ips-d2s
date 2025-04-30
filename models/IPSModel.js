@@ -51,6 +51,10 @@ const IPSModel = sequelize.define('IPSModel', {
         type: DataTypes.STRING,
         allowNull: true
     },
+    patientIdentifier2: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
 }, {
     tableName: 'ipsAlt'
 });

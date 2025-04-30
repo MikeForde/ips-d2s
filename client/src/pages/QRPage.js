@@ -86,14 +86,58 @@ function QRPage() {
   }, [selectedPatient, mode, useCompressionAndEncryption, useIncludeKey, stopLoading]);
 
   const handleDownloadQR = () => {
+    if (!selectedPatient) return;
+
+    const pad = n => n.toString().padStart(2, '0');
+
+    const getYYYYMMDD = () => {
+      const d = new Date();
+      return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}`;
+    };
+
+    const sanitize = str =>
+      str
+        .normalize('NFKD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toUpperCase()
+        .replace(/[^A-Z0-9]/g, '_')
+        .replace(/_+/g, '_')
+        .replace(/^_|_$/g, '');
+
+    // 1) date
+    const yyyymmdd = getYYYYMMDD();
+
+    // 2) patient pieces
+    const {
+      _id: packageUUID,
+      patient: { name: familyName, given: givenName }
+    } = selectedPatient;
+    const fam = sanitize(familyName);
+    const giv = sanitize(givenName);
+    const last6 = packageUUID.slice(-6);
+
+    // 3) flags (_ce for compress+encrypt, _ik for includeKey)
+    const flags = [];
+    if (mode !== 'ipsurl') {
+      if (useCompressionAndEncryption) flags.push('ce');
+      if (useIncludeKey && useCompressionAndEncryption) flags.push('ik');
+    }
+    const flagPart = flags.length ? `_${flags.join('_')}` : '';
+
+    // 4) assemble filename
+    //    e.g. 20250430-DOE_JENNIFER_38346e_ipsunified_ce_ik.png
+    const fileName = `${yyyymmdd}-${fam}_${giv}_${last6}_${mode}${flagPart}.png`;
+
+    // 5) grab canvas and download
     const canvas = document.getElementById('qr-canvas');
+    if (!canvas) return;
     const pngUrl = canvas.toDataURL('image/png');
-    const downloadLink = document.createElement('a');
-    downloadLink.href = pngUrl;
-    downloadLink.download = 'ips_qr_code.png';
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
+    const link = document.createElement('a');
+    link.href = pngUrl;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const handleModeChange = (selectedMode) => {

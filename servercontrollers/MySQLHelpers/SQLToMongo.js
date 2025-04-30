@@ -17,6 +17,7 @@ async function transformRecord(record) {
             practitioner: record.patientPractitioner,
             organization: record.patientOrganization,
             identifier: record.patientIdentifier,
+            identifier2: record.patientIdentifier2
         },
         _id: record.id,  // Using 'id' from MySQL as '_id'
         packageUUID: record.packageUUID,

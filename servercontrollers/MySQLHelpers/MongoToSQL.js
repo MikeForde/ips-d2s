@@ -11,6 +11,7 @@ function transformPatientData(patient) {
     patientPractitioner: patient.practitioner,
     patientOrganization: patient.organization,
     patientIdentifier: patient.identifier,
+    patientIdentifier2: patient.identifier2,
   };
 }
 
