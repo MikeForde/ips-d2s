@@ -4,7 +4,6 @@ const router = express.Router();
 const { sendCotMessage } = require('./takConnector');
 const { resolveId } = require('../utils/resolveId');
 const { gzipEncode } = require('../compression/gzipUtils');
-const { SQLToMongoSingle } = require('../servercontrollers/MySQLHelpers/SQLToMongo');
 
 // POST /tak/test – Sends a COT message.
 // You can provide a custom COT message via a "cot" property in the JSON body.
@@ -32,13 +31,10 @@ router.post('/ips', async (req, res) => {
     }
 
     // Resolve the IPS record using either packageUUID or ObjectId.
-    const ips = await resolveId(id);
-    if (!ips) {
+    const ipsRecord = await resolveId(id);
+    if (!ipsRecord) {
       return res.status(404).json({ error: 'IPS record not found' });
     }
-
-    // Transform the IPS record to the desired format
-    const ipsRecord = await SQLToMongoSingle(ips);
 
     // Convert the IPS record to a JSON string.
     const ipsText = JSON.stringify(ipsRecord, null, 2);
@@ -93,13 +89,11 @@ router.get('/browser/:id', async (req, res) => {
     }
 
     // Resolve the IPS record using the same utility as the /ips route.
-    const ips = await resolveId(id);
-    if (!ips) {
+    const ipsRecord = await resolveId(id);
+    if (!ipsRecord) {
       return res.status(404).send('IPS record not found.');
     }
 
-    // Transform the IPS record to the desired format
-    const ipsRecord = await SQLToMongoSingle(ips);
 
     // Create an HTML page to display the IPS record nicely.
     // Basic inline CSS and responsive meta tags make it usable on small screens.

@@ -1,5 +1,6 @@
 const { v4: uuidv4 } = require('uuid');
 const { stripMilliseconds, stripTime} = require('../../utils/timeUtils');
+const { encryptPrimitiveFieldJWE, underscoreFieldForJWE } = require('../../encryption/jweFieldCrypt');
 
 // Helper function to check if a string contains a number
 const containsNumber = (str) => /\d/.test(str);
@@ -278,4 +279,87 @@ function generateIPSBundleUnified(ips) {
     return ipsBundle;
 }
 
-module.exports = { generateIPSBundleUnified };
+// Async post-process: apply 'jwe' or 'omit'
+async function protectIPSBundle(ipsBundle, protectMethod = "none") {
+    if (!ipsBundle || protectMethod === "none") return ipsBundle;
+
+    const patientEntry = ipsBundle.entry.find(e => e.resource?.resourceType === 'Patient');
+    if (!patientEntry?.resource) return ipsBundle;
+    const patient = patientEntry.resource;
+
+    console.log(`Applying protection method: ${protectMethod}`);
+
+    if (protectMethod === "jwe") {
+        try {
+            if (patient.identifier && Array.isArray(patient.identifier)) {
+                if (patient.identifier[0]?.value) {
+                    const enc0 = await encryptPrimitiveFieldJWE(patient.identifier[0].value, {
+                        url: 'https://example.org/fhir/StructureDefinition/encrypted-nato-id',
+                        recipients: [{ type: 'pbes2', password: 'patient phrase', p2c: 150000, kid: 'patient-pw' }],
+                        enc: 'A256GCM',
+                        aadUtf8: `Patient/${patient.id}#identifier[0].value`
+                    });
+                    patient.identifier[0].value = enc0.placeholder;
+                    Object.assign(patient.identifier[0], underscoreFieldForJWE('value', enc0.extension));
+                }
+                if (patient.identifier[1]?.value) {
+                    const enc1 = await encryptPrimitiveFieldJWE(patient.identifier[1].value, {
+                        url: 'https://example.org/fhir/StructureDefinition/encrypted-national-id',
+                        recipients: [{ type: 'pbes2', password: 'patient phrase', p2c: 150000, kid: 'patient-pw' }],
+                        enc: 'A256GCM',
+                        aadUtf8: `Patient/${patient.id}#identifier[1].value`
+                    });
+                    patient.identifier[1].value = enc1.placeholder;
+                    Object.assign(patient.identifier[1], underscoreFieldForJWE('value', enc1.extension));
+                }
+            }
+            // if (patient.identifier[0]?.value) {
+            //     const enc0 = await encryptPrimitiveFieldPW(patient.identifier[0].value, {
+            //         url: 'https://example.org/fhir/StructureDefinition/encrypted-nato-id',
+            //         password: 'patient phrase',
+            //         iter: 150000,
+            //         aadUtf8: `Patient/${ptId}#identifier[0].value`,
+            //     });
+            //     patient.identifier[0].value = enc0.placeholder;
+            //     Object.assign(patient.identifier[0], underscoreFieldForPW('value', enc0.extension));
+            // }
+
+            // if (patient.identifier[1]?.value) {
+            //     const enc1 = await encryptPrimitiveFieldPW(patient.identifier[1].value, {
+            //         url: 'https://example.org/fhir/StructureDefinition/encrypted-national-id',
+            //         password: 'patient phrase',
+            //         iter: 150000,
+            //         aadUtf8: `Patient/${ptId}#identifier[1].value`,
+            //     });
+            //     patient.identifier[1].value = enc1.placeholder;
+            //     Object.assign(patient.identifier[1], underscoreFieldForPW('value', enc1.extension));
+            // }
+        } catch (err) {
+            const msg = err?.message || String(err);
+            console.error('Field-level ID encryption skipped:', msg);
+            if (patient?.identifier?.[0]) patient.identifier[0].encryptionError = msg;
+        }
+    }
+
+    if (protectMethod === "omit") {
+        if (patientEntry?.resource) {
+            const { gender, birthDate } = patientEntry.resource; // preserve existing values
+            patientEntry.resource = {
+                resourceType: "Patient",
+                id: patientEntry.resource.id,
+                identifier: [{system: "omitted", value: "omitted"}],
+                name: [{ family: "omitted", given: ["omitted"] }],
+                gender,      // may be undefined if not present; that's fine
+                birthDate,   // ditto
+                address: [{ country: "omitted" }],
+            };
+        }
+        // All other resources still reference Patient/pt1 — that remains valid.
+    }
+
+    console.log('Protection applied successfully.');
+
+    return ipsBundle;
+}
+
+module.exports = { generateIPSBundleUnified, protectIPSBundle };

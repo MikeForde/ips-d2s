@@ -1,6 +1,6 @@
 const { resolveId } = require('../utils/resolveId');
 const { IPSModel, Medication, Allergy, Condition, Observation, Immunization } = require('../models/IPSModel');
-const { SQLToMongoSingle, SQLToMongo } = require('./MySQLHelpers/SQLToMongo');
+const { SQLToMongo } = require('./MySQLHelpers/SQLToMongo');
 
 // Define the getIPSRaw function
 async function getIPSRaw(req, res) {
@@ -15,12 +15,9 @@ async function getIPSRaw(req, res) {
         return res.status(404).json({ message: "IPS record not found" });
     }
 
-    // Transform the IPS record to the desired format
-    const transformedIps = await SQLToMongoSingle(ips);
-
     if (req.query.pretty === 'true') {
       // Return formatted JSON with indentation for readability
-      const formattedJson = JSON.stringify(transformedIps, null, "\t");
+      const formattedJson = JSON.stringify(ips, null, "\t");
       res.send(formattedJson);
     } else {
       // Return JSON without formatting

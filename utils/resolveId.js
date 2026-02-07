@@ -1,5 +1,6 @@
 const { validate: isValidUUID } = require('uuid');
 const { IPSModel } = require('../models/IPSModel');
+const { SQLToMongoSingle } = require('../servercontrollers/MySQLHelpers/SQLToMongo');
 
 /**
  * Resolves an ID to an IPSModel record based on the following logic:
@@ -17,12 +18,17 @@ async function resolveId(id) {
     }
 
     console.log("Not a valid UUID, searching by packageUUID...");
-    const record = await IPSModel.findOne({ where: { packageUUID: id } });
+    var record = await IPSModel.findOne({ where: { packageUUID: id } });
 
     // Fallback to search by primary key (`id`) if no record is found.
     if (!record) {
         console.log("Searching by primary key (id)...");
-        return await IPSModel.findByPk(id);
+        record = await IPSModel.findByPk(id);
+    }
+
+    // Transform to MongoDb
+    if (record) {
+        record = SQLToMongoSingle(record);
     }
 
     return record;

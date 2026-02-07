@@ -1,6 +1,5 @@
 const { resolveId } = require('../utils/resolveId');
 const { generateIPSHL72_x } = require('./servercontrollerfuncs/generateIPSHL72_x');
-const { SQLToMongoSingle } = require('./MySQLHelpers/SQLToMongo');
 
 // Define the getIPSHL72_8 function
 async function getIPSHL72_x (req, res) {
@@ -15,11 +14,8 @@ async function getIPSHL72_x (req, res) {
             return res.status(404).send('IPS record not found');
         }
 
-        // Transform the IPS record to the desired format
-        const transformedIpsRecord = await SQLToMongoSingle(ipsRecord);
-
         // Convert the IPS record to HL7 2.8 format
-        const hl728Data = generateIPSHL72_x(transformedIpsRecord);
+        const hl728Data = generateIPSHL72_x(ipsRecord);
 
         // Send the plain text response
         res.set('Content-Type', 'text/plain');

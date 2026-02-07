@@ -1,6 +1,5 @@
 const { resolveId } = require('../utils/resolveId');
 const { generateIPSBEER } = require('./servercontrollerfuncs/generateIPSBEER');
-const { SQLToMongoSingle } = require('./MySQLHelpers/SQLToMongo');
 
 // Define the getIPSBEER function
 async function getIPSBEER (req, res) {
@@ -25,11 +24,8 @@ async function getIPSBEER (req, res) {
             return res.status(404).send('IPS record not found');
         }
 
-        // Transform the IPS record to the desired format
-        const transformedIpsRecord = await SQLToMongoSingle(ipsRecord);
-
         // Convert the IPS record to BEER format
-        const beerData = generateIPSBEER(transformedIpsRecord, delimiter);
+        const beerData = generateIPSBEER(ipsRecord, delimiter);
 
         // Send the plain text response
         res.set('Content-Type', 'text/plain');

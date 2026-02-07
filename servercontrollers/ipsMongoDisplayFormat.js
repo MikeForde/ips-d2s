@@ -1,5 +1,4 @@
 const { resolveId } = require('../utils/resolveId');
-const { SQLToMongoSingle } = require('./MySQLHelpers/SQLToMongo');
 
 async function getMongoFormatted(req, res) {
   const {id} = req.params;
@@ -13,23 +12,20 @@ async function getMongoFormatted(req, res) {
         return res.status(404).send('IPS record not found');
     }
 
-    // Transform the IPS record to the desired format
-    const transformedIps = await SQLToMongoSingle(ips);
-
     // Format the response data
     const formattedData = {
-      packageUUID: transformedIps.packageUUID,
-      timeStamp: transformedIps.timeStamp,
+      packageUUID: ips.packageUUID,
+      timeStamp: ips.timeStamp,
       patient: {
-        name: transformedIps.patient.name,
-        given: transformedIps.patient.given,
-        dob: transformedIps.patient.dob,
-        gender: transformedIps.patient.gender,
-        practitioner: transformedIps.patient.practitioner,
-        nation: transformedIps.patient.nation,
-        organization: transformedIps.patient.organization
+        name: ips.patient.name,
+        given: ips.patient.given,
+        dob: ips.patient.dob,
+        gender: ips.patient.gender,
+        practitioner: ips.patient.practitioner,
+        nation: ips.patient.nation,
+        organization: ips.patient.organization
       },
-      medication: transformedIps.medication.map(med => ({
+      medication: ips.medication.map(med => ({
         name: med.name,
         date: med.date,
         dosage: med.dosage,
@@ -37,20 +33,20 @@ async function getMongoFormatted(req, res) {
         code: med.code,
         status: med.status
       })),
-      allergies: transformedIps.allergies.map(allergy => ({
+      allergies: ips.allergies.map(allergy => ({
         name: allergy.name,
         criticality: allergy.criticality, 
         date: allergy.date,
         code: allergy.code,
         system: allergy.system
       })),
-      conditions: transformedIps.conditions.map(condition => ({
+      conditions: ips.conditions.map(condition => ({
         name: condition.name,
         date: condition.date,
         code: condition.code,
         system: condition.system
       })),
-      observations: transformedIps.observations.map(observation => ({
+      observations: ips.observations.map(observation => ({
         name: observation.name,
         date: observation.date,
         value: observation.value,
@@ -59,7 +55,7 @@ async function getMongoFormatted(req, res) {
         valueCode: observation.valueCode,
         bodySite: observation.bodySite
       })),
-      immunizations: transformedIps.immunizations.map(immunization => ({
+      immunizations: ips.immunizations.map(immunization => ({
         name: immunization.name,
         system: immunization.system,
         date: immunization.date,

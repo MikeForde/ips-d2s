@@ -4,7 +4,6 @@ const path = require("path");
 const grpc = require("@grpc/grpc-js");
 const protoLoader = require("@grpc/proto-loader");
 const { resolveId } = require('../utils/resolveId');
-const { SQLToMongoSingle } = require('../servercontrollers/MySQLHelpers/SQLToMongo');
 
 // Load .proto definition
 const PROTO_PATH = path.join(__dirname, "ips.proto");
@@ -25,17 +24,14 @@ async function getIPSRecord(call, callback) {
   try {
     // Query MongoDB for the matching record by UUID
     // Resolve the ID and fetch the IPS record
-    const sqldoc = await resolveId(patient_uuid);
+    const doc = await resolveId(patient_uuid);
     
-    if (!sqldoc) {
+    if (!doc) {
       return callback({
         code: grpc.status.NOT_FOUND,
         message: "No IPS record found for that UUID.",
       });
     }
-
-    // Transform the IPS SQL record to mongodb-style JSON object
-    const doc = await SQLToMongoSingle(sqldoc);
 
     // Construct the response object from the Mongoose document
     const response = {
