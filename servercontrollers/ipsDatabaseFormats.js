@@ -50,4 +50,30 @@ async function getAllIPS(req, res) {
   }
 }
 
-module.exports = { getIPSRaw, getAllIPS };
+async function getAllIPSList(req, res) {
+  try {
+    const ipss = await IPSModel.find(
+      {},
+      { packageUUID: 1, "patient.given": 1,"patient.name": 1, _id: 0 }  // projection
+    )
+      .sort({ "patient.name": 1, "patient.given": 1 }) // optional but nice for UI
+      .lean()
+      .exec();
+
+    const mongoFormattedIPSs = await SQLToMongo(ipss);
+
+    // Optionally normalize fields to the exact shape you want on Android
+    const list = mongoFormattedIPSs.map(x => ({
+      packageUUID: x.packageUUID,
+      given: x.patient?.given ?? "",
+      name: x.patient?.name ?? ""
+    }));
+
+    res.json(list);
+  } catch (error) {
+    console.error("Error fetching IPS list:", error);
+    res.status(400).send(error.message || "Invalid request");
+  }
+}
+
+module.exports = { getIPSRaw, getAllIPS, getAllIPSList };
