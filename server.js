@@ -9,8 +9,7 @@ const fs = require('fs');
 const http = require('http');
 const { Server } = require('socket.io');
 
-const xml2js = require('xml2js');
-const getRawBody = require('raw-body');
+// ───── Models & Controllers ─────
 const { getIPSBundle } = require('./servercontrollers/ipsBundleFormat');
 const { getIPSBundleByName } = require('./servercontrollers/ipsBundleByName');
 const { getORABundleByName } = require('./servercontrollers/oraBundleByName');
@@ -254,7 +253,7 @@ initXMPP_WebSocket()
 
 // ─── Socket.IO ─────────────────────────────────────────────
 // wrap the express app in a raw HTTP server
-const port = process.env.PORT || 5050;
+const port = process.env.PORT || 5049;
 const httpServer = http.createServer(api);
 
 // create the Socket.IO server and allow CORS from your front‑end origin
