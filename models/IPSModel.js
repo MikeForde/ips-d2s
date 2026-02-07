@@ -102,6 +102,14 @@ const Immunization = sequelize.define('Immunization', {
     status: DataTypes.STRING,
 });
 
+const Procedure = sequelize.define('Procedure', {
+    name: DataTypes.STRING,
+    system: DataTypes.STRING,
+    date: DataTypes.DATE,
+    code: DataTypes.STRING,
+    status: DataTypes.STRING,
+});
+
 IPSModel.hasMany(Medication, { as: 'medications' });
 Medication.belongsTo(IPSModel);
 
@@ -116,6 +124,9 @@ Observation.belongsTo(IPSModel);
 
 IPSModel.hasMany(Immunization, { as: 'immunizations'});
 Immunization.belongsTo(IPSModel);
+
+IPSModel.hasMany(Procedure, { as: 'procedures'});
+Procedure.belongsTo(IPSModel);
 
 // Sync all models with the database 
 // This will create the tables if they do not exist and add/remove fields if they have changed
@@ -137,4 +148,4 @@ else {
     });
 }
 
-module.exports = { IPSModel, Medication, Allergy, Condition, Observation, Immunization };
+module.exports = { IPSModel, Medication, Allergy, Condition, Observation, Immunization, Procedure };

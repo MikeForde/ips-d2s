@@ -30,6 +30,7 @@ function convertIPSBundleToSchema(ipsBundle) {
   let conditions = [];
   let observations = [];
   let immunizations = [];
+  let procedures = [];
 
   // Create a map for Medication resources (keyed by resource.id)
   let medicationResourceMap = {};
@@ -41,6 +42,7 @@ function convertIPSBundleToSchema(ipsBundle) {
     // Extract information based on resource type - change to lowercase
     switch ((resource.resourceType).toLowerCase()) {
       case "patient":
+        //console.log("Processing Patient resource");
         patient.name = resource.name[0].family;
         patient.given = resource.name[0].given ? resource.name[0].given[0] : "Unknown";
         // check if patient given is just empty string
@@ -51,12 +53,17 @@ function convertIPSBundleToSchema(ipsBundle) {
         patient.gender = resource.gender !== undefined ? resource.gender : "Unknown";
         // If no address is provided, set nation to Unknown
         patient.nation = resource.address !== undefined ? resource.address[0].country : "Unknown";
-        patient.identifier = resource.identifier[0].value ? resource.identifier[0].value : "Unknown";
-        patient.identifier2 = resource.identifier[1].value ? resource.identifier[1].value : "Unknown";
+        if (resource.identifier[0] !== undefined) {
+          patient.identifier = resource.identifier[0].value ? resource.identifier[0].value : "Unknown";
+          if (resource.identifier[1] !== undefined){
+            patient.identifier2 = resource.identifier[1].value ? resource.identifier[1].value : "Unknown";
+          }
+        }
         console.log("Patient = " + JSON.stringify(patient));
         break;
 
       case "practitioner":
+        //console.log("Processing Practitioner resource");
         if (resource.name) {
           if (resource.name[0].text) {
             patient.practitioner = resource.name[0].text;
@@ -71,6 +78,7 @@ function convertIPSBundleToSchema(ipsBundle) {
         break;
 
       case "organization":
+        //console.log("Processing Org resource");
         patient.organization = resource.name  ? resource.name : "Unknown";
         break;
 
@@ -142,11 +150,12 @@ function convertIPSBundleToSchema(ipsBundle) {
           system: medsystem,  // if available from medicationCodeableConcept
           code: medcode,      // if available from medicationCodeableConcept
           status: "active",
-          medRef: medReferenceId  // temporary field for matching later
+          medRef: medReferenceId.split('/')[1]  // temporary field for matching later
         });
         break;
 
       case "medication":
+        //console.log("Processing  Med resource");
         // Store the Medication resource data in the map so that it can later be applied to any
         // medication entries referencing it.
         if (resource.code && resource.code.coding && resource.code.coding[0]) {
@@ -192,6 +201,7 @@ function convertIPSBundleToSchema(ipsBundle) {
 
 
       case "allergyintolerance":
+        //console.log("Processing Allergy resource");
         let alName = null;
         let alCode = null;
         let alSystem = null;
@@ -218,10 +228,11 @@ function convertIPSBundleToSchema(ipsBundle) {
           system: alSystem,
           code: alCode
         });
-        console.log("Allergies = " + JSON.stringify(allergies));
+        //console.log("Allergies = " + JSON.stringify(allergies));
         break;
 
       case "condition":
+        //console.log("Processing Condition resource");
         let condCode = null;
         let condSystem = null;
         let condDisplay = null;
@@ -245,7 +256,6 @@ function convertIPSBundleToSchema(ipsBundle) {
         break;
 
       case "observation":
-        case "observation":
           let obName = null;
           let obCode = null;
           let obSystem = null;
@@ -313,6 +323,28 @@ function convertIPSBundleToSchema(ipsBundle) {
         });
         break;
 
+      case "procedure":
+        //console.log("Processing Procedure resource");
+        let procName = null;
+        let procCode = null;
+        let procSystem = null;
+        if (resource.code) {
+          procName = resource.code.coding[0].display ? resource.code.coding[0].display : null;
+          procCode = resource.code.coding[0].code ? resource.code.coding[0].code : null;
+          procSystem = resource.code.coding[0].system ? resource.code.coding[0].system : null;
+          if (procName === null) {
+            procName = resource.code.text ? resource.code.text : null;
+          }
+        }
+
+        procedures.push({
+          name: procName,
+          date: new Date(resource.performedDateTime).toISOString(),
+          system: procSystem,
+          code: procCode
+        });
+        break;
+
       default:
         break;
     }
@@ -334,7 +366,7 @@ function convertIPSBundleToSchema(ipsBundle) {
     return med;
   });
 
-  return { packageUUID, timeStamp, patient, medication, allergies, conditions, observations, immunizations };
+  return { packageUUID, timeStamp, patient, medication, allergies, conditions, observations, immunizations, procedures };
 }
 
 module.exports = { convertIPSBundleToSchema };

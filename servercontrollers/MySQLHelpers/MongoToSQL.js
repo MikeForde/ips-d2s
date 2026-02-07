@@ -80,6 +80,16 @@ async function MongoToSQL(data) {
     }));
   }
 
+  if (data.procedures && data.procedures.length > 0) {
+    transformedData.procedures = data.procedures.map(procedure => ({
+      name: procedure.name,
+      system: procedure.system,
+      date: procedure.date,
+      code: procedure.code,
+      status: procedure.status
+    }));
+  }
+
   return transformedData;
 }
 

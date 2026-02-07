@@ -1,4 +1,4 @@
-const { IPSModel, Medication, Allergy, Condition, Observation, Immunization } = require('../../models/IPSModel');
+const { IPSModel, Medication, Allergy, Condition, Observation, Immunization, Procedure } = require('../../models/IPSModel');
 const { MongoToSQL } = require('./MongoToSQL');
 const { SQLToMongoSingle } = require('./SQLToMongo');
 
@@ -46,6 +46,14 @@ async function addIPSRecord(ipsData) {
         })));
     }
 
+    // Add handling for procedures
+    if (transformedData.procedures && transformedData.procedures.length) {
+        await Procedure.bulkCreate(transformedData.procedures.map(procedure => ({
+            ...procedure,
+            IPSModelId: newIPS.id   
+        })));
+    }
+
     // Reload the newIPS to include the associated records
     const reloadedIPS = await IPSModel.findByPk(newIPS.id, {
         include: [
@@ -53,7 +61,8 @@ async function addIPSRecord(ipsData) {
             { model: Allergy, as: 'allergies' },
             { model: Condition, as: 'conditions' },
             { model: Observation, as: 'observations' },
-            { model: Immunization, as: 'immunizations' }
+            { model: Immunization, as: 'immunizations' },
+            { model: Procedure, as: 'procedures' }
         ]
     });
 

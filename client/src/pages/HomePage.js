@@ -17,6 +17,7 @@ function HomePage() {
   const { selectedPatients, setSelectedPatients, setSelectedPatient } = useContext(PatientContext);
   const { startLoading, stopLoading } = useLoading();
 
+
   const add = (formData) => {
     const cleanedMedication = formData.medication.filter(item => {
       return item.name.trim() !== "" || item.date.trim() !== "" || item.dosage.trim() !== "";
@@ -38,13 +39,18 @@ function HomePage() {
       return item.name.trim() !== "" || item.date.trim() !== "";
     });
 
+    const cleanedProcedures = formData.procedures.filter(item => {
+      return item.name.trim() !== "" || item.date.trim() !== "";
+    });
+
     const cleanedFormData = {
       ...formData,
       medication: cleanedMedication,
       allergies: cleanedAllergies,
       conditions: cleanedConditions,
       observations: cleanedObservations,
-      immunizations: cleanedImmunizations
+      immunizations: cleanedImmunizations,
+      procedures: cleanedProcedures,
     };
 
     console.log("Form Data", cleanedFormData);

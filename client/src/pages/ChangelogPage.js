@@ -636,6 +636,143 @@ function ChangeLogPage() {
                                 <li>Can validate whole bundle or individual resources</li>
                             </ul>
                         </li>
+                        <li>
+                            <h5>Version 0_66 - 6th June 2025</h5>
+                            <ul>
+                                <li><strong>New NFC Gzipped URL Support</strong></li>
+                                <li>Write compressed IPS data directly to NFC tags as a Base64-encoded URL using the <code>/ciwx/payload</code> route</li>
+                                <li>Updated “Write to NFC” interface: dropdown with options for Plain Text, Binary (AES256 + gzip), and Gzipped URL</li>
+                                <li>PayloadPage added to decompress and display gzipped Base64 IPS data directly from the URL</li>
+                                <li>Import, Convert to NoSQL, and Human Readable buttons added to PayloadPage for one-click backend operations</li>
+                                <li>Compatible with 8k NFC tags and mobile browsers that support Web NFC and URL launches</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <h5>Version 0_67 - 12th June 2025</h5>
+                            <ul>
+                                <li><strong>New IPS Unified JSON Schema Validation API</strong></li>
+                                <li>Added <code>/ipsUniVal</code> endpoint for server-side validation of IPS Unified Bundles and individual resources</li>
+                                <li>Leverages AJV with Draft-07 JSON Schemas to enforce structural and semantic conformance</li>
+                                <li>Bundle validation split into envelope check and per-entry resource schema enforcement</li>
+                                <li>Returns <code>valid</code> status and detailed <code>errors</code> array in JSON response</li>
+                                <li>Modularized implementation in <code>schema/ipsUniVal.js</code> for easy maintenance</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <h5>Version 0_68 - 13th June 2025</h5>
+                            <ul>
+                                <li><strong>Graphical Timeline Enhancements on Payload Viewer</strong></li>
+                                <li>Interactive timeline now supports pinch/scroll, zoom in/out buttons, and dynamic padding so items never touch the viewport edge</li>
+                                <li>Tap or click on any event to reveal a compact details panel showing date-time, name, code/system, and resource-specific fields (dosage, criticality, value)</li>
+                                <li>Improved mobile support: listens to <code>select</code> events for reliable touch interactions</li>
+                                <li><strong>New Validate Feature on NFC Reader Page</strong></li>
+                                <li>Added “Validate” button to NFC Reader page to run schema checks against loaded IPS Unified bundles before writing</li>
+                                <li>Validation results surface structural errors and missing required elements in a user-friendly toast notification</li>
+                                <li><strong>Navigation-Driven Access Mode for Viewer</strong></li>
+                                <li>Page can still be loaded via NFC card URL payload or directly through in-app navigation</li>
+                                <li>When reached via navigation, title switches to “Viewer” and the NFC info alert and Import button are hidden for a cleaner UI</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <h5>Version 0_69 - 30th Aug 2025</h5>
+                            <ul>
+                                <li><strong>PDF Formatting changes</strong></li>
+                                <li>PDF visual improvements to make it look less a British Rail timetable!</li>
+                                <li>Column ordering such that most important column fields to left e.g., for Observations name and value</li>
+                                <li>Sorted by datetime - oldest first as would be typical for medical data</li>
+                                <li>Dynamic font and overflow to adjust for long drug, dosage or code system names</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <h5>Version 0_70 - 6th Sep 2025</h5>
+                            <ul>
+                                <li><strong>New URL Info View</strong></li>
+                                <li>When data is loaded via URL (NFC or other), default view is now an information screen explaining the NATO patient tag</li>
+                                <li>Info text supports HTML formatting for paragraphs and emphasis</li>
+                                <li><strong>New Report View</strong></li>
+                                <li>Added a fourth viewing option styled to match PDF layout</li>
+                                <li>Brand colours applied (deep blue headers, light background, zebra rows, muted grey subtext)</li>
+                                <li>Tables for Medications, Allergies, Conditions, Observations, Immunizations, and Procedures included</li>
+                                <li>Data ordered chronologically (oldest first) for medical clarity</li>
+                                <li><strong>DMS Logo for PDF</strong></li>
+                                <li>Branding improved with svg image for PDF</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <h5>Version 0_71 - 26th Sep 2025</h5>
+                            <ul>
+                                <li><strong>More Informative Schema Validation Error Messages</strong></li>
+                                <li>Added a prettyAjvError function to backend validator to improve error messages</li>
+                                <li>Also tightened up schema restrictions on CodeableConcept</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <h5>Version 0_72 - 30th Oct 2025</h5>
+                            <ul>
+                                <li><strong>Field-Level Encryption – Early Demo + Gzip-Only NFC</strong></li>
+                                <li>Using: <code>encryption/jweFieldCrypt.js</code> (JWE, PBES2 + A256GCM) for per-field protection of FHIR primitives; currently applied to <code>Patient.identifier</code>.</li>
+                                <li>Available but unused: <code>encryption/pwFieldCrypt.js</code> (password → PBKDF2-SHA256 → AES-256-GCM) as a lightweight, jose-free alternative for password-only scenarios.</li>
+                                <li><strong>New Options on API Page:</strong>
+                                    <ul>
+                                        <li><em>Field-Level Id Encrypt</em> – replaces patient identifiers with secure, password-protected encrypted values.</li>
+                                        <li><em>Id Omit</em> – removes identifiers entirely, leaving only gender and birth date visible.</li>
+                                    </ul>
+                                </li>
+                                <li>Gzip-Only NFC Write – added “Gzip Binary (as shown)” mode for writing compressed but unencrypted data to NFC tags.</li>
+                                <li>Improved NFC Reading - now recognises both encrypted and gzip-only payload formats automatically.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <h5>Version 0_73 - 3rd Nov 2025</h5>
+                            <ul>
+                                <li><strong>HL7 2.x and BEER Added to Gzip URL</strong></li>
+                                <li>The "Write to NFC" Gzipped URL process expanded so it now works for both HL7 2.x and BEER (newline and pipe)</li>
+                                <li>Fixed bug when converting BEER 'pre' Med entries with multiple dates for same drug</li>
+                                <li>Protect and genIPSUnified separated so latter is backwards compatible with elements not requiring the former.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <h5>Version 0_74 — 27 Nov 2025</h5>
+                            <ul>
+                                <li><strong>JWE Field Encryption & Decryption Tools</strong></li>
+                                <li>New frontend pages added to experiment with field-level protection of IPS Bundles.</li>
+                                <li>Users can now paste a Bundle + private JWK to decrypt protected identifiers, or paste a plain Bundle to test encryption settings.</li>
+                                <li>Supports switching between algorithms and parameters, with instant before/after Bundle preview.</li>
+                                <li>Added a multi-recipient JWE demo showing how the same Bundle can be encrypted for 1–5 recipients, each with their own JWK pair.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <h5>Version 0_75 — 13 Dec 2025</h5>
+                            <ul>
+                                <li><strong>API Calls Added to Aide Android NFC 2-Data POC</strong></li>
+                                <li>Separate Android App requires IPS Unified data split into two parts</li>
+                                <li>Data blob 1 goes in a Read-Only section and Data blob 2 goes in a Read/Write section of NFC card</li>
+                                <li>First new api call - <code>/ips/list</code> - returns list of all IPS records (just packageUUID, name and given name)</li>
+                                <li>Second new api call - <code>/ipsunifiedsplit/:id</code> - provides data in bespoke bundle containing two parts. The division by whether before or after main timestamp. Which essentially splits the NPS data into two parts.</li>
+                                <li>Third new api call - <code>/ipsdatasplitpoc/:id</code> - provides data in bespoke bundle containing two parts. The division now is the RO section is a plain text, human-readable (Patient, Conditions, Medications and Allergies) and the RW section is the full NPS data gzipped base64 encoded.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <h5>Version 0_76 — 29th Jan 2026</h5>
+                            <ul>
+                                <li><strong>Added Coverage Resource to IPS Unified Schema and Viewer</strong></li>
+                                <li>Expanded IPS Unified JSON Schema to include the Coverage resource, allowing representation of insurance information.</li>
+                                <li>Updated IPS Schema Viewer page to display the Coverage schema with example data.</li>
+                                <li>Modified IPS Unified Bundle example to incorporate a Coverage resource linked to the Patient.</li>
+                                <li>Removed 'total' as a required field for Bundle resource.</li>
+                                <li>Improved XMPP handling and message history retrieval. Avoids duplicate messages and re-processing of IPS UUID requests.</li>
+                                <li>ipsunifiedsplit now returns gzipped base64 encoded data - which the Android NFC Tool App can present or unzip.</li>
+                            </ul>
+                        </li>
+                        <h5>Version 0_77 — 4th Feb 2026</h5>
+                        <ul>
+                            <li><strong>Send to TAK Integration and MMP Messaging Improvements</strong></li>
+                            <li>Added <em>Send to TAK</em> button to the frontend UI, enabling direct transmission of IPS data to TAK environments.</li>
+                            <li>Improved XMPP handling for more reliable message flow and reduced edge-case failures.</li>
+                            <li>Fixed MMP message handling and changed proxy port to <code>5049</code> to avoid clashes with Atlas services.</li>
+                            <li>Updated MMP MTF NVG request logic to retrieve valid random MTFs for demo messaging scenarios.</li>
+                            <li>Frontend now allows users to explicitly choose <em>To</em> and <em>From</em> MTFs, or leave them unset to fall back to random selection.</li>
+                        </ul>
                     </ul>
                 </Col>
             </Row>

@@ -61,6 +61,13 @@ async function getMongoFormatted(req, res) {
         date: immunization.date,
         code: immunization.code,
         status: immunization.status
+      })),
+      procedures: ips.procedures.map(procedure => ({
+        name: procedure.name,
+        system: procedure.system,
+        date: procedure.date,
+        code: procedure.code,
+        status: procedure.status
       }))
     };
 

@@ -1,5 +1,5 @@
 // server/controllers/updateIPSByUUID.js
-const { IPSModel, Medication, Allergy, Condition, Observation, Immunization } = require('../models/IPSModel');
+const { IPSModel, Medication, Allergy, Condition, Observation, Immunization, Procedure } = require('../models/IPSModel');
 const { updateSQL }    = require('./MySQLHelpers/updateSQL');
 const { SQLToMongoSingle } = require('./MySQLHelpers/SQLToMongo');
 
@@ -28,7 +28,8 @@ async function updateIPSByUUID(req, res) {
         { model: Allergy,        as: 'allergies'     },
         { model: Condition,      as: 'conditions'    },
         { model: Observation,    as: 'observations'  },
-        { model: Immunization,   as: 'immunizations' }
+        { model: Immunization,   as: 'immunizations' },
+        { model: Procedure,     as: 'procedures'    }
       ]
     });
 

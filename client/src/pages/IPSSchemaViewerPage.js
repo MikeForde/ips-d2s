@@ -53,14 +53,14 @@ export default function IPSchemaViewer() {
       id: 'allergy1',
       category: ['medication'],
       criticality: 'high',
-      code: { coding: [ { system: 'http://snomed.info/sct', code: '12345', display: 'Peanut allergy' } ] },
+      code: { coding: [{ system: 'http://snomed.info/sct', code: '12345', display: 'Peanut allergy' }] },
       patient: { reference: 'Patient/pt1' },
       onsetDateTime: '2025-01-01T00:00:00Z'
     },
     Condition: {
       resourceType: 'Condition',
       id: 'condition1',
-      code: { coding: [ { system: 'http://snomed.info/sct', code: '67890', display: 'Hypertension' } ] },
+      code: { coding: [{ system: 'http://snomed.info/sct', code: '67890', display: 'Hypertension' }] },
       subject: { reference: 'Patient/pt1' },
       onsetDateTime: '2020-06-01T00:00:00Z'
     },
@@ -76,10 +76,28 @@ export default function IPSchemaViewer() {
       subject: { reference: 'Patient/pt1' },
       effectiveDateTime: '2025-05-16T09:00:00Z',
       component: [
-        { code: { coding: [ { system: 'http://snomed.info/sct', code: '271649006', display: 'Systolic blood pressure' } ] }, valueQuantity: { value: 120, unit: 'mmHg', system: 'http://unitsofmeasure.org', code: 'mm[Hg]' } },
-        { code: { coding: [ { system: 'http://snomed.info/sct', code: '271650006', display: 'Diastolic blood pressure' } ] }, valueQuantity: { value: 80, unit: 'mmHg', system: 'http://unitsofmeasure.org', code: 'mm[Hg]' } }
+        { code: { coding: [{ system: 'http://snomed.info/sct', code: '271649006', display: 'Systolic blood pressure' }] }, valueQuantity: { value: 120, unit: 'mmHg', system: 'http://unitsofmeasure.org', code: 'mm[Hg]' } },
+        { code: { coding: [{ system: 'http://snomed.info/sct', code: '271650006', display: 'Diastolic blood pressure' }] }, valueQuantity: { value: 80, unit: 'mmHg', system: 'http://unitsofmeasure.org', code: 'mm[Hg]' } }
       ]
-    }
+    },
+    Procedure: {
+        resourceType: 'Procedure',
+        id: 'proc1',
+        status: 'completed',
+        code: {
+          coding: [
+            { system: 'http://snomed.info/sct', code: '40847009', display: 'Blood pressure measurement' }
+          ]
+        },
+        subject: { reference: 'Patient/pt1' },
+        performedDateTime: '2025-05-16T09:00:00Z'
+      },
+    Coverage: {
+        resourceType: 'Coverage',
+        id: 'cov1',
+        beneficiary: { reference: 'Patient/pt1' },
+        payor: { display: 'Example Insurance Co.' }
+      }
   };
 
   // Construct full Bundle example
@@ -105,7 +123,9 @@ export default function IPSchemaViewer() {
           'Medication.schema.json',
           'AllergyIntolerance.schema.json',
           'Condition.schema.json',
-          'Observation.schema.json'
+          'Observation.schema.json',
+          'Procedure.schema.json',
+          'Coverage.schema.json'
         ];
 
         const fetched = await Promise.all(
@@ -160,7 +180,7 @@ export default function IPSchemaViewer() {
 
   return (
     <Container className="mt-5">
-      <h3>IPS Unified JSON Schemas</h3>
+      <h3>NPS JSON Schemas</h3>
       <p>Toggle between default view, expanded view, raw schema, or example formats.</p>
 
       <Tab.Container activeKey={activeKey} onSelect={setActiveKey}>

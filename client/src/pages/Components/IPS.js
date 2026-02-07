@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import { Button, Modal, Form, OverlayTrigger, Tooltip, Row, Col, Spinner } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { faFileMedical, faQrcode, faTrash, faBeer, faEdit, faFileExport, faUpload, faPaperPlane, faCommentDots } from '@fortawesome/free-solid-svg-icons';
+import { faFileMedical, faQrcode, faTrash, faBeer, faEdit, faFileExport, faUpload, faCommentDots, faEye, faAmbulance, faMapMarked } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
 import { PatientContext } from '../../PatientContext';
@@ -9,6 +9,7 @@ import { useLoading } from '../../contexts/LoadingContext';
 import "./components.css";
 import { generatePDF } from './generatePDF';
 import { Toast, ToastContainer } from 'react-bootstrap';
+//import { set } from "mongoose";
 
 
 const formatDate = (dateString) => {
@@ -40,6 +41,9 @@ export function IPS({ ips, remove, update }) {
   const [pmrMessage, setPmrMessage] = useState('');
   const [pmrAlertVariant, setPmrAlertVariant] = useState('success'); // "success" for success, "danger" for errors
   const [showPmrAlert, setShowPmrAlert] = useState(false);
+  const [takMessage, setTakMessage] = useState('');
+  const [takAlertVariant, setTakAlertVariant] = useState('success'); // "success" for success, "danger" for errors
+  const [showTakAlert, setShowTakAlert] = useState(false);
   const [showEditAlert, setShowEditAlert] = useState(false);
   const [editAlertMessage, setEditAlertMessage] = useState("");
 
@@ -51,6 +55,15 @@ export function IPS({ ips, remove, update }) {
   const [sendMode, setSendMode] = useState('room'); // 'room' or 'private'
   const [xmppMessageStatus, setXmppMessageStatus] = useState('');
   const [xmppError, setXmppError] = useState('');
+
+  // MMP/PMR state
+  const [showPMRModal, setShowPMRModal] = useState(false);
+  const [mtfOptions, setMtfOptions] = useState([]);
+  const [loadingMtfs, setLoadingMtfs] = useState(false);
+  const [pmrFrom, setPmrFrom] = useState('');
+  const [pmrTo, setPmrTo] = useState('');
+  const [pmrUiError, setPmrUiError] = useState('');
+
 
   const handleRemove = () => setShowConfirmModal(true);
 
@@ -70,6 +83,7 @@ export function IPS({ ips, remove, update }) {
     setEditIPS({ ...ips });  // Reset the form with the current IPS data
     setShowEditModal(true);
   };
+
 
 
   const handleEditChange = (e) => {
@@ -139,23 +153,24 @@ export function IPS({ ips, remove, update }) {
     </Tooltip>
   );
 
-  // Inside your IPS component, add the new function:
-  const handleSendPMR = () => {
+  // Send to TAK
+  const handleSendTAK = () => {
     startLoading();
-    axios.post(`/api/pmr/${ips._id}`)
+    const payload = { id: ips.packageUUID };
+    axios.post(`/tak/ips`, payload)
       .then(response => {
-        setPmrMessage("PMR Response: " + JSON.stringify(response.data, null, 2));
-        setPmrAlertVariant("success");
-        setShowPmrAlert(true);
+        setTakMessage("TAK Response: " + JSON.stringify(response.data, null, 2));
+        setTakAlertVariant("success");
+        setShowTakAlert(true);
       })
       .catch(error => {
         const errorMsg = error.response && error.response.data
           ? error.response.data
           : error.message;
-        console.error("Error sending PMR:", errorMsg);
-        setPmrMessage(errorMsg);
-        setPmrAlertVariant("danger");
-        setShowPmrAlert(true);
+        console.error("Error sending TAK:", errorMsg);
+        setTakMessage(errorMsg);
+        setTakAlertVariant("danger");
+        setShowTakAlert(true);
       })
       .finally(() => stopLoading());
   };
@@ -176,6 +191,7 @@ export function IPS({ ips, remove, update }) {
     setSelectedOccupant('');
     setSendMode('room');
   };
+
   const handleSendXMPP = () => {
     setXmppMessageStatus(''); setXmppError('');
     const payload = { id: ips.packageUUID };
@@ -191,6 +207,52 @@ export function IPS({ ips, remove, update }) {
       .catch(() => setXmppError('Failed to send message'));
   };
 
+  const openPMRModal = () => {
+    setShowPMRModal(true);
+    setPmrUiError('');
+    setPmrFrom('');
+    setPmrTo('');
+
+    setLoadingMtfs(true);
+    axios.get('/api/pmr/mtfs')
+      .then(res => setMtfOptions(res.data.mtfs || []))
+      .catch(() => setPmrUiError('Failed to load MTFs - is MMP reachable?'))
+      .finally(() => setLoadingMtfs(false));
+  };
+
+  const closePMRModal = () => {
+    setShowPMRModal(false);
+  };
+
+  //const handleSendPMR = () => openPMRModal(); // now opens picker UI
+  const handleSendPMRQuick = () => sendPMR(); // no params => random/back-compat
+  const handleSendPMRWithSelection = () => sendPMR(pmrFrom, pmrTo);
+
+
+
+  const sendPMR = (from, to) => {
+    startLoading();
+    const qs = from && to ? `?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}` : '';
+    axios.post(`/api/pmr/${ips._id}${qs}`)
+      .then(response => {
+        setPmrMessage("PMR Response: " + JSON.stringify(response.data, null, 2));
+        setPmrAlertVariant("success");
+        setShowPmrAlert(true);
+      })
+      .catch(error => {
+        const errorMsg = error.response && error.response.data
+          ? error.response.data
+          : error.message;
+        console.error("Error sending PMR:", errorMsg);
+        setPmrMessage(errorMsg);
+        setPmrAlertVariant("danger");
+        setShowPmrAlert(true);
+      })
+      .finally(() => stopLoading());
+  };
+
+
+
 
   return (
     <div className="ips" onDoubleClick={() => setExpanded(expanded ? false : true)}>
@@ -199,6 +261,14 @@ export function IPS({ ips, remove, update }) {
           <Link to="/api">
             <Button variant="outline-secondary" className="qr-button custom-button" onClick={handleSelection}>
               <FontAwesomeIcon icon={faFileMedical} />
+            </Button>
+          </Link>
+        </OverlayTrigger>
+
+        <OverlayTrigger placement="top" overlay={renderTooltip('Visit Viewer Page')}>
+          <Link to="/viewer">
+            <Button variant="outline-secondary" className="qr-button custom-button" onClick={handleSelection}>
+              <FontAwesomeIcon icon={faEye} />
             </Button>
           </Link>
         </OverlayTrigger>
@@ -234,14 +304,20 @@ export function IPS({ ips, remove, update }) {
         </OverlayTrigger>
 
         <OverlayTrigger placement="top" overlay={renderTooltip('Send PMR to MMP')}>
-          <Button variant="outline-secondary" className="qr-button custom-button" onClick={handleSendPMR}>
-            <FontAwesomeIcon icon={faPaperPlane} />
+          <Button variant="outline-secondary" className="qr-button custom-button" onClick={openPMRModal}>
+            <FontAwesomeIcon icon={faAmbulance} />
           </Button>
         </OverlayTrigger>
 
-        <OverlayTrigger placement="top" overlay={renderTooltip('Send to XMPP')}>
+        <OverlayTrigger placement="top" overlay={renderTooltip('Send to JChat/XMPP')}>
           <Button variant="outline-secondary" className="qr-button custom-button" onClick={openXMPPModal}>
             <FontAwesomeIcon icon={faCommentDots} />
+          </Button>
+        </OverlayTrigger>
+
+        <OverlayTrigger placement="top" overlay={renderTooltip('Send to TAK')}>
+          <Button variant="outline-secondary" className="qr-button custom-button" onClick={handleSendTAK}>
+            <FontAwesomeIcon icon={faMapMarked} />
           </Button>
         </OverlayTrigger>
 
@@ -429,6 +505,34 @@ export function IPS({ ips, remove, update }) {
               </>
             )}
 
+            {ips.procedures && ips.procedures.length > 0 && (
+              <>
+                <h4>Procedures:</h4>
+                <div className="table-responsive">
+                  <table className="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Date</th>
+                        <th>System</th>
+                        <th>Code</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {ips.procedures.map((procedure, index) => (
+                        <tr key={index}>
+                          <td>{procedure.name}</td>
+                          <td>{formatDate(procedure.date)}</td>
+                          <td>{procedure.system}</td>
+                          <td>{procedure.code}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            )}
+
             <Button variant="link" onClick={() => setExpanded(false)}>
               Show Less
             </Button>
@@ -465,6 +569,26 @@ export function IPS({ ips, remove, update }) {
           <Toast.Body>
             <pre className="mb-0 text-white" style={{ whiteSpace: "pre-wrap", maxHeight: "200px", overflowY: "auto" }}>
               {pmrMessage}
+            </pre>
+          </Toast.Body>
+        </Toast>
+      </ToastContainer>
+
+      <ToastContainer position="top-end" className="p-3" style={{ zIndex: 9999 }}>
+        <Toast
+          show={showTakAlert}
+          onClose={() => setShowTakAlert(false)}
+          bg={takAlertVariant}
+          delay={5000}
+          autohide
+        >
+          <Toast.Header>
+            <strong className="me-auto">TAK Response</strong>
+
+          </Toast.Header>
+          <Toast.Body>
+            <pre className="mb-0 text-white" style={{ whiteSpace: "pre-wrap", maxHeight: "200px", overflowY: "auto" }}>
+              {takMessage}
             </pre>
           </Toast.Body>
         </Toast>
@@ -977,6 +1101,68 @@ export function IPS({ ips, remove, update }) {
             <Button variant="primary" className="resp-add-button" onClick={() => handleAddItem("immunizations")}>
               Add Immunization
             </Button>
+
+            {/* Procedures Table */}
+            <h4 className="ipsedit">Procedures:</h4>
+            <div className="table-responsive">
+              <table className="table table-bordered table-sm">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>System</th>
+                    <th>Code</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {editIPS.procedures.map((procedure, index) => (
+                    <tr key={index}>
+                      <td>
+                        <Form.Control
+                          type="text"
+                          name="name"
+                          value={procedure.name}
+                          onChange={(e) => handleChangeItem("procedures", index, e)}
+                        />
+                      </td>
+                      <td>
+                        <Form.Control
+                          type="text"
+                          name="system"
+                          value={procedure.system}
+                          onChange={(e) => handleChangeItem("procedures", index, e)}
+                        />
+                      </td>
+                      <td>
+                        <Form.Control
+                          type="text"
+                          name="code"
+                          value={procedure.code}
+                          onChange={(e) => handleChangeItem("procedures", index, e)}
+                        />
+                      </td>
+                      <td>
+                        <Form.Control
+                          type="datetime-local"
+                          name="date"
+                          value={formatDate(procedure.date)}
+                          onChange={(e) => handleChangeItem("procedures", index, e)}
+                        />
+                      </td>
+                      <td>
+                        <Button variant="outline-danger" className="resp-button" onClick={() => handleRemoveItem("procedures", index)}>
+                          <FontAwesomeIcon icon={faTrash} />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <Button variant="primary" className="resp-add-button" onClick={() => handleAddItem("procedures")}>
+              Add Procedure
+            </Button>
           </Form>
         </Modal.Body>
 
@@ -1048,6 +1234,60 @@ export function IPS({ ips, remove, update }) {
           >Send</Button>
         </Modal.Footer>
       </Modal>
+
+      <Modal show={showPMRModal} onHide={closePMRModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Send PMR to MMP</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {loadingMtfs && <Spinner animation="border" />}
+          {pmrUiError && <div className="text-danger">{pmrUiError}</div>}
+
+          {!loadingMtfs && !pmrUiError && (
+            <Form>
+              <Form.Group className="mb-3" controlId="pmrFrom">
+                <Form.Label>From MTF</Form.Label>
+                <Form.Control as="select" value={pmrFrom} onChange={e => setPmrFrom(e.target.value)}>
+                  <option value="">-- choose --</option>
+                  {mtfOptions.map(code => (
+                    <option key={code} value={code}>{code}</option>
+                  ))}
+                </Form.Control>
+              </Form.Group>
+
+              <Form.Group className="mb-3" controlId="pmrTo">
+                <Form.Label>To MTF</Form.Label>
+                <Form.Control as="select" value={pmrTo} onChange={e => setPmrTo(e.target.value)}>
+                  <option value="">-- choose --</option>
+                  {mtfOptions.map(code => (
+                    <option key={code} value={code}>{code}</option>
+                  ))}
+                </Form.Control>
+              </Form.Group>
+
+              {pmrFrom && pmrTo && pmrFrom === pmrTo && (
+                <div className="text-danger">From and To must be different.</div>
+              )}
+            </Form>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={closePMRModal}>Cancel</Button>
+
+          <Button variant="outline-secondary" onClick={handleSendPMRQuick}>
+            Random
+          </Button>
+
+          <Button
+            variant="primary"
+            disabled={!pmrFrom || !pmrTo || pmrFrom === pmrTo}
+            onClick={() => { closePMRModal(); handleSendPMRWithSelection(); }}
+          >
+            Send
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
     </div>
   );
 }

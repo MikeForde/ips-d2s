@@ -1,5 +1,5 @@
 // servercontrollers/ipsCRUD_UD.js
-const { IPSModel, Medication, Allergy, Condition, Observation, Immunization } = require('../models/IPSModel');
+const { IPSModel, Medication, Allergy, Condition, Observation, Immunization, Procedure } = require('../models/IPSModel');
 const { SQLToMongoSingle } = require('./MySQLHelpers/SQLToMongo');
 const { updateSQL } = require('./MySQLHelpers/updateSQL');
 const { Op } = require('sequelize');
@@ -16,7 +16,9 @@ async function updateIPS(req, res) {
                     { model: Allergy, as: 'allergies' },
                     { model: Condition, as: 'conditions' },
                     { model: Observation, as: 'observations' },
-                    { model: Immunization, as: 'immunizations' }  // Include immunizations
+                    { model: Immunization, as: 'immunizations' },
+                    { model: Procedure, as: 'procedures' }
+                      // Include immunizations
                 ]
             });
 
@@ -52,7 +54,8 @@ async function deleteIPS(req, res) {
                     { model: Allergy, as: 'allergies' },
                     { model: Condition, as: 'conditions' },
                     { model: Observation, as: 'observations' },
-                    { model: Immunization, as: 'immunizations' } // Include immunizations
+                    { model: Immunization, as: 'immunizations' },
+                    { model: Procedure, as: 'procedures' }
                 ]
             });
 
@@ -65,7 +68,8 @@ async function deleteIPS(req, res) {
             await Allergy.destroy({ where: { IPSModelId: id } });
             await Condition.destroy({ where: { IPSModelId: id } });
             await Observation.destroy({ where: { IPSModelId: id } });
-            await Immunization.destroy({ where: { IPSModelId: id } }); // Delete immunizations
+            await Immunization.destroy({ where: { IPSModelId: id } });
+            await Procedure.destroy({ where: { IPSModelId: id } });
 
             // Delete the IPS record
             await ips.destroy();
@@ -96,7 +100,8 @@ async function deleteIPSbyPractitioner(req, res) {
                     { model: Allergy, as: 'allergies' },
                     { model: Condition, as: 'conditions' },
                     { model: Observation, as: 'observations' },
-                    { model: Immunization, as: 'immunizations' }
+                    { model: Immunization, as: 'immunizations' },
+                    { model: Procedure, as: 'procedures' }
                 ]
             });
 
@@ -113,6 +118,7 @@ async function deleteIPSbyPractitioner(req, res) {
             await Condition.destroy({ where: { IPSModelId: ipsIds } });
             await Observation.destroy({ where: { IPSModelId: ipsIds } });
             await Immunization.destroy({ where: { IPSModelId: ipsIds } });
+            await Procedure.destroy({ where: { IPSModelId: ipsIds } });
 
             // Delete the IPS records
             await IPSModel.destroy({ where: { id: ipsIds } });

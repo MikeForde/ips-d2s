@@ -1,4 +1,4 @@
-const { Medication, Allergy, Condition, Observation, Immunization } = require('../../models/IPSModel');
+const { Medication, Allergy, Condition, Observation, Immunization, Procedure } = require('../../models/IPSModel');
 
 async function transformRecord(record) {
     const medications = await Medication.findAll({ where: { IPSModelId: record.id } });
@@ -6,6 +6,7 @@ async function transformRecord(record) {
     const conditions = await Condition.findAll({ where: { IPSModelId: record.id } });
     const observations = await Observation.findAll({ where: { IPSModelId: record.id } });
     const immunizations = await Immunization.findAll({ where: { IPSModelId: record.id } });
+    const procedures = await Procedure.findAll({ where: { IPSModelId: record.id } });
 
     return {
         patient: {
@@ -27,6 +28,8 @@ async function transformRecord(record) {
         conditions: conditions.map(cond => cond.dataValues),
         observations: observations.map(obs => obs.dataValues),
         immunizations: immunizations.map(imm => imm.dataValues),
+        procedures: procedures.map(proc => proc.dataValues),
+    
         __v: 0  // Default value for version
     };
 }

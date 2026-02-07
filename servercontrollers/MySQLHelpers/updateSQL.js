@@ -1,7 +1,7 @@
 // MySQLHelpers/updateSQL.js
 
 const { MongoToSQL } = require('./MongoToSQL');
-const { Medication, Allergy, Condition, Observation, Immunization } = require('../../models/IPSModel');
+const { Medication, Allergy, Condition, Observation, Immunization, Procedure } = require('../../models/IPSModel');
 
 async function updateSQL(ips, updatedData, id) {
     // Transform updated data to MySQL format
@@ -16,6 +16,8 @@ async function updateSQL(ips, updatedData, id) {
     await Condition.destroy({ where: { IPSModelId: id } });
     await Observation.destroy({ where: { IPSModelId: id } });
     await Immunization.destroy({ where: { IPSModelId: id } });
+    await Procedure.destroy({ where: { IPSModelId: id } });
+
 
     // Recreate associated records if they exist in the transformed data
     if (transformedData.medications) {
@@ -49,6 +51,13 @@ async function updateSQL(ips, updatedData, id) {
     if (transformedData.immunizations) {
         await Immunization.bulkCreate(transformedData.immunizations.map(immunization => ({
             ...immunization,
+            IPSModelId: id
+        })));
+    }
+
+    if (transformedData.procedures) {
+        await Procedure.bulkCreate(transformedData.procedures.map(procedure => ({
+            ...procedure,
             IPSModelId: id
         })));
     }

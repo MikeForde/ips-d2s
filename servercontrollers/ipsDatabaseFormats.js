@@ -1,5 +1,5 @@
 const { resolveId } = require('../utils/resolveId');
-const { IPSModel, Medication, Allergy, Condition, Observation, Immunization } = require('../models/IPSModel');
+const { IPSModel, Medication, Allergy, Condition, Observation, Immunization, Procedure } = require('../models/IPSModel');
 const { SQLToMongo } = require('./MySQLHelpers/SQLToMongo');
 
 // Define the getIPSRaw function
@@ -38,7 +38,8 @@ async function getAllIPS(req, res) {
         { model: Allergy, as: 'allergies' },
         { model: Condition, as: 'conditions' },
         { model: Observation, as: 'observations' },
-        { model: Immunization, as: 'immunizations' }
+        { model: Immunization, as: 'immunizations' },
+        { model: Procedure, as: 'procedures' }
       ]
     });
     

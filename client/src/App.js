@@ -1,4 +1,3 @@
-
 // src/App.js
 import React, { useEffect, useContext } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
@@ -20,6 +19,9 @@ import BEERGardenPage from './pages/BEERGardenPage';
 import APIDocumentationPage from './pages/APIDocumentationPage';
 import IPSchemaViewer from './pages/IPSSchemaViewerPage';
 import IPSchemaValidator from './pages/IPSSchemaValidatorPage';
+import JWEDecryptPage from './pages/JWEDecryptPage';
+import JWEMultiRecipientPage from './pages/JWEMultiRecipientPage';
+import PayloadPage from './pages/PayloadPage';  
 import { PatientContext } from './PatientContext';
 import { PatientProvider } from './PatientContext';
 import { LoadingProvider } from './contexts/LoadingContext';
@@ -56,7 +58,7 @@ function App() {
       <SocketListener />
       <LoadingProvider>
         <Router>
-          <div style={{ paddingTop: '56px' }}> {/* Adjust the padding-top value based on your Navbar height */}
+          <div style={{ paddingTop: '56px' }}> {/* Adjust the padding-top value based on Navbar height */}
             <NavigationBar />
             <LoadingSpinner />
             <Routes>
@@ -76,6 +78,10 @@ function App() {
               <Route path="/fetchips" element={<UnifiedIPSGetPage />} />
               <Route path="/schemaviewer" element={<IPSchemaViewer />} />
               <Route path="/schemavalidator" element={<IPSchemaValidator />} />
+              <Route path="/cwix/payload" element={<PayloadPage />} />
+              <Route path="/viewer" element={<PayloadPage />} />
+              <Route path="/jwe-decrypt" element={<JWEDecryptPage />} />
+              <Route path="/jwe-multi" element={<JWEMultiRecipientPage />} />
             </Routes>
           </div>
         </Router>
