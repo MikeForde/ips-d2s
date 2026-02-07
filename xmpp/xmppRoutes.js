@@ -104,4 +104,17 @@ router.post("/xmpp-ips-private", async (req, res) => {
   }
 });
 
+router.get("/xmpp-occupants", async (req, res) => {
+  try {
+    const occupants = await getRoomOccupants(process.env.XMPP_ROOM);
+    // Optionally strip off the resource (nick) if you just want the localpart:
+    const names = occupants.map(jid => jid.split("/")[1]);
+    res.json({ occupants: names });
+  } catch (err) {
+    console.error("Failed to fetch occupants:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 module.exports = router;

@@ -1,7 +1,10 @@
 // xmppConnection.js
 const { client, xml } = require("@xmpp/client");
+const reconnect = require("@xmpp/reconnect");
+const Connection = require("@xmpp/connection");
 const net = require( 'net');
 const { URL } = require ('url');
+const { once } = require("events");
 
 // Import your ID resolver and IPS text formatter
 const { resolveId } = require("../utils/resolveId");
@@ -9,9 +12,74 @@ const { getIPSPlainText } = require("./xmppIPSPlainText");
 
 // We'll store the XMPP client instance in a variable so we can reuse it
 let xmpp = null;
+let isOnline = false;
+let sendQueue = [];
 
 // We'll store the JID we get from 'online'
 let myJid = null;
+let myBareJid = null;
+
+// last seen timestamp
+let lastSeen = null;
+
+let pingTimer = null;
+
+async function pingServer(timeoutMs = 5000) {
+  const id = `ping-${Date.now()}`;
+  const iq = xml(
+    "iq",
+    { type: "get", to: myBareJid || XMPP_DOMAIN, id },
+    xml("ping", { xmlns: "urn:xmpp:ping" })
+  );
+
+  // sendReceive can hang if transport is half-dead; enforce timeout
+  return Promise.race([
+    xmpp.sendReceive(iq),
+    new Promise((_, reject) => setTimeout(() => reject(new Error("ping timeout")), timeoutMs)),
+  ]);
+}
+
+function startPingLoop() {
+  stopPingLoop();
+  pingTimer = setInterval(async () => {
+    if (!xmpp || !isOnline) return;
+    try {
+      await pingServer(5000);
+      // ok
+    } catch (e) {
+      console.warn("[XMPP] ping failed -> forcing reconnect:", e.message || e);
+      // Force the session to end fast; reconnect plugin will bring it back
+      try { await xmpp.stop(); } catch {}
+      try { await xmpp.start(); } catch {}
+    }
+  }, 20000); // 20s is a decent starting point
+}
+
+function stopPingLoop() {
+  if (pingTimer) clearInterval(pingTimer);
+  pingTimer = null;
+}
+
+//    this will automatically retry start() on disconnects.
+function applyReconnect(entity) {
+  reconnect({ entity });
+}
+
+// helper that waits for the next “online” event
+async function waitForOnline() {
+  if (isOnline) return;
+  await once(xmpp, "online");
+}
+
+// ➋ Monkey-patch Client._onData to ignore null chunks
+const originalOnData = Connection.prototype._onData;
+Connection.prototype._onData = function (chunk) {
+  if (chunk == null) {
+    console.warn("[XMPP] Null WebSocket frame -> treating as empty");
+    chunk = Buffer.alloc(0);
+  }
+  return originalOnData.call(this, chunk);
+};
 
 function safeEnv(varName, defaultValue) {
   const value = process.env[varName];
@@ -31,7 +99,7 @@ const XMPP_PASSWORD = safeEnv("XMPP_PASSWORD", "test");
 const XMPP_ROOM     = safeEnv("XMPP_ROOM",     "testroom@conference.desktop-4tiift3");
 
 // Default nickname to join room
-const DEFAULT_ROOM_NICK = "IPSMern";
+const DEFAULT_ROOM_NICK = "IPSSern";
 
 // Check if the XMPP service is reachable
 async function canReach(hostname, port, timeout = 2000) {
@@ -73,30 +141,59 @@ async function initXMPP_WebSocket() {
     transport: "websocket",
   });
 
+  const streamManagement = require("@xmpp/stream-management");
+  streamManagement(xmpp);
+
+
+  applyReconnect(xmpp);
+
+  xmpp.on("offline", () => {
+    isOnline = false;
+    console.log("[XMPP] offline");
+    stopPingLoop();
+  });
+
   // Handle connection errors
   xmpp.on("error", (err) => {
     console.error("XMPP error:", err);
   });
 
   // Called once the client is online (SASL auth + resource binding complete)
-  xmpp.on("online", (address) => {
+  xmpp.on("online", async (address) => {
+    isOnline = true;
     myJid = address.toString();
+     myBareJid = address.bare().toString();
+
+     // try {
+    //   await xmpp.enableStreamManagement({ resume: true });
+    //   console.log("[XMPP] Stream management enabled (resume=true)");
+    // } catch (e) {
+    //   console.warn("[XMPP] Stream management not enabled:", e?.message || e);
+    // }
+
     console.log("XMPP WebSocket is online as", myJid);
+    flushSendQueue();
+    startPingLoop();
 
     // Example: join a room
     const roomJid = `${XMPP_ROOM}/${DEFAULT_ROOM_NICK}`;
     xmpp.send(
       xml("presence", { to: roomJid },
-        xml("x", { xmlns: "http://jabber.org/protocol/muc" })
+        xml("x", { xmlns: "http://jabber.org/protocol/muc" },
+          // Ask for messages we might have missed while reconnecting
+          lastSeen
+            ? xml("history", { since: lastSeen.toISOString() })
+            : xml("history", { seconds: "300" }) // first join: last 60s
+        )
       )
     );
 
     // Send a quick message to the room
-    xmpp.send(
-      xml("message", { type: "groupchat", to: XMPP_ROOM },
-        xml("body", {}, `Hello, this is ${DEFAULT_ROOM_NICK} from Node WebSocket!`)
-      )
-    );
+  //   xmpp.send(
+  //     xml("message", { type: "groupchat", to: XMPP_ROOM },
+  //       xml("body", {}, `Hello, this is ${DEFAULT_ROOM_NICK} from Node WebSocket!`)
+  //     )
+  //   );
   });
 
   xmpp.on("stanza", async (stanza) => {
@@ -104,6 +201,11 @@ async function initXMPP_WebSocket() {
       const from = stanza.attrs.from; // e.g. "mikef@desktop-4tiift3/abcdefgh"
       const messageType = stanza.attrs.type; // "groupchat", "chat", ...
       const body = stanza.getChildText("body");
+
+      // Track when we last saw a MUC message so we can request history after reconnect
+      if (stanza.attrs.type === "groupchat" && body) {
+        lastSeen = new Date();
+      }
 
       // 1) If from is our own JID (or occupant JID in a MUC), skip
       if (from && from.startsWith(myJid)) {
@@ -154,34 +256,82 @@ async function initXMPP_WebSocket() {
   }
 }
 
+function queueSend(type, stanza) {
+  sendQueue.push({ type, stanza });
+}
+function flushSendQueue() {
+  while (sendQueue.length) {
+    const { type, stanza } = sendQueue.shift();
+    xmpp.send(stanza);
+  }
+}
+
 /**
  * Send a groupchat message to the specified MUC room.
  * Example usage: sendGroupMessage('testroom@conference.desktop-4tiift3', 'Hello from Node!');
  */
 function sendGroupMessage(roomJid, message) {
-  if (!xmpp) {
-    throw new Error("XMPP client not initialized or not online yet.");
-  }
-  xmpp.send(
-    xml("message", { type: "groupchat", to: roomJid },
+  if (!xmpp || !isOnline) {
+    console.log("[XMPP] offline – queuing group message");
+    const stanza = xml("message", { type: "groupchat", to: roomJid },
       xml("body", {}, message)
-    )
-  );
+    );
+    return queueSend("group", stanza);
+  }
+  xmpp.send(xml("message", { type: "groupchat", to: roomJid },
+    xml("body", {}, message)
+  ));
 }
 
 function sendPrivateMessage(toJid, message) {
-  if (!xmpp) {
-    throw new Error("XMPP client not initialized or offline.");
-  }
-  xmpp.send(
-    xml("message", { type: "chat", to: toJid },
+  if (!xmpp || !isOnline) {
+    console.log("[XMPP] offline – queuing private message");
+    const stanza = xml("message", { type: "chat", to: toJid },
       xml("body", {}, message)
-    )
+    );
+    return queueSend("private", stanza);
+  }
+  xmpp.send(xml("message", { type: "chat", to: toJid },
+    xml("body", {}, message)
+  ));
+}
+
+async function getRoomOccupants(roomJid) {
+  if (!xmpp) {
+    throw new Error("XMPP not initialized");
+  }
+
+  // If we’re offline, pause until reconnect
+  await waitForOnline();
+
+  // build & send the disco#items IQ
+  const disco = xml(
+    "iq",
+    { to: roomJid, type: "get", id: "occupants1" },
+    xml("query", { xmlns: "http://jabber.org/protocol/disco#items" })
   );
+
+  let resp;
+  try {
+    resp = await xmpp.sendReceive(disco);
+  } catch (err) {
+    // optionally retry once after a short delay
+    console.warn("[XMPP] disco#items failed, retrying…", err);
+    await waitForOnline();
+    resp = await xmpp.sendReceive(disco);
+  }
+
+  // parse out the <item/> elements
+  const items = resp
+    .getChild("query", "http://jabber.org/protocol/disco#items")
+    .getChildren("item");
+
+  return items.map((item) => item.attrs.jid);
 }
 
 module.exports = {
   initXMPP_WebSocket,
   sendGroupMessage,
-  sendPrivateMessage
+  sendPrivateMessage,
+  getRoomOccupants,
 };
