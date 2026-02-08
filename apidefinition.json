@@ -1,7 +1,7 @@
 {
     "openapi": "3.0.0",
     "info": {
-      "version": "0_60",
+      "version": "0_77",
       "title": "IPS SERN API",
       "description": "OpenAPI 3.0 specification for the IPS SERN API."
     },
@@ -16,30 +16,1268 @@
       }
     ],
     "tags": [
-      {
-        "name": "IPS",
-        "description": "Endpoints for managing and converting IPS records"
-      },
-      {
-        "name": "XMPP",
-        "description": "Endpoints for XMPP messaging integration"
-      },
-      {
-        "name": "TAK",
-        "description": "Endpoints for TAK server integration"
+    {
+      "name": "IPS",
+      "description": "Endpoints for managing and converting IPS records"
+    },
+    {
+      "name": "XMPP",
+      "description": "Endpoints for XMPP messaging integration"
+    },
+    {
+      "name": "TAK",
+      "description": "Endpoints for TAK server integration"
+    }
+  ],
+  "paths": {
+    "/ips": {
+      "post": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Create a new IPS record",
+        "description": "Create a new IPS record.",
+        "requestBody": {
+          "description": "MongoDb JSON object representing the new IPS record.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "MongoDb JSON object of the created IPS record."
+          }
+        }
       }
-    ],
-    "paths": {
-      "/ips": {
-        "post": {
-          "tags": [
-            "IPS"
-          ],
-          "summary": "Create a new IPS record",
-          "description": "Create a new IPS record.",
-          "requestBody": {
-            "description": "MongoDb JSON object representing the new IPS record.",
+    },
+    "/ipsmany": {
+      "post": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Create multiple IPS records",
+        "description": "Create multiple IPS records.",
+        "requestBody": {
+          "description": "Array of MongoDb JSON objects representing the new IPS records.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Array of MongoDb JSON objects of the created IPS records."
+          }
+        }
+      }
+    },
+    "/ipsbundle": {
+      "post": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Create IPS records from an IPS Bundle",
+        "description": "Create IPS records from an IPS Bundle.",
+        "requestBody": {
+          "description": "IPS Bundle - JSON",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "MongoDb JSON as confirmation of record creation."
+          }
+        }
+      }
+    },
+    "/pushipsora": {
+      "post": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Push IPS data to an external ORA system",
+        "description": "Push IPS data to an external ORA system.",
+        "requestBody": {
+          "description": "IPS Bundle - JSON",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response from the ORA system."
+          }
+        }
+      }
+    },
+    "/pushipsnld": {
+      "post": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Push IPS data to an external NLD system",
+        "description": "Push IPS data to an external NLD system.",
+        "requestBody": {
+          "description": "IPS Bundle - JSON",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response from the NLD system."
+          }
+        }
+      }
+    },
+    "/ipsfrombeer": {
+      "post": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Create MongoDb IPS records from BEER format",
+        "description": "Create MongoDb IPS records from BEER format.",
+        "requestBody": {
+          "description": "BEER - Plain Text",
+          "required": true,
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "MongoDb JSON as confirmation of record creation."
+          }
+        }
+      }
+    },
+    "/ipsfromcda": {
+      "post": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Create MongoDb IPS records from CDA XML format",
+        "description": "Create MongoDb IPS records from CDA XML format.",
+        "requestBody": {
+          "description": "CDA - XML",
+          "required": true,
+          "content": {
+            "application/xml": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "text/xml": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "MongoDb JSON as confirmation of record creation."
+          }
+        }
+      }
+    },
+    "/ipsfromhl72x": {
+      "post": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Create MongoDb IPS records from HL7 2.x format",
+        "description": "Create MongoDb IPS records from HL7 2.x format.",
+        "requestBody": {
+          "description": "HL7 2.x - Plain Text",
+          "required": true,
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "MongoDb JSON as confirmation of record creation."
+          }
+        }
+      }
+    },
+    "/convertmongo2beer": {
+      "post": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Convert MongoDB format to BEER format",
+        "description": "Convert MongoDB format to BEER format.",
+        "requestBody": {
+          "description": "MongoDB - JSON",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "BEER - Plain Text"
+          }
+        }
+      }
+    },
+    "/convertmongo2hl7": {
+      "post": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Convert MongoDB format to HL7 2.3 format",
+        "description": "Convert MongoDB format to HL7 2.3 format.",
+        "requestBody": {
+          "description": "MongoDB - JSON",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HL7 2.3 - Plain Text"
+          }
+        }
+      }
+    },
+    "/convertbeer2mongo": {
+      "post": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Convert BEER format to MongoDB format",
+        "description": "Convert BEER format to MongoDB format.",
+        "requestBody": {
+          "description": "BEER - Plain Text",
+          "required": true,
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "MongoDB JSON"
+          }
+        }
+      }
+    },
+    "/convertbeer2ips": {
+      "post": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Convert BEER format to IPS JSON format",
+        "description": "Convert BEER format to IPS JSON format.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/XIPSFormat"
+          }
+        ],
+        "requestBody": {
+          "description": "BEER - Plain Text",
+          "required": true,
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "IPS Bundle JSON"
+          }
+        }
+      }
+    },
+    "/convertips2beer": {
+      "post": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Convert IPS JSON format to BEER format",
+        "description": "Convert IPS JSON format to BEER format.",
+        "requestBody": {
+          "description": "IPS Bundle - JSON",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "BEER - Plain Text"
+          }
+        }
+      }
+    },
+    "/convertips2plaintext": {
+      "post": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Convert IPS JSON format to Plain Text Readable format",
+        "description": "Convert IPS JSON format to Plain Text Readable format.",
+        "requestBody": {
+          "description": "IPS Bundle - JSON",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Human Readable - Plain Text"
+          }
+        }
+      }
+    },
+    "/convertcdatoips": {
+      "post": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Convert CDA XML format to IPS JSON format",
+        "description": "Convert CDA XML format to IPS JSON format.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/XIPSFormat"
+          }
+        ],
+        "requestBody": {
+          "description": "CDA - XML",
+          "required": true,
+          "content": {
+            "application/xml": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "text/xml": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "IPS Bundle JSON"
+          }
+        }
+      }
+    },
+    "/convertcdatobeer": {
+      "post": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Convert CDA XML format to BEER format",
+        "description": "Convert CDA XML format to BEER format.",
+        "requestBody": {
+          "description": "CDA - XML",
+          "required": true,
+          "content": {
+            "application/xml": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "text/xml": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "BEER - Plain Text"
+          }
+        }
+      }
+    },
+    "/convertcdatomongo": {
+      "post": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Convert CDA XML format to MongoDB format",
+        "description": "Convert CDA XML format to MongoDB format.",
+        "requestBody": {
+          "description": "CDA - XML",
+          "required": true,
+          "content": {
+            "application/xml": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "text/xml": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "MongoDB JSON"
+          }
+        }
+      }
+    },
+    "/converthl72xtomongo": {
+      "post": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Convert HL7 2.x format to MongoDB format",
+        "description": "Convert HL7 2.x format to MongoDB format.",
+        "requestBody": {
+          "description": "HL7 2.x - Plain Text",
+          "required": true,
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "MongoDB JSON"
+          }
+        }
+      }
+    },
+    "/converthl72xtoips": {
+      "post": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Convert HL7 2.x format to IPS JSON format",
+        "description": "Convert HL7 2.x format to IPS JSON format.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/XIPSFormat"
+          }
+        ],
+        "requestBody": {
+          "description": "HL7 2.x - Plain Text",
+          "required": true,
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "IPS Bundle JSON"
+          }
+        }
+      }
+    },
+    "/convertxml": {
+      "post": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Generic convert XML format to JSON format",
+        "description": "Generic convert XML format to JSON format.",
+        "requestBody": {
+          "description": "XML",
+          "required": true,
+          "content": {
+            "application/xml": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "text/xml": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "JSON"
+          }
+        }
+      }
+    },
+    "/convertfhirxml": {
+      "post": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Convert FHIR XML format to FHIR JSON format",
+        "description": "Convert FHIR XML format to FHIR JSON format.",
+        "requestBody": {
+          "description": "FHIR XML",
+          "required": true,
+          "content": {
+            "application/xml": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "text/xml": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "FHIR JSON"
+          }
+        }
+      }
+    },
+    "/npsVal": {
+      "post": {
+        "tags": [
+          "NPS"
+        ],
+        "summary": "Validates an NPS format record.",
+        "description": "Validates an NPS format record.",
+        "requestBody": {
+          "description": "MongoDb JSON object representing the NPS format record.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "JSON object containing the validation report."
+          }
+        }
+      }
+    },
+    "/ips/all": {
+      "get": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Retrieve all IPS records",
+        "description": "Retrieve all IPS records.",
+        "responses": {
+          "200": {
+            "description": "Array of JSON objects representing IPS records.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IPSRecord"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ipsraw/{id}": {
+      "get": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Retrieve raw IPS record by ID",
+        "description": "Retrieve raw IPS record by ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
             "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "IPS record ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "JSON object of the raw IPS record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ipsmongo/{id}": {
+      "get": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Retrieve IPS record in MongoDB format by ID",
+        "description": "Retrieve IPS record in MongoDB format by ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "MongoDB JSON",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ips/{id}": {
+      "get": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Retrieve IPS record in expanded format by ID",
+        "description": "Retrieve IPS record in expanded format by ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Expanded IPS - FHIR JSON",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Update an IPS record by ID",
+        "description": "Update an IPS record by ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "IPS record ID"
+          }
+        ],
+        "requestBody": {
+          "description": "Partial JSON object representing the updated IPS record.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated IPS record in MongoDB JSON format.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Delete an IPS record by ID",
+        "description": "Delete an IPS record by ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Confirmation of deletion.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ipsbasic/{id}": {
+      "get": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Retrieve IPS record in basic format by ID",
+        "description": "Retrieve IPS record in basic format by ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Basic format - Plain Text",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ipsplaintext/{id}": {
+      "get": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Retrieve IPS record in human readable format by ID",
+        "description": "Retrieve IPS record in human readable format by ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Human Readable format - Plain Text",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ipsbeer/{id}/{delim}": {
+      "get": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Retrieve IPS record in BEER format by ID with optional delimiter",
+        "description": "Retrieve IPS record in BEER format by ID with optional delimiter. The delimiter options are documented in the API docs.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "delim",
+            "in": "path",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Optional delimiter. Available options: 'semi' (;), 'colon' (:), 'pipe' (|), 'at' (@), 'newline' (\\n)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "BEER - Plain Text",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ipshl72x/{id}": {
+      "get": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Retrieve IPS record in HL7 2.3 format by ID",
+        "description": "Retrieve IPS record in HL7 2.3 format by ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HL7 2.3 - Plain Text",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ipsxml/{id}": {
+      "get": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Retrieve IPS record in expanded FHIR XML format by ID",
+        "description": "Retrieve IPS record in expanded FHIR XML format by ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "IPS Bundle - FHIR XML",
+            "content": {
+              "application/xml": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ipslegacy/{id}": {
+      "get": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Retrieve IPS record in legacy format by ID",
+        "description": "Retrieve IPS record in legacy format by ID (FHIR JSON).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Legacy IPS record in FHIR JSON format.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/nps/{id}": {
+      "get": {
+        "tags": [
+          "NPS"
+        ],
+        "summary": "Retrieve IPS record in NPS format by ID",
+        "description": "Retrieve IPS record in NPS format by ID (FHIR JSON). Optional protection can be applied via the protect query parameter.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "protect",
+            "in": "query",
+            "required": false,
+            "description": "Protection method to apply to identifiers. 0 = none, 1 = field-level encryption (JWE), 2 = omit identifiers.",
+            "schema": {
+              "type": "integer",
+              "enum": [
+                0,
+                1,
+                2
+              ],
+              "default": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "NPS record in FHIR JSON format.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "FHIR Bundle (NPS)."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NPS record not found."
+          }
+        }
+      }
+    },
+    "/npsnfc/{id}": {
+      "get": {
+        "tags": [
+          "NPS"
+        ],
+        "summary": "Retrieve NPS record split into RO and RW bundles by ID",
+        "description": "Returns two FHIR Bundles split around the NPS timestamp: RO includes Patient/Organization and resources on or before timestamp; RW includes resources after timestamp. Optional protection can be applied via the protect query parameter.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "protect",
+            "in": "query",
+            "required": false,
+            "description": "Protection method to apply to identifiers. 0 = none, 1 = field-level encryption (JWE), 2 = omit identifiers.",
+            "schema": {
+              "type": "integer",
+              "enum": [
+                0,
+                1,
+                2
+              ],
+              "default": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Split IPS payloads (RO and RW) as JSON.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "The requested packageUUID."
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "description": "Split timestamp (ISO 8601)."
+                    },
+                    "protect": {
+                      "type": "integer",
+                      "enum": [
+                        0,
+                        1,
+                        2
+                      ]
+                    },
+                    "ro": {
+                      "type": "object",
+                      "description": "Read-only FHIR Bundle."
+                    },
+                    "rw": {
+                      "type": "object",
+                      "description": "Read/write FHIR Bundle."
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "timestamp",
+                    "protect",
+                    "ro",
+                    "rw"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NPS record not found."
+          }
+        }
+      }
+    },
+    "/ipsdatasplitpoc/{id}": {
+      "get": {
+        "tags": [
+          "NPS"
+        ],
+        "summary": "Retrieve NPS record split into RO plaintext and RW gzipped unified FHIR JSON (POC)",
+        "description": "RO is a human-readable plaintext summary (optionally omitting observations/immunizations/procedures). RW is unified FHIR Bundle JSON compressed with gzip and returned as base64.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Split payloads: RO plaintext + RW gzip(base64) unified FHIR JSON.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string"
+                    },
+                    "ro": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "omitObsImmProc": {
+                          "type": "boolean"
+                        },
+                        "text": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "omitObsImmProc",
+                        "text"
+                      ]
+                    },
+                    "rw": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "encoding": {
+                          "type": "string"
+                        },
+                        "bytesBase64": {
+                          "type": "string"
+                        },
+                        "uncompressedBytes": {
+                          "type": "integer"
+                        },
+                        "compressedBytes": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "encoding",
+                        "bytesBase64"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "timestamp",
+                    "ro",
+                    "rw"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NPS record not found."
+          }
+        }
+      }
+    },
+    "/ipsbyname/{name}/{given}": {
+      "get": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Retrieve expanded IPS FHIR by patient name and given name",
+        "description": "Retrieve expanded IPS FHIR by patient name and given name (case-insensitive). An optional header parameter x-ips-format can be used to override the default format (e.g., 'fhir', 'beer', 'ora', 'xml', 'legacy', 'unified').",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/XIPSFormat"
+          },
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Patient name"
+          },
+          {
+            "name": "given",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Patient given name"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Expanded IPS Bundle in FHIR JSON format.",
             "content": {
               "application/json": {
                 "schema": {
@@ -48,23 +1286,33 @@
               }
             }
           },
-          "responses": {
-            "200": {
-              "description": "MongoDb JSON object of the created IPS record."
-            }
+          "404": {
+            "description": "IPS record not found."
           }
         }
-      },
-      "/ipsmany": {
-        "post": {
-          "tags": [
-            "IPS"
-          ],
-          "summary": "Create multiple IPS records",
-          "description": "Create multiple IPS records.",
-          "requestBody": {
-            "description": "Array of MongoDb JSON objects representing the new IPS records.",
+      }
+    },
+    "/ips/search/{name}": {
+      "get": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Search IPS records by patient name",
+        "description": "Search IPS records by patient name.",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
             "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Patient name"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of JSON objects representing IPS records.",
             "content": {
               "application/json": {
                 "schema": {
@@ -75,1317 +1323,44 @@
                 }
               }
             }
-          },
-          "responses": {
-            "200": {
-              "description": "Array of MongoDb JSON objects of the created IPS records."
-            }
           }
         }
-      },
-      "/ipsbundle": {
-        "post": {
-          "tags": [
-            "IPS"
-          ],
-          "summary": "Create IPS records from an IPS Bundle",
-          "description": "Create IPS records from an IPS Bundle.",
-          "requestBody": {
-            "description": "IPS Bundle - JSON",
+      }
+    },
+    "/fetchipsora/{name}/{givenName}": {
+      "get": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Fetch IPS data from ORA by patient name and given name",
+        "description": "Fetch IPS data from ORA by patient name and given name.",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
             "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "MongoDb JSON as confirmation of record creation."
-            }
-          }
-        }
-      },
-      "/pushipsora": {
-        "post": {
-          "tags": [
-            "IPS"
-          ],
-          "summary": "Push IPS data to an external ORA system",
-          "description": "Push IPS data to an external ORA system.",
-          "requestBody": {
-            "description": "IPS Bundle - JSON",
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "Response from the ORA system."
-            }
-          }
-        }
-      },
-      "/pushipsnld": {
-        "post": {
-          "tags": [
-            "IPS"
-          ],
-          "summary": "Push IPS data to an external NLD system",
-          "description": "Push IPS data to an external NLD system.",
-          "requestBody": {
-            "description": "IPS Bundle - JSON",
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "Response from the NLD system."
-            }
-          }
-        }
-      },
-      "/ipsfrombeer": {
-        "post": {
-          "tags": [
-            "IPS"
-          ],
-          "summary": "Create MongoDb IPS records from BEER format",
-          "description": "Create MongoDb IPS records from BEER format.",
-          "requestBody": {
-            "description": "BEER - Plain Text",
-            "required": true,
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "MongoDb JSON as confirmation of record creation."
-            }
-          }
-        }
-      },
-      "/ipsfromcda": {
-        "post": {
-          "tags": [
-            "IPS"
-          ],
-          "summary": "Create MongoDb IPS records from CDA XML format",
-          "description": "Create MongoDb IPS records from CDA XML format.",
-          "requestBody": {
-            "description": "CDA - XML",
-            "required": true,
-            "content": {
-              "application/xml": {
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "text/xml": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "MongoDb JSON as confirmation of record creation."
-            }
-          }
-        }
-      },
-      "/ipsfromhl72x": {
-        "post": {
-          "tags": [
-            "IPS"
-          ],
-          "summary": "Create MongoDb IPS records from HL7 2.x format",
-          "description": "Create MongoDb IPS records from HL7 2.x format.",
-          "requestBody": {
-            "description": "HL7 2.x - Plain Text",
-            "required": true,
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "MongoDb JSON as confirmation of record creation."
-            }
-          }
-        }
-      },
-      "/convertmongo2beer": {
-        "post": {
-          "tags": [
-            "IPS"
-          ],
-          "summary": "Convert MongoDB format to BEER format",
-          "description": "Convert MongoDB format to BEER format.",
-          "requestBody": {
-            "description": "MongoDB - JSON",
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "BEER - Plain Text"
-            }
-          }
-        }
-      },
-      "/convertmongo2hl7": {
-        "post": {
-          "tags": [
-            "IPS"
-          ],
-          "summary": "Convert MongoDB format to HL7 2.3 format",
-          "description": "Convert MongoDB format to HL7 2.3 format.",
-          "requestBody": {
-            "description": "MongoDB - JSON",
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "HL7 2.3 - Plain Text"
-            }
-          }
-        }
-      },
-      "/convertbeer2mongo": {
-        "post": {
-          "tags": [
-            "IPS"
-          ],
-          "summary": "Convert BEER format to MongoDB format",
-          "description": "Convert BEER format to MongoDB format.",
-          "requestBody": {
-            "description": "BEER - Plain Text",
-            "required": true,
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "MongoDB JSON"
-            }
-          }
-        }
-      },
-      "/convertbeer2ips": {
-        "post": {
-          "tags": [
-            "IPS"
-          ],
-          "summary": "Convert BEER format to IPS JSON format",
-          "description": "Convert BEER format to IPS JSON format.",
-          "parameters": [
-            {
-              "$ref": "#/components/parameters/XIPSFormat"
-            }
-          ],
-          "requestBody": {
-            "description": "BEER - Plain Text",
-            "required": true,
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "IPS Bundle JSON"
-            }
-          }
-        }
-      },
-      "/convertips2beer": {
-        "post": {
-          "tags": [
-            "IPS"
-          ],
-          "summary": "Convert IPS JSON format to BEER format",
-          "description": "Convert IPS JSON format to BEER format.",
-          "requestBody": {
-            "description": "IPS Bundle - JSON",
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "BEER - Plain Text"
-            }
-          }
-        }
-      },
-      "/convertcdatoips": {
-        "post": {
-          "tags": [
-            "IPS"
-          ],
-          "summary": "Convert CDA XML format to IPS JSON format",
-          "description": "Convert CDA XML format to IPS JSON format.",
-          "parameters": [
-            {
-              "$ref": "#/components/parameters/XIPSFormat"
-            }
-          ],
-          "requestBody": {
-            "description": "CDA - XML",
-            "required": true,
-            "content": {
-              "application/xml": {
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "text/xml": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "IPS Bundle JSON"
-            }
-          }
-        }
-      },
-      "/convertcdatobeer": {
-        "post": {
-          "tags": [
-            "IPS"
-          ],
-          "summary": "Convert CDA XML format to BEER format",
-          "description": "Convert CDA XML format to BEER format.",
-          "requestBody": {
-            "description": "CDA - XML",
-            "required": true,
-            "content": {
-              "application/xml": {
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "text/xml": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "BEER - Plain Text"
-            }
-          }
-        }
-      },
-      "/convertcdatomongo": {
-        "post": {
-          "tags": [
-            "IPS"
-          ],
-          "summary": "Convert CDA XML format to MongoDB format",
-          "description": "Convert CDA XML format to MongoDB format.",
-          "requestBody": {
-            "description": "CDA - XML",
-            "required": true,
-            "content": {
-              "application/xml": {
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "text/xml": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "MongoDB JSON"
-            }
-          }
-        }
-      },
-      "/converthl72xtomongo": {
-        "post": {
-          "tags": [
-            "IPS"
-          ],
-          "summary": "Convert HL7 2.x format to MongoDB format",
-          "description": "Convert HL7 2.x format to MongoDB format.",
-          "requestBody": {
-            "description": "HL7 2.x - Plain Text",
-            "required": true,
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "MongoDB JSON"
-            }
-          }
-        }
-      },
-      "/converthl72xtoips": {
-        "post": {
-          "tags": [
-            "IPS"
-          ],
-          "summary": "Convert HL7 2.x format to IPS JSON format",
-          "description": "Convert HL7 2.x format to IPS JSON format.",
-          "parameters": [
-            {
-              "$ref": "#/components/parameters/XIPSFormat"
-            }
-          ],
-          "requestBody": {
-            "description": "HL7 2.x - Plain Text",
-            "required": true,
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "IPS Bundle JSON"
-            }
-          }
-        }
-      },
-      "/convertxml": {
-        "post": {
-          "tags": [
-            "IPS"
-          ],
-          "summary": "Generic convert XML format to JSON format",
-          "description": "Generic convert XML format to JSON format.",
-          "requestBody": {
-            "description": "XML",
-            "required": true,
-            "content": {
-              "application/xml": {
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "text/xml": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "JSON"
-            }
-          }
-        }
-      },
-      "/convertfhirxml": {
-        "post": {
-          "tags": [
-            "IPS"
-          ],
-          "summary": "Convert FHIR XML format to FHIR JSON format",
-          "description": "Convert FHIR XML format to FHIR JSON format.",
-          "requestBody": {
-            "description": "FHIR XML",
-            "required": true,
-            "content": {
-              "application/xml": {
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "text/xml": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "FHIR JSON"
-            }
-          }
-        }
-      },
-      "/ips/all": {
-        "get": {
-          "tags": [
-            "IPS"
-          ],
-          "summary": "Retrieve all IPS records",
-          "description": "Retrieve all IPS records.",
-          "responses": {
-            "200": {
-              "description": "Array of JSON objects representing IPS records.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/IPSRecord"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/ipsraw/{id}": {
-        "get": {
-          "tags": [
-            "IPS"
-          ],
-          "summary": "Retrieve raw IPS record by ID",
-          "description": "Retrieve raw IPS record by ID.",
-          "parameters": [
-            {
-              "name": "id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "string"
-              },
-              "description": "IPS record ID"
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "JSON object of the raw IPS record.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/ipsmongo/{id}": {
-        "get": {
-          "tags": [
-            "IPS"
-          ],
-          "summary": "Retrieve IPS record in MongoDB format by ID",
-          "description": "Retrieve IPS record in MongoDB format by ID.",
-          "parameters": [
-            {
-              "name": "id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "MongoDB JSON",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/ips/{id}": {
-        "get": {
-          "tags": [
-            "IPS"
-          ],
-          "summary": "Retrieve IPS record in expanded format by ID",
-          "description": "Retrieve IPS record in expanded format by ID.",
-          "parameters": [
-            {
-              "name": "id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Expanded IPS - FHIR JSON",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "put": {
-          "tags": [
-            "IPS"
-          ],
-          "summary": "Update an IPS record by ID",
-          "description": "Update an IPS record by ID.",
-          "parameters": [
-            {
-              "name": "id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "string"
-              },
-              "description": "IPS record ID"
-            }
-          ],
-          "requestBody": {
-            "description": "Partial JSON object representing the updated IPS record.",
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "Updated IPS record in MongoDB JSON format.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "delete": {
-          "tags": [
-            "IPS"
-          ],
-          "summary": "Delete an IPS record by ID",
-          "description": "Delete an IPS record by ID.",
-          "parameters": [
-            {
-              "name": "id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Confirmation of deletion.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "string"
-                  }
-                },
-                "text/plain": {
-                  "schema": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/ipsbasic/{id}": {
-        "get": {
-          "tags": [
-            "IPS"
-          ],
-          "summary": "Retrieve IPS record in basic format by ID",
-          "description": "Retrieve IPS record in basic format by ID.",
-          "parameters": [
-            {
-              "name": "id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Basic format - Plain Text",
-              "content": {
-                "text/plain": {
-                  "schema": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/ipsbeer/{id}/{delim}": {
-        "get": {
-          "tags": [
-            "IPS"
-          ],
-          "summary": "Retrieve IPS record in BEER format by ID with optional delimiter",
-          "description": "Retrieve IPS record in BEER format by ID with optional delimiter. The delimiter options are documented in the API docs.",
-          "parameters": [
-            {
-              "name": "id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "string"
-              }
+            "schema": {
+              "type": "string"
             },
-            {
-              "name": "delim",
-              "in": "path",
-              "required": false,
-              "schema": {
-                "type": "string"
-              },
-              "description": "Optional delimiter. Available options: 'semi' (;), 'colon' (:), 'pipe' (|), 'at' (@), 'newline' (\\n)."
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "BEER - Plain Text",
-              "content": {
-                "text/plain": {
-                  "schema": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/ipshl72x/{id}": {
-        "get": {
-          "tags": [
-            "IPS"
-          ],
-          "summary": "Retrieve IPS record in HL7 2.3 format by ID",
-          "description": "Retrieve IPS record in HL7 2.3 format by ID.",
-          "parameters": [
-            {
-              "name": "id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "HL7 2.3 - Plain Text",
-              "content": {
-                "text/plain": {
-                  "schema": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/ipsxml/{id}": {
-        "get": {
-          "tags": [
-            "IPS"
-          ],
-          "summary": "Retrieve IPS record in expanded FHIR XML format by ID",
-          "description": "Retrieve IPS record in expanded FHIR XML format by ID.",
-          "parameters": [
-            {
-              "name": "id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "IPS Bundle - FHIR XML",
-              "content": {
-                "application/xml": {
-                  "schema": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/ipslegacy/{id}": {
-        "get": {
-          "tags": [
-            "IPS"
-          ],
-          "summary": "Retrieve IPS record in legacy format by ID",
-          "description": "Retrieve IPS record in legacy format by ID (FHIR JSON).",
-          "parameters": [
-            {
-              "name": "id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Legacy IPS record in FHIR JSON format.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/ipsunified/{id}": {
-        "get": {
-          "tags": [
-            "IPS"
-          ],
-          "summary": "Retrieve IPS record in compact unified format by ID",
-          "description": "Retrieve IPS record in compact unified format by ID (FHIR JSON).",
-          "parameters": [
-            {
-              "name": "id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Unified IPS record in FHIR JSON format.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/ipsbyname/{name}/{given}": {
-        "get": {
-          "tags": [
-            "IPS"
-          ],
-          "summary": "Retrieve expanded IPS FHIR by patient name and given name",
-          "description": "Retrieve expanded IPS FHIR by patient name and given name (case-insensitive). An optional header parameter x-ips-format can be used to override the default format (e.g., 'fhir', 'beer', 'ora', 'xml', 'legacy', 'unified').",
-          "parameters": [
-            {
-              "$ref": "#/components/parameters/XIPSFormat"
-            },
-            {
-              "name": "name",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "string"
-              },
-              "description": "Patient name"
-            },
-            {
-              "name": "given",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "string"
-              },
-              "description": "Patient given name"
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Expanded IPS Bundle in FHIR JSON format.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object"
-                  }
-                }
-              }
-            },
-            "404": {
-              "description": "IPS record not found."
-            }
-          }
-        }
-      },
-      "/ips/search/{name}": {
-        "get": {
-          "tags": [
-            "IPS"
-          ],
-          "summary": "Search IPS records by patient name",
-          "description": "Search IPS records by patient name.",
-          "parameters": [
-            {
-              "name": "name",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "string"
-              },
-              "description": "Patient name"
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Array of JSON objects representing IPS records.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "type": "object"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/fetchipsora/{name}/{givenName}": {
-        "get": {
-          "tags": [
-            "IPS"
-          ],
-          "summary": "Fetch IPS data from ORA by patient name and given name",
-          "description": "Fetch IPS data from ORA by patient name and given name.",
-          "parameters": [
-            {
-              "name": "name",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "string"
-              },
-              "description": "Patient name"
-            },
-            {
-              "name": "givenName",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "string"
-              },
-              "description": "Patient given name"
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "JSON object from ORA system.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/ipsuuid/{uuid}": {
-        "put": {
-          "tags": [
-            "IPS"
-          ],
-          "summary": "Update an IPS record by UUID",
-          "description": "Update an IPS record by UUID.",
-          "parameters": [
-            {
-              "name": "uuid",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "string"
-              },
-              "description": "IPS record UUID"
-            }
-          ],
-          "requestBody": {
-            "description": "Partial JSON object representing the updated IPS record.",
+            "description": "Patient name"
+          },
+          {
+            "name": "givenName",
+            "in": "path",
             "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Patient given name"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "JSON object from ORA system.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "Updated IPS record in MongoDB JSON format.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/xmpp/test-send-message": {
-        "get": {
-          "tags": [
-            "XMPP"
-          ],
-          "summary": "Send a test message to XMPP group chat",
-          "description": "Send a test message to the configured XMPP group chat (optionally specify ?msg=...).",
-          "parameters": [
-            {
-              "name": "msg",
-              "in": "query",
-              "required": false,
-              "schema": {
-                "type": "string"
-              },
-              "description": "Optional message text"
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "A text response indicating success.",
-              "content": {
-                "text/plain": {
-                  "schema": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/xmpp/xmpp-post": {
-        "post": {
-          "tags": [
-            "XMPP"
-          ],
-          "summary": "Send a message to the XMPP group chat",
-          "description": "Send a message to the XMPP group chat, optionally specifying a custom room.",
-          "requestBody": {
-            "description": "JSON body: { \"msg\": \"<message text>\", \"room\": \"<roomJid>\" } (room is optional)",
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "msg": {
-                      "type": "string"
-                    },
-                    "room": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "JSON response with status, the target room, and the message sent.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/xmpp/xmpp-ips": {
-        "post": {
-          "tags": [
-            "XMPP"
-          ],
-          "summary": "Fetch an IPS record by ID and broadcast it to the XMPP group chat",
-          "description": "Fetch an IPS record by ID and broadcast it (as plain text) to the configured XMPP group chat.",
-          "requestBody": {
-            "description": "JSON body: { \"id\": \"<IPS record ID>\" }",
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "JSON response confirming the record was retrieved and sent.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/xmpp/xmpp-ips-private": {
-        "post": {
-          "tags": [
-            "XMPP"
-          ],
-          "summary": "Fetch an IPS record by ID and send it privately to a specific occupant",
-          "description": "Fetch an IPS record by ID and send it privately (type=\"chat\") to a specific occupant.",
-          "requestBody": {
-            "description": "JSON body: { \"id\": \"<IPS record ID>\", \"from\": \"<occupant name or user>\" }",
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    },
-                    "from": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "JSON response confirming the record was retrieved and sent privately.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/tak/test": {
-        "post": {
-          "tags": [
-            "TAK"
-          ],
-          "summary": "Sends a test CoT message",
-          "description": "Sends a test CoT message. A custom CoT message can be provided via the \"cot\" property in the JSON body.",
-          "requestBody": {
-            "description": "JSON: { \"cot\": \"<CoT XML message>\" }",
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "cot": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "JSON: { \"message\": \"<result>\" }",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/tak/ips": {
-        "post": {
-          "tags": [
-            "TAK"
-          ],
-          "summary": "Resolve an IPS record and send it in a CoT message",
-          "description": "Resolves an IPS record by id (either packageUUID or ObjectId), compresses it into a gzipped, Base64-encoded payload, and embeds it in the custom <ipsData> element of a CoT message.",
-          "requestBody": {
-            "description": "JSON: { \"id\": \"<IPS record ID or packageUUID>\" }",
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "JSON: { \"message\": \"<result>\", \"cot\": \"<Complete CoT message with <ipsData> element>\" }",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/tak/browser/{id}": {
-        "get": {
-          "tags": [
-            "TAK"
-          ],
-          "summary": "Returns an HTML page with formatted IPS record details",
-          "description": "Returns an HTML page with nicely formatted IPS record details for display in a browser, using the IPS record identified by packageUUID.",
-          "parameters": [
-            {
-              "name": "id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "string"
-              },
-              "description": "IPS record ID/packageUUID"
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "HTML page with formatted IPS record details.",
-              "content": {
-                "text/html": {
-                  "schema": {
-                    "type": "string"
-                  }
                 }
               }
             }
@@ -1393,257 +1368,584 @@
         }
       }
     },
-    "components": {
-      "parameters": {
-        "XIPSFormat": {
-          "name": "x-ips-format",
-          "in": "header",
-          "description": "Optional format override. Available values: 'unified' (default), 'inter', 'legacy'.",
-          "required": false,
-          "schema": {
-            "type": "string"
+    "/ipsuuid/{uuid}": {
+      "put": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Update an IPS record by UUID",
+        "description": "Update an IPS record by UUID.",
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "IPS record UUID"
+          }
+        ],
+        "requestBody": {
+          "description": "Partial JSON object representing the updated IPS record.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
           }
         },
-        "XEncrypted": {
-          "name": "x-encrypted",
-          "in": "header",
-          "description": "Set to true if the request is AES-256 encrypted.",
-          "required": false,
-          "schema": {
-            "type": "boolean"
-          }
-        },
-        "AcceptEncryption": {
-          "name": "accept-encryption",
-          "in": "header",
-          "description": "Set to 'aes256' to request AES-256 encrypted responses.",
-          "required": false,
-          "schema": {
-            "type": "string"
-          }
-        },
-        "ContentEncoding": {
-          "name": "content-encoding",
-          "in": "header",
-          "description": "Set to 'gzip' or 'gzip, base64' if the payload is compressed or base64-encoded.",
-          "required": false,
-          "schema": {
-            "type": "string"
-          }
-        },
-        "AcceptEncoding": {
-          "name": "accept-encoding",
-          "in": "header",
-          "description": "Set to 'gzip' or 'gzip, base64' to request a gzipped (and optionally Base64 encoded) response.",
-          "required": false,
-          "schema": {
-            "type": "string"
-          }
-        },
-        "Accept": {
-          "name": "accept",
-          "in": "header",
-          "description": "Set to 'application/octet-stream' to request a raw binary response.",
-          "required": false,
-          "schema": {
-            "type": "string"
+        "responses": {
+          "200": {
+            "description": "Updated IPS record in MongoDB JSON format.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         }
-      },
-      "schemas": {
-        "IPSRecord": {
-          "type": "object",
-          "properties": {
-            "packageUUID": {
-              "type": "string",
-              "description": "Unique identifier for the IPS package."
+      }
+    },
+    "/xmpp/test-send-message": {
+      "get": {
+        "tags": [
+          "XMPP"
+        ],
+        "summary": "Send a test message to XMPP group chat",
+        "description": "Send a test message to the configured XMPP group chat (optionally specify ?msg=...).",
+        "parameters": [
+          {
+            "name": "msg",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
             },
-            "timeStamp": {
-              "type": "string",
-              "format": "date-time",
-              "description": "Timestamp when the IPS record was generated."
-            },
-            "patient": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string",
-                  "description": "Patient's last name."
-                },
-                "given": {
-                  "type": "string",
-                  "description": "Patient's given name."
-                },
-                "dob": {
-                  "type": "string",
-                  "format": "date",
-                  "description": "Patient's date of birth."
-                },
-                "gender": {
-                  "type": "string",
-                  "description": "Patient's gender."
-                },
-                "nation": {
-                  "type": "string",
-                  "description": "Patient's nationality."
-                },
-                "practitioner": {
-                  "type": "string",
-                  "description": "Name or identifier of the practitioner."
-                },
-                "organization": {
-                  "type": "string",
-                  "description": "Organization associated with the patient."
-                },
-                "identifier": {
-                  "type": "string",
-                  "description": "An optional identifier for the patient."
-                }
-              },
-              "required": [
-                "name",
-                "given",
-                "dob",
-                "nation",
-                "practitioner"
-              ]
-            },
-            "medication": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "date": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "dosage": {
-                    "type": "string"
-                  },
-                  "system": {
-                    "type": "string"
-                  },
-                  "code": {
-                    "type": "string"
-                  },
-                  "status": {
-                    "type": "string"
-                  }
+            "description": "Optional message text"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A text response indicating success.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
                 }
               }
-            },
-            "allergies": {
-              "type": "array",
-              "items": {
+            }
+          }
+        }
+      }
+    },
+    "/xmpp/xmpp-post": {
+      "post": {
+        "tags": [
+          "XMPP"
+        ],
+        "summary": "Send a message to the XMPP group chat",
+        "description": "Send a message to the XMPP group chat, optionally specifying a custom room.",
+        "requestBody": {
+          "description": "JSON body: { \"msg\": \"<message text>\", \"room\": \"<roomJid>\" } (room is optional)",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
                 "type": "object",
                 "properties": {
-                  "name": {
+                  "msg": {
                     "type": "string"
                   },
-                  "criticality": {
-                    "type": "string"
-                  },
-                  "date": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "system": {
-                    "type": "string"
-                  },
-                  "code": {
-                    "type": "string"
-                  }
-                }
-              }
-            },
-            "conditions": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "date": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "system": {
-                    "type": "string"
-                  },
-                  "code": {
-                    "type": "string"
-                  }
-                }
-              }
-            },
-            "observations": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "date": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "system": {
-                    "type": "string"
-                  },
-                  "code": {
-                    "type": "string"
-                  },
-                  "value": {
-                    "type": "string"
-                  },
-                  "valueCode": {
-                    "type": "string"
-                  },
-                  "bodySite": {
-                    "type": "string"
-                  },
-                  "status": {
-                    "type": "string"
-                  }
-                }
-              }
-            },
-            "immunizations": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "system": {
-                    "type": "string"
-                  },
-                  "code": {
-                    "type": "string"
-                  },
-                  "date": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "status": {
+                  "room": {
                     "type": "string"
                   }
                 }
               }
             }
-          },
-          "required": [
-            "packageUUID",
-            "timeStamp",
-            "patient"
-          ]
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "JSON response with status, the target room, and the message sent.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/xmpp/xmpp-ips": {
+      "post": {
+        "tags": [
+          "XMPP"
+        ],
+        "summary": "Fetch an IPS record by ID and broadcast it to the XMPP group chat",
+        "description": "Fetch an IPS record by ID and broadcast it (as plain text) to the configured XMPP group chat.",
+        "requestBody": {
+          "description": "JSON body: { \"id\": \"<IPS record ID>\" }",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "JSON response confirming the record was retrieved and sent.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/xmpp/xmpp-ips-private": {
+      "post": {
+        "tags": [
+          "XMPP"
+        ],
+        "summary": "Fetch an IPS record by ID and send it privately to a specific occupant",
+        "description": "Fetch an IPS record by ID and send it privately (type=\"chat\") to a specific occupant.",
+        "requestBody": {
+          "description": "JSON body: { \"id\": \"<IPS record ID>\", \"from\": \"<occupant name or user>\" }",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "from": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "JSON response confirming the record was retrieved and sent privately.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tak/test": {
+      "post": {
+        "tags": [
+          "TAK"
+        ],
+        "summary": "Sends a test CoT message",
+        "description": "Sends a test CoT message. A custom CoT message can be provided via the \"cot\" property in the JSON body.",
+        "requestBody": {
+          "description": "JSON: { \"cot\": \"<CoT XML message>\" }",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cot": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "JSON: { \"message\": \"<result>\" }",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tak/ips": {
+      "post": {
+        "tags": [
+          "TAK"
+        ],
+        "summary": "Resolve an IPS record and send it in a CoT message",
+        "description": "Resolves an IPS record by id (either packageUUID or ObjectId), compresses it into a gzipped, Base64-encoded payload, and embeds it in the custom <ipsData> element of a CoT message.",
+        "requestBody": {
+          "description": "JSON: { \"id\": \"<IPS record ID or packageUUID>\" }",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "JSON: { \"message\": \"<result>\", \"cot\": \"<Complete CoT message with <ipsData> element>\" }",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tak/browser/{id}": {
+      "get": {
+        "tags": [
+          "TAK"
+        ],
+        "summary": "Returns an HTML page with formatted IPS record details",
+        "description": "Returns an HTML page with nicely formatted IPS record details for display in a browser, using the IPS record identified by packageUUID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "IPS record ID/packageUUID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTML page with formatted IPS record details.",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
         }
       }
     }
+  },
+  "components": {
+    "parameters": {
+      "XIPSFormat": {
+        "name": "x-ips-format",
+        "in": "header",
+        "description": "Optional format override. Available values: 'unified' (default), 'inter', 'legacy'.",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "XEncrypted": {
+        "name": "x-encrypted",
+        "in": "header",
+        "description": "Set to true if the request is AES-256 encrypted.",
+        "required": false,
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      "AcceptEncryption": {
+        "name": "accept-encryption",
+        "in": "header",
+        "description": "Set to 'aes256' to request AES-256 encrypted responses.",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "ContentEncoding": {
+        "name": "content-encoding",
+        "in": "header",
+        "description": "Set to 'gzip' or 'gzip, base64' if the payload is compressed or base64-encoded.",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "AcceptEncoding": {
+        "name": "accept-encoding",
+        "in": "header",
+        "description": "Set to 'gzip' or 'gzip, base64' to request a gzipped (and optionally Base64 encoded) response.",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "Accept": {
+        "name": "accept",
+        "in": "header",
+        "description": "Set to 'application/octet-stream' to request a raw binary response.",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    "schemas": {
+      "IPSRecord": {
+        "type": "object",
+        "description": "Describes the internal NoSQL schema only - not the IPS FHiR one",
+        "properties": {
+          "packageUUID": {
+            "type": "string",
+            "description": "Unique identifier for the IPS package - UUID is preferred"
+          },
+          "timeStamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the IPS record was generated."
+          },
+          "patient": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Patient's last name."
+              },
+              "given": {
+                "type": "string",
+                "description": "Patient's given name."
+              },
+              "dob": {
+                "type": "string",
+                "format": "date",
+                "description": "Patient's date of birth."
+              },
+              "gender": {
+                "type": "string",
+                "description": "Patient's gender - male/female/other/unknown"
+              },
+              "nation": {
+                "type": "string",
+                "description": "Patient's nationality - used as Patient-Address-Country in IPS FHiR"
+              },
+              "practitioner": {
+                "type": "string",
+                "description": "Name or identifier of the practitioner - not used in IPS Unified version"
+              },
+              "organization": {
+                "type": "string",
+                "description": "Organization associated with the patient - 3 letter e.g. GBR"
+              },
+              "identifier": {
+                "type": "string",
+                "description": "An optional identifier for the patient - currently NATO_id for IPS Unified version"
+              },
+              "identifier2": {
+                "type": "string",
+                "description": "An optional identifier for the patient - currently National_id for IPS Unified version"
+              }
+            },
+            "required": [
+              "name",
+              "given",
+              "dob"
+            ]
+          },
+          "medication": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "date": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "dosage": {
+                  "type": "string"
+                },
+                "system": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "allergies": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "criticality": {
+                  "type": "string"
+                },
+                "date": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "system": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "conditions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "date": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "system": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "observations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "date": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "system": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string",
+                  "description": "String - if numerical then contains value then space then units"
+                },
+                "valueCode": {
+                  "type": "string"
+                },
+                "bodySite": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "immunizations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "system": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "string"
+                },
+                "date": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "status": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "procedures": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "date": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "system": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                }
+              }
+            }
+          }     
+        },
+        "required": [
+          "packageUUID",
+          "timeStamp",
+          "patient"
+        ]
+      }
+    }
   }
+}
