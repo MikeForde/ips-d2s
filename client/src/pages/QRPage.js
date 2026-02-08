@@ -140,6 +140,7 @@ function QRPage() {
     document.body.removeChild(link);
   };
 
+
   const handleModeChange = (selectedMode) => {
     startLoading();
     setMode(selectedMode);
@@ -153,9 +154,9 @@ function QRPage() {
     <div className="app">
       <div className="container">
         {/* <div className="header-container"> */}
-          <h3>Generate QR Code {mode !== 'ipsurl' && (
-            <span className="response-size"> - {responseSize} bytes</span>
-          )}</h3>
+        <h3>Generate QR Code {mode !== 'ipsurl' && (
+          <span className="response-size"> - {responseSize} bytes</span>
+        )}</h3>
         {/* </div> */}
         {selectedPatients.length > 0 && selectedPatient && <>
           <div className="dropdown-container">
