@@ -177,6 +177,7 @@ api.post('/convertmongo2hl7', convertMongoToHL72_x);
 api.post('/convertbeer2mongo', convertBEERToMongo);
 api.post('/convertbeer2ips', convertBEERToIPS);
 api.post('/convertips2beer', convertIPSToBEER);
+api.post('/convertips2plaintext', convertIPSToPlainText)
 api.post('/convertips2mongo', convertIPSToMongo);
 api.post('/convertcdatoips', convertCDAToIPS);
 api.post('/convertcdatobeer', convertCDAToBEER);
@@ -192,8 +193,12 @@ api.post('/test', (req, res) => {
     res.send(req.body);
 });
 
+// Schema validation endpoint
+api.use('/ipsUniVal', ipsUniValRouter);
+
 // API GET - CRUD Read
 api.get("/ips/all", getAllIPS);
+api.get("/ips/list", getAllIPSList);
 api.get("/ipsraw/:id", getIPSRaw);
 api.get("/ipsmongo/:id", getMongoFormatted);
 api.get("/ips/:id", getIPSBundle);
@@ -203,10 +208,13 @@ api.get("/ipshl72x/:id", getIPSHL72_x);
 api.get("/ipsxml/:id", getIPSXMLBundle);
 api.get("/ipslegacy/:id", getIPSLegacyBundle);
 api.get("/ipsunified/:id", getIPSUnifiedBundle);
+api.get("/ipsunifiedsplit/:id", getIPSUnifiedBundleSplit);
+api.get("/ipsdatasplitpoc/:id", getIPSDataSplitPOC);
 api.get("/ipsbyname/:name/:given", getIPSBundleByName);
 api.get("/ips/search/:name", getIPSSearch);
 api.get('/fetchipsora/:name/:givenName', getORABundleByName);
 api.get("/fetchips", getIPSBundleGeneric);
+api.get("/ipsplaintext/:id", getIPSPlainText);
 
 // XMPP endpoints
 api.use("/xmpp", xmppRoutes);

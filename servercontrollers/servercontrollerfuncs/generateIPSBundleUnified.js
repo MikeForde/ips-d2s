@@ -1,6 +1,10 @@
 const { v4: uuidv4 } = require('uuid');
 const { stripMilliseconds, stripTime } = require('../../utils/timeUtils');
+//const { encryptPrimitiveField, underscoreFieldFor } = require('../../encryption/fhirFieldCrypt');
 const { encryptPrimitiveFieldJWE, underscoreFieldForJWE } = require('../../encryption/jweFieldCrypt');
+//const { system } = require('nodemon/lib/config');
+//const { encryptPrimitiveFieldPW, underscoreFieldForPW } = require('../../encryption/pwFieldCrypt');
+
 
 // Helper function to check if a string contains a number
 const containsNumber = (str) => /\d/.test(str);
@@ -13,6 +17,7 @@ function generateIPSBundleUnified(ips) {
     var algcount = 0;
     var condcount = 0;
     var obscount = 0;
+    var proccount = 0;
 
     const ipsBundle = {
         resourceType: "Bundle",
@@ -65,7 +70,7 @@ function generateIPSBundleUnified(ips) {
                         id: "medreq" + ++medcount,
                         status: med.status ? med.status.toLowerCase() : "active",
                         medicationReference: {
-                            reference: "med" + medcount,
+                            reference: "Medication/med" + medcount,
                             display: med.name,
                         },
                         subject: {
@@ -368,7 +373,7 @@ async function protectIPSBundle(ipsBundle, protectMethod = "none") {
             patientEntry.resource = {
                 resourceType: "Patient",
                 id: patientEntry.resource.id,
-                identifier: [{ system: "omitted", value: "omitted" }],
+                identifier: [{system: "omitted", value: "omitted"}],
                 name: [{ family: "omitted", given: ["omitted"] }],
                 gender,      // may be undefined if not present; that's fine
                 birthDate,   // ditto

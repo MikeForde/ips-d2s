@@ -1,55 +1,58 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "/ipsdef/Medication.schema.json",
-  "title": "IPS-Unified Medication",
-  "type": "object",
-  "required": [
-    "resourceType",
-    "id",
-    "code"
-  ],
-  "properties": {
-    "resourceType": {
-      "const": "Medication"
-    },
-    "id": {
-      "type": "string",
-      "pattern": "^[A-Za-z0-9\\-\\.]{1,64}$",
-      "description": "simple ids preferred",
-      "examples": ["med1, med2...medN"]
-    },
-    "code": {
-      "$ref": "#/definitions/CodeableConcept"
-    }
-  },
-  "definitions": {
-    "CodeableConcept": {
-      "type": "object",
-      "required": ["coding"],
-      "properties": {
-        "coding": {
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "$ref": "#/definitions/Coding"
-          }
-        }
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "/ipsdef/Medication.schema.json",
+    "title": "NPS Medication",
+    "type": "object",
+    "required": [
+      "resourceType",
+      "id",
+      "code"
+    ],
+    "properties": {
+      "resourceType": {
+        "const": "Medication"
+      },
+      "id": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9\\-\\.]{1,64}$",
+        "description": "simple ids preferred",
+        "examples": ["med1, med2...medN"]
+      },
+      "code": {
+        "$ref": "#/definitions/CodeableConcept"
       }
     },
-    "Coding": {
-      "type": "object",
-      "required": ["system", "code", "display"],
-      "properties": {
-        "system": {
-          "type": ["string", "null"]
+    "definitions": {
+      "CodeableConcept": {
+        "type": "object",
+        "required": ["coding"],
+        "properties": {
+          "coding": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/definitions/Coding"
+            }
+          },
+          "text": { "type": ["string", "null"] }
         },
-        "code": {
-          "type": ["string", "null"]
-        },
-        "display": {
-          "type": "string"
+        "additionalProperties": false
+      },
+      "Coding": {
+        "type": "object",
+        "required": ["system", "code", "display"],
+        "properties": {
+          "system": {
+            "type": ["string", "null"]
+          },
+          "code": {
+            "type": ["string", "null"]
+          },
+          "display": {
+            "type": "string"
+          }
         }
       }
     }
   }
-}
+  
