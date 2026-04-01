@@ -8,7 +8,7 @@
         "server": "nodemon server",
         "client": "npm start --prefix client",
         "dev": "concurrently \"npm run server\" \"npm run client\"",
-        "build": "npm install && cd client && npm install",
+        "build": "npm install --omit=dev && rm -rf client/node_modules",
         "buildInVS": "npm install && cd client && npm install && npm run build"
     },
     "author": "",
