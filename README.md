@@ -1,300 +1,298 @@
-# IPS D2S Project
+# IPS SERN D2S
 
-This project is a SERN (SQL, Express, React, Node.js) stack application designed to manage and manipulate IPS (International Patient Summary) records. It includes features to convert between Database Native, BEER, and IPS JSON formats, and supports various CRUD operations on IPS data. 
+IPS SERN D2S is a SERN-stack application for creating, storing, converting, validating, viewing, and exchanging International Patient Summary style data.
 
-## Table of Contents
-
-- [Overview](#overview)
-- [Features](#features)
-- [Setup](#setup)
-- [API Documentation](#api-documentation)
-  - [POST Endpoints](#post-endpoints)
-  - [GET Endpoints](#get-endpoints)
-  - [PUT Endpoints](#put-endpoints)
-  - [DELETE Endpoints](#delete-endpoints)
-- [Gzip Support](#gzip-support)
-- [AES-256 Support](#aes-256-encryption-support)
-- [Client-Side Pages](#client-side-pages)
-- [Technologies Used](#technologies-used)
-- [Contributing](#contributing)
-- [License](#license)
+The backend stores records in MySQL via Sequelize, but many API responses intentionally keep the older Mongo-style JSON shape used by the frontend and other compatibility paths.
 
 ## Overview
 
-This application allows healthcare providers to create, update, delete, and convert patient records stored in SQL (MySQL). The records can be converted into different formats, including BEER (Basic Emergency Exchange Record) and IPS JSON, to facilitate data sharing and interoperability.
+This repository contains:
 
-## Features
+- A Node.js/Express backend in the repo root
+- A React client in `client/`
+- A MySQL-backed data model for IPS records and supporting SNOMED GPS lookup data
+- REST, GraphQL, Swagger, Socket.IO, and gRPC entry points
+- Format conversion pipelines for IPS/NPS, NHS SCR, EPS, BEER, HL7 v2.x, CDA, XML, QR, NFC, XMPP, and TAK flows
 
-- **CRUD Operations**: Create, Read, Update, Delete IPS records.
-- **Format Conversion**: Convert IPS records between MongoDB, BEER, and IPS JSON formats.
-- **API Endpoints**: Comprehensive set of endpoints to manage IPS records.
-- **Responsive Frontend**: User-friendly interface for managing and converting records.
-- **Search and Filter**: Find records by various attributes.
+## Current Highlights
 
-## Setup
+- CRUD operations for IPS records stored in MySQL
+- Conversion between SQL-backed records and Mongo-style JSON payloads
+- FHIR bundle generation for:
+  - Expanded IPS
+  - NPS / unified IPS
+  - NHS SCR IPS
+  - EPS
+  - legacy IPS output
+- Conversion endpoints for:
+  - BEER
+  - HL7 2.x
+  - CDA XML
+  - FHIR XML
+  - plain text / human-readable output
+- Schema validation endpoints and UI for:
+  - NPS
+  - NPS NFC split bundles
+  - NHS SCR
+  - EPS
+- SNOMED GPS search and picklist APIs used by the editor UI
+- Static QR, animated QR generation, and animated QR reading
+- NFC-oriented split payload demos
+- External exchange tooling including XMPP and TAK integrations
+- GraphQL endpoint layered over the REST/controller surface
 
-### Prerequisites
+## Repository Layout
 
-- [Node.js](https://nodejs.org/)
-- [MySQL](https://www.mysql.com)
-- [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
-
-### Installation
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/ips-d2s.git
-   cd ips-d2s
-   ```
-
-2. Install server dependencies:
-
-  ```bash
-  cd server
-  npm install
-  ```
-
-3. Install client dependencies:
-
-  ```bash
-  cd ../client
-  npm install
-  ```
-
-4. Set up environment variables:
-
-Create a .env file in the server directory with the following content with your own settings:
+```text
+.
+|-- server.js                 Express app entry point
+|-- graphql/                 GraphQL schema and resolvers
+|-- models/                  Sequelize models
+|-- servercontrollers/       REST/controller logic and converters
+|-- schema/                  Validation routes and JSON Schemas
+|-- client/                  React application
+|-- tak/                     TAK integration
+|-- xmpp/                    XMPP integration
+|-- proto/                   gRPC server
 ```
-  DB_USER=
-  DB_PASSWORD=
-  DB_NAME=
-  DB_HOST=host.docker.internal (if using docker MySQL instance)
-  ```
 
-5. Start the development server:
+## Prerequisites
 
-  ```bash
-  cd ../server
-  npm run dev
-  ```
+- Node.js
+- npm
+- MySQL
 
-6. Start the React development server:
+## Installation
 
-  ```bash
-  cd ../client
-  npm start
-  ```
+Install server dependencies from the repository root:
 
-## API Documentation
+```bash
+npm install
+```
 
-### POST Endpoints
+Install client dependencies:
 
-| Endpoint                        | Description                                         | Request Body                                                                                                    | Response                             |
-|---------------------------------|-----------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|--------------------------------------|
-| `/ips`                          | Add a new IPS record.                                | MongoDb IPS Record | The created IPS record.             |
-| `/ipsmany`                      | Add multiple IPS records.                           | Multiple MongoDb IPS Records | Array of created IPS records.        |
-| `/ipsbundle`                    | Add IPS records from a bundle.                      | IPS JSON Bundle | The created IPS record.              |
-| `/pushipsora`                   | Push IPS records to an ORA system.                  | IPS JSON Bundle | Response from the ORA system.                      |
-| `/pushipsnld`                   | Push IPS records to an ORA system.                  | IPS JSON Bundle | Response from the NLD system.                      |
-| `/ipsfrombeer`                  | Add IPS records from BEER format.                   | BEER as Plain Text  | The created IPS record.              |
-| `/ipsfromcda`                  | Add IPS records from CDA XML format.                   | CDA as XML  | The created IPS record.              |
-| `/ipsfromhl72x`                  | Add IPS records from HL7 2.x format.                   | HL7 2.x as Plain Text  | The created IPS record.              |
-| `/convertmongo2beer`            | Convert a MongoDB IPS record to BEER format.        | Mongo IPS Record | The BEER formatted data.             |
-| `/convertmongo2hl7`             | Convert a MongoDB IPS record to HL7 2.3 format.     | Mongo IPS Record | The HL7 2.3 formatted data.          |
-| `/convertbeer2mongo`            | Convert a BEER IPS record to MongoDB format.        | BEER as Plain Text  | MongoDB formatted data.              |
-| `/convertbeer2ips`              | Convert a BEER IPS record to IPS JSON format.       | BEER as Plain Text | IPS JSON formatted data.             |
-| `/convertips2beer`              | Convert an IPS JSON record to BEER format.          | IPS JSON Bundle | BEER formatted data.                 |
-| `/convertcdatoips`              | Convert CDA XML format to IPS JSON Bundle.          | CDA XML Bundle | IPS JSON formatted data.             |
-| `/convertcdatobeer`             | Convert CDA XML format to BEER format.              | CDA XML Bundle | BEER formatted data.                 |
-| `/convertcdatomongo`             | Convert CDA XML format to MongoDb format.              | CDA XML Bundle | MongoDb - JSON                 |
-| `/converthl72xtomongo`          | Convert HL7 2.x format to MongoDB format.           | HL7 2.x - Plain Text | MongoDB - JSON                       |
-| `/converthl72xtoips`            | Convert HL7 2.x format to IPS JSON format.          | HL7 2.x - Plain Text | IPS Bundle - JSON                    |
-| `/convertxml`            | Generic convert XML format to JSON format.          | XML | JSON                    |
-| `/convertfhirxml`            | Convert FHiR XML format to FHiR JSON format.          | FHiR XML | FHiR JSON                    |
+```bash
+npm install --prefix client
+```
 
-### GET Endpoints
+## Environment Variables
 
-| Endpoint                        | Description                                         | Response                              |
-|---------------------------------|-----------------------------------------------------|---------------------------------------|
-| `/ips/all`                      | Retrieve all IPS records.                           | Array of MongoDb IPS records.                 |
-| `/ipsraw/:id`                   | Retrieve IPS record in default MongoDb format by ID.            | Default MongoDb IPS data.                         |
-| `/ipsmongo/:id`                 | Retrieve IPS record in presentation format by ID.        | Presentation formatted IPS data.           |
-| `/ips/:id`                      | Retrieve Expanded IPS JSON Bundle by its ID.                 | The Expanded IPS JSON Bundle format.           |
-| `/ipsbasic/:id`                 | Retrieve basic IPS Bundle by ID.                    | Basic IPS data.                       |
-| `/ipsbeer/:id/:delim?`          | Retrieve IPS Bundle in BEER format by ID.           | BEER formatted IPS data.              |
-| `/ipshl72x/:id`          | Retrieve IPS Bundle in HL7 2.3 format by ID.           | HL7 2.3 formatted IPS data.              |
-| `/ipsxml/:id`                   | Retrieve IPS Bundle in Expanded XML format by ID.            | Expanded XML formatted IPS data.               |
-| `/ipslegacy/:id`                | Retrieve IPS Bundle in legacy format by ID.         | Legacy JSON formatted IPS data.       |
-| `/ipsunified/:id`                | Retrieve IPS Bundle in compact unified format by ID.         | Compact unified JSON formatted IPS data.       |
-| `/ipsbyname/:name/:given`       | Retrieve Expanded IPS Bundle by patient's name and given name. | The Expanded IPS JSON Bundle.                  |
-| `/ips/search/:name`             | Search for IPS records by patient's name.           | Array of IPS records.                 |
-| `/fetchipsora/:name/:givenName` | Fetch IPS record from ORA by patient's name and given name. | The IPS JSON Bundle.               |
+Create a `.env` file in the repository root.
 
-### PUT Endpoints
+Required for normal database-backed use:
 
-| Endpoint                        | Description                                         | Request Body                                                                                                     | Response                             |
-|---------------------------------|-----------------------------------------------------|------------------------------------------------------------------------------------------------------------------|--------------------------------------|
-| `/ips/:id`                      | Update an existing IPS record by its ID.            | MongoDb IPS Record - complete or partial| The updated IPS record.              |
-| `/ipsuuid/:uuid`                | Update an existing IPS record by its UUID.          | MongoDb IPS Record - complete or partial  | The updated IPS record.              |
+```env
+DB_USER=your_mysql_user
+DB_PASSWORD=your_mysql_password
+DB_NAME=your_database_name
+DB_HOST=localhost
+```
 
-### DELETE Endpoints
+Useful optional settings:
 
-| Endpoint                        | Description                                         | Response                              |
-|---------------------------------|-----------------------------------------------------|---------------------------------------|
-| `/ips/:id`                      | Delete an IPS record by its ID.                     | Status message.                       |
+```env
+PORT=5049
+DB_SYNC=false
+REACT_APP_API_BASE_URL=http://localhost:5049
+INTERNAL_GRAPHQL_REST_BASE_URL=http://127.0.0.1:5049
 
-## Gzip Support
+# Optional integrations
+TAK_HOST=
+XMPP_ROOM=
+XMPP_DOMAIN=
+HTTP20_ONLY_PORT=8585
+```
 
-### Overview
+Notes:
 
-This API supports gzip compression to optimize data transfer. 
+- `DB_SYNC=true` enables Sequelize schema alteration on startup. Use that carefully.
+- The React client uses `client/package.json` proxy settings by default in local development.
+- `REACT_APP_API_BASE_URL` is only needed when the client is not talking to the same origin.
 
-- **Incoming Requests**: When sending gzip-encoded data, set the `Content-Encoding: gzip` header.
-- **Outgoing Responses**: To receive gzip-encoded responses, set the `Accept-Encoding: gzip` header.
+## Running Locally
 
-### Usage Instructions
+Start both the backend and the React dev server:
 
-#### For Requests
+```bash
+npm run dev
+```
 
-1. Compress your payload using gzip.
-2. Include the header `Content-Encoding: gzip`.
-3. Send the compressed payload.
+This runs:
 
-#### For Responses
+- `npm run server` in the root for the Express backend
+- `npm run client` in the root for the React app in `client/`
 
-1. Set the header `Accept-Encoding: gzip`.
-2. The API will return the response in gzip format if supported.
+You can also run them separately:
 
-# AES-256 Encryption Support
+```bash
+npm run server
+npm run client
+```
 
-## Overview
+Default local URLs:
 
-This API supports AES-256 encryption for secure data transfer.
+- App API: `http://localhost:5049`
+- React dev server: `http://localhost:3000`
+- Swagger UI: `http://localhost:5049/docs`
+- GraphQL: `http://localhost:5049/graphql`
+- GraphQL Playground: `http://localhost:5049/playground`
 
-- **Incoming Requests**: To send encrypted data, include the `x-encrypted: true` header and provide an encrypted payload.
-- **Outgoing Responses**: To receive encrypted responses, include the `Accept-Encryption: aes256` header in your request.
+## Production Build
 
-## Base64 Encoding Option
+Build the React client:
 
-To facilitate compatibility and efficient data transfer, the API supports returning encrypted data encoded in Base64 format. 
+```bash
+npm run build --prefix client
+```
 
-- **Incoming Requests**: To send in base64 format, include the header `Content-Encoding: base64` with the encrypted payload. Make sure both the data and the iv are in base64 not hex.
-- **Outgoing Responses**: Use the header `Accept-Encoding: base64` The encrypted payload and IV will be returned as Base64-encoded strings.
+The Express app serves the built client from `client/build`.
 
-## Usage Instructions
+Start the server:
 
-### For Requests
+```bash
+npm start
+```
 
-1. Encrypt your payload using AES-256 encryption with the provided key and IV.
-2. Include the `x-encrypted: true` header.
-3. Send the encrypted payload in the request body as a JSON with the elements: encryptedData and iv. 
-4. Default format is hex strings for both elements. If you wish to send as base64 strings then use the `Content-Encoding: base64`.
+## API Surface
 
-### For Responses
+The application exposes several interfaces:
 
-1. Include the `Accept-Encryption: aes256` header in your request.
-2. Optionally, include the `Accept-Encoding: base64` header to receive the encrypted data and iv encoded in Base64.
-3. The response will be a JSON with two elements: encryptedData and iv.
+- REST endpoints from `server.js`
+- Swagger/OpenAPI docs at `/docs`
+- GraphQL at `/graphql`
+- GraphQL Playground at `/playground`
+- Socket.IO for live client updates
+- gRPC server startup from `proto/grpcServer.js`
 
-## Raw Binary Format (IV + MAC + Gzipped Data) 
-his API also supports sending and receiving raw binary data via application/octet-stream. This is useful when you want a single binary payload that includes:
-1. A 16-byte IV (initialization vector).
-2. A 16-byte MAC (HMAC-SHA256 for integrity).
-3. The encrypted + gzipped data.
+### Key REST Areas
 
-## Usage Instructions
+- IPS CRUD and retrieval
+- IPS bundle generation in multiple profiles
+- Format conversion endpoints
+- Schema validation endpoints
+- SNOMED GPS lookup endpoints
+- XMPP endpoints under `/xmpp`
+- TAK endpoints under `/tak`
 
-### Incoming Requests (Raw Binary)
-1. Set the header: `Content-Type: application/octet-stream`
-2. The first 16 bytes of your binary payload must be the IV, the next 16 bytes must be the MAC, and the remainder is the AES-256-CBC-encrypted, gzip-compressed data. 
-3. The server will:
-  - Verify the MAC to check integrity.
-  - Decrypt the payload using AES-256-CBC.
-  - Decompress the result from gzip.
+### Selected REST Endpoints
 
-### Responses (Raw Binary)
-1. Send a request with: `Accept: application/octet-stream`
-2. The server will:
-  - Take the plaintext response body.
-  - Compress it with gzip.
-  - Encrypt it using AES-256-CBC.
-  - Compute the MAC for integrity.
-  - Return a binary payload consisting of [16-byte IV] + [16-byte MAC] + [Encrypted Gzipped Data]
-3. The response will have: 
-- Content-Type: `application/octet-stream`
-- X-Encrypted: true
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `GET` | `/ips/all` | Return all IPS records |
+| `GET` | `/ips/list` | Lightweight IPS list |
+| `GET` | `/ipsraw/:id` | Raw Mongo-style IPS JSON |
+| `GET` | `/ipsmongo/:id` | Presentation-friendly JSON |
+| `GET` | `/ips/:id` | Expanded IPS bundle |
+| `GET` | `/ipsnhsscr/:id` | NHS SCR IPS bundle |
+| `GET` | `/ipseps/:id` | EPS bundle |
+| `GET` | `/nps/:id` | Unified/NPS bundle |
+| `GET` | `/npsnfc/:id` | Split NFC-oriented NPS payload |
+| `POST` | `/ips` | Create IPS record |
+| `POST` | `/ipsbundle` | Create from bundle |
+| `POST` | `/convertbeer2ips` | Convert BEER to IPS/NPS |
+| `POST` | `/convertcdatoips` | Convert CDA XML to IPS/NPS |
+| `POST` | `/converthl72xtoips` | Convert HL7 v2.x to IPS/NPS |
+| `POST` | `/npsVal` | Validate NPS JSON |
+| `POST` | `/ipsNhsScrVal` | Validate NHS SCR JSON |
+| `POST` | `/epsVal` | Validate EPS JSON |
+| `GET` | `/snomedgps/search` | SNOMED GPS search |
+| `GET` | `/snomedgps/picklist/:tag` | SNOMED GPS picklist |
 
-## Client-Side Pages
+For the full current surface, use:
 
-| Page                 | Description                                                                                           |
-|----------------------|-------------------------------------------------------------------------------------------------------|
-| **Default Page**     | Add, edit, and search for current records. You can also search for records from the navigation bar.   |
-| **API Page**         | View the various API GET endpoints, see their output, and download the output.                        |
-| **QR Page**          | Produce various forms of QR codes and download them. Formats include IPS JSON, BEER, and others.      |
-| **DMICP Page**       | Bulk upload IPS records produced in the SmartDoc format.                                              |
-| **External API Pages** | GET and POST between the external webapps/servers and the IPS D2S WebApp.                                 |
-| **About Pages**      | Information about IPS, the WebApp, the ChangeLog, and the API Documentation page.                     |
+- Swagger UI: `/docs`
+- Frontend API Documentation page
+- `client/src/pages/APIDocumentationPage.js`
 
-### Detailed Descriptions
+## GraphQL
 
-1. **Default Page**
-   - **Purpose:** Central page for managing IPS records. Users can add new records, edit existing records, and perform searches.
-   - **Features:** 
-     - Search for records directly from the page.
-     - Perform CRUD operations on IPS records.
+GraphQL is mounted at `/graphql` and wraps much of the existing controller surface.
 
-2. **API Page**
-   - **Purpose:** Provides an interface for interacting with API GET endpoints.
-   - **Features:** 
-     - View available API endpoints.
-     - Execute API calls and display the response.
-     - Download the response data.
-     - Includes the ability to encrypt and compress the response - base64
+Examples available in the built-in playground include:
 
-3. **QR Page**
-   - **Purpose:** Generate and download QR codes for IPS records.
-   - **Features:** 
-     - Create QR codes in various formats including IPS JSON and BEER.
-     - Download the generated QR codes.
-     - Includes the ability to encrypt and compress the response - base64
+- `getAllIPS`
+- `getIPSExpanded`
+- `getIPSUnified`
+- `getIPSByName`
+- `addIPS`
 
-4. **DMICP Page**
-   - **Purpose:** Facilitates the bulk upload of IPS records in the SmartDoc format.
-   - **Features:** 
-     - Upload multiple IPS records simultaneously.
-     - Supports the SmartDoc format for bulk data entry.
+## Frontend Pages
 
-5. **External API Pages**
-   - **Purpose:** Manage interactions with external IPS webApps/servers.
-   - **Features:** 
-     - GET and POST IPS records between pre-defined endpoints (or manually entered) and the IPS D2S WebApp.
+The current React app includes these main areas:
 
-6. **About Pages**
-   - **Purpose:** Provide detailed information about the IPS system and the WebApp.
-   - **Features:** 
-     - Overview of IPS.
-     - Information about the WebApp.
-     - View the ChangeLog for recent updates.
-     - Access the API Documentation page.
+- Home/editor page for creating, editing, viewing, and searching patient records
+- API page for testing retrieval endpoints and output formats
+- Viewer page for payload inspection
+- Static QR generation
+- Animated QR generation
+- Animated QR reader
+- NFC reader tooling
+- BEER tools page
+- External GET/POST exchange pages
+- JWE single-recipient and multi-recipient utilities
+- Schema viewers for NPS, NHS SCR, and EPS
+- Schema validator with NPS, NPS NFC, NHS SCR, and EPS modes
+- API documentation, changelog, and about pages
 
-Each page in the application is designed to provide specific functionalities for managing and interacting with IPS records, ensuring a comprehensive and user-friendly experience.
+The UI uses SNOMED GPS lookup endpoints to support clinically relevant term selection while preserving code/system values in edited records.
 
+## Data Shape Notes
 
-## Technologies Used
-- Frontend: React, React Bootstrap
-- Backend: Node.js, Express
-- Database: MySQL
-- Other: Axios for HTTP requests, Sequelize for MySQL interaction
+Although the backend is SQL-backed, much of the application still uses a Mongo-style JSON payload shape for compatibility with the existing React client and earlier MERN-based flows.
 
+Typical record shape returned to the client looks like:
 
-## Contributing
-Contributions are welcome! Please read our contributing guidelines before you submit a pull request.
+```json
+{
+  "_id": 123,
+  "packageUUID": "uuid-value",
+  "timeStamp": "2026-04-15T12:00:00.000Z",
+  "patient": {
+    "name": "Smith",
+    "given": "John"
+  },
+  "medication": [],
+  "allergies": [],
+  "conditions": [],
+  "observations": [],
+  "immunizations": [],
+  "procedures": []
+}
+```
 
+This is intentional.
+
+## Compression and Encryption
+
+The API supports additional transport modes used by some interoperability and device flows:
+
+- gzip request/response handling
+- AES-256 encrypted request/response handling
+- combined gzip + AES-256 flows
+- raw binary payload mode via `application/octet-stream`
+
+See the Swagger docs and frontend API documentation page for the current request header conventions.
+
+## Additional Integrations
+
+- XMPP messaging and IPS sharing
+- TAK message generation and browser rendering
+- gRPC server startup for additional integration flows
+- Socket.IO update notifications for the React client
+
+## Version
+
+The UI and API are currently aligned to version `0_86`.
+
+Recent notable additions include:
+
+- NHS SCR bundle support
+- EPS bundle support
+- SNOMED GPS lookup integration
+- NPS NFC split validation and preview flows
+- animated QR reader support
 
 ## License
-This project is licensed under the MIT License. See the LICENSE file for details.
 
-
-
-
-
+This project is licensed under the MIT License. See `LICENSE` for details.
