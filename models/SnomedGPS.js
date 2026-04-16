@@ -35,11 +35,25 @@ const SnomedGPS = sequelize.define(
     timestamps: false,
     indexes: [
       { unique: true, fields: ['code'] },
-      { fields: ['term_clean'] },
+      { fields: [{ name: 'term_clean', length: 191 }] },
       { fields: ['semantic_tag'] },
-      { fields: ['semantic_tag', 'term_clean'] },
+      { fields: ['semantic_tag', { name: 'term_clean', length: 191 }] },
     ],
   }
 );
+
+const dbSync = process.env.DB_SYNC === 'true' || process.env.DB_SYNC === true;
+
+if (dbSync) {
+  console.log('Syncing SNOMED GPS database table...');
+  sequelize.sync({ alter: true }).then(() => {
+    console.log('SNOMED GPS table created/synced.');
+  });
+} else {
+  console.log('SNOMED GPS alter-sync disabled. Ensuring table exists without schema changes...');
+  sequelize.sync({ force: false }).then(() => {
+    console.log('SNOMED GPS table checked.');
+  });
+}
 
 module.exports = SnomedGPS;
