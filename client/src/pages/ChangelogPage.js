@@ -564,15 +564,15 @@ function ChangeLogPage() {
                                 <li>For API calls, backwards compatibility is maintained by use of optional header x-ips-format, which can be set to "inter" or "legacy" for the composition-based or original format respectively. The latter retained more for comparison purposes.</li>
                             </ul>
                         </li>
-                        <li> 
-                            <h5>Version 0_60 - 16th April 2025</h5> 
-                            <ul> 
-                                <li><strong>New REST and GraphQL Documentation Endpoints</strong></li> 
-                                <li>Introduced a new <code>/docs</code> endpoint serving Swagger UI based on the updated OpenAPI 3.0 specification, enabling comprehensive exploration and interactive testing of all REST endpoints.</li> 
+                        <li>
+                            <h5>Version 0_60 - 16th April 2025</h5>
+                            <ul>
+                                <li><strong>New REST and GraphQL Documentation Endpoints</strong></li>
+                                <li>Introduced a new <code>/docs</code> endpoint serving Swagger UI based on the updated OpenAPI 3.0 specification, enabling comprehensive exploration and interactive testing of all REST endpoints.</li>
                                 <li>Started a new <code>/graphql</code> implementation allowing a limited number of GET-type queries to be done using GraphQL API.</li>
                                 <li>Includes a <code>/playground</code> endpoint for Apollo GraphQL Playground, which provides an interactive environment for testing GraphQL queries and mutations.</li>
-                                <li>Configuration settings can allow these endpoints to be enabled during development while restricting access in production environments for security.</li> 
-                            </ul> 
+                                <li>Configuration settings can allow these endpoints to be enabled during development while restricting access in production environments for security.</li>
+                            </ul>
                         </li>
                         <li>
                             <h5>Version 0_61 - 22nd April 2025</h5>
@@ -582,7 +582,7 @@ function ChangeLogPage() {
                                 <li>Using the API Page, the currently displayed IPS data can be written to a NFC tag - including as binary custom MIME format.</li>
                                 <li>Added NFC Reader Page: featuring live card info (UID &amp; record count and mime-type if applicable) plus payload textarea</li>
                                 <li>Binary Format Support: supports custom MIME type <code>application/x.ips.gzip.aes256.v1-0</code>; raw bytes are POSTed to the <code>/test</code> endpoint for AES‑256 decryption and gzip decompression</li>
-    
+
                             </ul>
                         </li>
                         <li>
@@ -601,7 +601,7 @@ function ChangeLogPage() {
                             <ul>
                                 <li><strong>Enhanced Download Filenames, Observation UI Improvements and Second Id field </strong></li>
                                 <li>
-                                    Refactored file and QR downloads to generate filenames in the format 
+                                    Refactored file and QR downloads to generate filenames in the format
                                     <code> yyyymmdd-FAMILY_GIVEN_last6UUID_apitype[_ce][_ik].ext</code>.
                                 </li>
                                 <li>
@@ -764,15 +764,121 @@ function ChangeLogPage() {
                                 <li>ipsunifiedsplit now returns gzipped base64 encoded data - which the Android NFC Tool App can present or unzip.</li>
                             </ul>
                         </li>
-                        <h5>Version 0_77 — 4th Feb 2026</h5>
-                        <ul>
-                            <li><strong>Send to TAK Integration and MMP Messaging Improvements</strong></li>
-                            <li>Added <em>Send to TAK</em> button to the frontend UI, enabling direct transmission of IPS data to TAK environments.</li>
-                            <li>Improved XMPP handling for more reliable message flow and reduced edge-case failures.</li>
-                            <li>Fixed MMP message handling and changed proxy port to <code>5049</code> to avoid clashes with Atlas services.</li>
-                            <li>Updated MMP MTF NVG request logic to retrieve valid random MTFs for demo messaging scenarios.</li>
-                            <li>Frontend now allows users to explicitly choose <em>To</em> and <em>From</em> MTFs, or leave them unset to fall back to random selection.</li>
-                        </ul>
+                        <li>
+                            <h5>Version 0_77 — 4th Feb 2026</h5>
+                            <ul>
+                                <li><strong>Send to TAK Integration and MMP Messaging Improvements</strong></li>
+                                <li>Added <em>Send to TAK</em> button to the frontend UI, enabling direct transmission of IPS data to TAK environments.</li>
+                                <li>Improved XMPP handling for more reliable message flow and reduced edge-case failures.</li>
+                                <li>Fixed MMP message handling and changed proxy port to <code>5049</code> to avoid clashes with Atlas services.</li>
+                                <li>Updated MMP MTF NVG request logic to retrieve valid random MTFs for demo messaging scenarios.</li>
+                                <li>Frontend now allows users to explicitly choose <em>To</em> and <em>From</em> MTFs, or leave them unset to fall back to random selection.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <h5>Version 0_78 — 10th Feb 2026</h5>
+                            <ul>
+                                <li><strong>New FHiR R4 validation support</strong></li>
+                                <li>IPS Unified validation endpoint now performs additional structural validation against the FHiR R4 schema, in addition to the existing NPS schema checks.</li>
+                                <li>Validation results now include separate status and error details for both NPS and FHiR R4 checks, allowing users to see if their data is compliant with either or both standards.</li>
+                                <li>Updated frontend validation page to display the new FHiR R4 validation results alongside the existing NPS results, with clear indicators of which checks passed or failed.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <h5>Version 0_79 — 13th Feb 2026</h5>
+                            <ul>
+                                <li><strong>Animated Dual QR Support (High-Capacity Transfer Mode)</strong></li>
+                                <li>Introduced full animated dual-QR generation and reading support, enabling reliable high-capacity data transfer beyond the limits of a single static QR.</li>
+                                <li>Implemented indexed packetised transfer format (4-character header + dual chunk pairing) aligned with Android Mercury fountain-style decoding logic.</li>
+                                <li>Added animated QR reader page with region-of-interest scanning, dual-window targeting, and real-time visual hit feedback.</li>
+                                <li>Supports MIME-wrapped envelope format (<code>data, mimeType</code>) for interoperability with Mercury animated QR import.</li>
+                                <li>Compatible with:
+                                    <ul>
+                                        <li><code>application/x.ips.v1-0</code></li>
+                                        <li><code>application/x.ips.gzip.v1-0</code></li>
+                                        <li><code>application/x.ips.gzip.aes256.v1-0</code></li>
+                                    </ul>
+                                </li>
+                                <li>Added configurable frame rate and QR error correction level controls for generation tuning.</li>
+                                <li>Improved large-record handling via UTF-8-safe chunking and adaptive animation pacing.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <h5>Version 0_80 — 18th Feb 2026</h5>
+                            <ul>
+                                <li><strong>Full Animated QR Workflow & Payload Persistence</strong></li>
+                                <li>Extended Animated QR Reader to support full IPS workflow actions directly from scanned content, including <strong>Import</strong>, <strong>NoSQL conversion</strong>, <strong>Validation</strong>, and <strong>Original view</strong> — matching NFC Reader functionality.</li>
+                                <li>Enabled seamless worflow interoperability between IPS MERN and Android Mercury across animated QR transfers (generate → scan → decode → import/validate).</li>
+                                <li>Added session-based payload persistence to both <strong>Animated QR Reader</strong> and <strong>NFC Reader</strong> pages, preventing accidental data loss when navigating between routes.</li>
+                                <li>Added explicit user-controlled reset ("Scan Another" / "Clear") to avoid unintended data loss during navigation.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <h5>Version 0_81 — 25th Feb 2026</h5>
+                            <ul>
+                                <li><strong>NHS SCR–Aligned IPS Format (Backend + Frontend Support)</strong></li>
+                                <li>Introduced new <code>/ipsnhsscr/:id</code> endpoint generating IPS Bundles aligned with the NHS England SCR-IPS implementation guidance.</li>
+                                <li>Implemented SCR-compliant <strong>MedicationStatement</strong> structure using contained <code>Medication</code> resources.</li>
+                                <li>Added optional narrative generation flags (<code>?narrative=1&amp;resourceNarrative=1</code>) to both <code>/ips</code> and <code>/ipsnhsscr</code> endpoints, with Swagger and API documentation updates.</li>
+                                <li>Extended frontend support across <strong>API</strong> and <strong>Animated QR</strong> pages to allow selection and animated transfer of NHS SCR IPS Bundles, including narrative toggle integration.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <h5>Version 0_82 — 26th Feb 2026</h5>
+                            <ul>
+                                <li><strong>NHS SCR Schema Validation (Backend + Frontend)</strong></li>
+                                <li>Introduced dedicated <code>/ipsNhsScrVal</code> validation endpoint supporting NHS SCR–aligned IPS Bundles and individual resources.</li>
+                                <li>Implemented resource-specific JSON Schemas under <code>/ipsNhsScrDef</code> (AllergyIntolerance, Condition, MedicationStatement, Immunization, Observation, Procedure, Composition, Bundle, etc.), layered on top of FHIR R4 structural validation.</li>
+                                <li>Added NHS SCR–specific structural rules including document-type Bundle enforcement, required core Composition sections (Medication, Allergies, Problems), and SCR-conformant contained-resource patterns.</li>
+                                <li>Extended frontend Schema Validator with one-click mode toggle (NPS ↔ NHS SCR) and integrated NHS SCR validation feedback alongside FHIR R4 validation results.</li>
+                                <li>Added dedicated NHS SCR Schema Viewer page for inspection of resource definitions and example payloads.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <h5>Version 0_83 — 11th Mar 2026</h5>
+                            <ul>
+                                <li><strong>Robust IPS Bundle Parsing & Large Payload Handling</strong></li>
+                                <li>Hardened the <code>/ipsbundle</code> ingestion pipeline with defensive parsing to safely process IPS Bundles where optional elements may be absent or partially populated.</li>
+                                <li>Improved resilience of the IPS Bundle converter to support multiple medication reference patterns (external Medication resources, contained resources, and CodeableConcept-based medications).</li>
+                                <li>Added additional safeguards when reading FHIR structures (arrays, codings, nested elements) to prevent runtime failures when fields are missing or malformed.</li>
+                                <li>Increased backend request size limits to support validation and ingestion of larger IPS/NHS SCR Bundles.</li>
+                                <li>Enhanced frontend JSON Validator to better handle large payloads by reducing rendering overhead and improving error-display performance.</li>
+                                <li>Improved stability of validator error navigation and response handling for large validation result sets.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <h5>Version 0_84 — 12th Mar 2026</h5>
+                            <ul>
+                                <li><strong>European Patient Summary (EPS) Integration</strong></li>
+                                <li>Added full EPS Bundle generation capability via a new <code>generateIPSBundleEPS</code> pipeline aligned with the HL7 Europe EPS specification.</li>
+                                <li>Implemented EPS-specific FHIR resources including <code>PractitionerRole</code>, <code>DeviceUseStatement</code>, and <code>CarePlan</code> alongside existing IPS resources.</li>
+                                <li>Introduced an EPS JSON Schema set (<code>/epsDef</code>) enabling structural validation of EPS bundles in addition to the NHS SCR flavour.</li>
+                                <li>Added a dedicated EPS Schema Viewer to explore schemas and example resources interactively within the documentation interface.</li>
+                                <li>Extended Composition generation to support the EPS mandatory sections (Medication list, Allergies and Intolerances, Problem list, History of Procedures, and Device Use).</li>
+                                <li>Improved interoperability by supporting both NHS SCR and EPS bundle generation paths from the same IPS source data model.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <h5>Version 0_85 — 23rd Mar 2026</h5>
+                            <ul>
+                                <li><strong>SNOMED GPS Picklists & Lookup Integration</strong></li>
+                                <li>Introduced SNOMED GPS-backed search and picklist capability across key IPS sections to help users build/edit demo patients.</li>
+                                <li>Backend SNOMED GPS service with semantic tag filtering and optimized search endpoints (<code>/snomedgps/search</code>, <code>/snomedgps/picklist/:tag</code>).</li>
+                                <li>Domain-specific filtering logic (e.g. vaccine-only immunizations, substance/allergy dual matching) to improve clinical relevance of results.</li>
+                                <li>Enhanced user experience with compact “SCT” button integration within edit tables.</li>
+                                <li>Added intelligent term simplification for medications and immunizations to convert verbose SNOMED descriptions into concise, user-friendly labels while preserving code/system integrity.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <h5>Version 0_86 — 15th Apr 2026</h5>
+                            <ul>
+                                <li><strong>NPS NFC Split Validation & Preview</strong></li>
+                                <li>Added a new <code>NPS NFC</code> mode to the Schema Validator with separate Read Only and Read/Write bundle inputs combined for unified validation.</li>
+                                <li>Validation issues indicate whether they originate from the RO or RW portion, with direct navigation into the correct textarea.</li>
+                                <li>Extended the Schemas menu so validator types can be opened directly from submenu links with the required mode preselected.</li>
+                                <li>Updated API GET for NPS bundles with an <code>NPS NFC</code> split demo preview, date-based RO/RW cutoff selection, and linked Medication/MedicationRequest handling.</li>
+                            </ul>
+                        </li>
                     </ul>
                 </Col>
             </Row>

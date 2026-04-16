@@ -77,7 +77,6 @@ router.get('/pmr/mtfs', async (req, res) => {
   }
 });
 
-
 router.post('/pmr/:id', async (req, res) => {
   const id = req.params.id;
   const fromQ = (req.query.from || '').toString().trim().toUpperCase();
@@ -95,7 +94,6 @@ router.post('/pmr/:id', async (req, res) => {
   const readyMonth = month;      // you already have this as "JAN/FEB/..."
   const readyYear = String(year);
 
-
   try {
     // 1. Retrieve the IPS record from MongoDB
     const ipsRecord = await resolveId(id);
@@ -110,6 +108,7 @@ router.post('/pmr/:id', async (req, res) => {
     // Construct the patient ID in the format: IPS-[first 3 letters of first name]-[first 3 letters of surname]01-[year][month][day]Z[hour][minute]-01
     const patientId = `IPS-${firstNameSub}-${surnameSub}01-${year}${month}${day}Z${hour}${minute}-01`;
 
+    // 2. Get an access token from IdentityServer
     function pickTwoDistinct(arr) {
       if (!arr || arr.length < 2) return null;
       const i = Math.floor(Math.random() * arr.length);
@@ -151,7 +150,6 @@ router.post('/pmr/:id', async (req, res) => {
       }
     }
 
-    // 2. Get an access token from IdentityServer
     const tokenResponse = await axios.post(
       `${mmpBaseUrl}identity/connect/token`,
       new URLSearchParams({
@@ -170,7 +168,7 @@ router.post('/pmr/:id', async (req, res) => {
 
     // 3. Build the PMR XML using data from the IPS record.
     // Adjust the substitutions as needed.
-   const pmrXml = `
+    const pmrXml = `
 <urn:PatientMovementRequest mtfid="PMR" xmlns:urn="urn:nato:mtf:adatp-3:june%202021:pmr">
   <MessageIdentifier setid="MSGID" setSeq="3">
     <MessageTextFormatIdentifier ffSeq="1" ffirnFudn="FF1018-2">PMR</MessageTextFormatIdentifier>
@@ -285,10 +283,10 @@ router.post('/pmr/:id', async (req, res) => {
     `.trim();
 
     // console.log("PMR XML",
-    //     pmrXml
-    //         .split('\n')
-    //         .map(l => l.trim())
-    //         .join('')
+    //   pmrXml
+    //     .split('\n')
+    //     .map(l => l.trim())
+    //     .join('')
     // );
 
     // 4. Post the PMR XML to the API endpoint using the access token

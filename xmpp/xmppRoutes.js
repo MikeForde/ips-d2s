@@ -116,5 +116,4 @@ router.get("/xmpp-occupants", async (req, res) => {
   }
 });
 
-
 module.exports = router;

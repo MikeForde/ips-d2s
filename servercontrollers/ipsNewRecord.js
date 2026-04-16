@@ -5,6 +5,13 @@ async function addIPS(req, res) {
 
     try {
         const mongoFormattedIPS = await upsertIPSRecord(req.body);
+
+        // emit the new/updated record
+        const io = req.app.get('io');
+        if (io) {
+            io.emit('ipsUpdated', result);
+        }
+
         res.json(mongoFormattedIPS);
     } catch (err) {
         res.status(400).send(err);

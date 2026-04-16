@@ -18,7 +18,13 @@ async function jsonDecryptDezipMiddleware(req, res, next) {
     const isBase64 = req.headers['content-encoding']?.includes('base64');
     const isInternalCall = req.headers['sec-fetch-site'] === 'same-origin';
 
-    if ((isEncrypted || isGzip || isBase64) && !isInternalCall) {
+    const forceDecode =
+      req.headers['x-force-decode'] === 'true' ||
+      req.headers['x-decode'] === 'true';
+
+    const shouldProcess = (isEncrypted || isGzip || isBase64) && (!isInternalCall || forceDecode);
+
+    if (shouldProcess) {
         try {
             // Collect raw binary data from the request
             const rawData = await new Promise((resolve, reject) => {

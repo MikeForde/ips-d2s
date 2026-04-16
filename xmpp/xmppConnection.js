@@ -2,8 +2,8 @@
 const { client, xml } = require("@xmpp/client");
 const reconnect = require("@xmpp/reconnect");
 const Connection = require("@xmpp/connection");
-const net = require( 'net');
-const { URL } = require ('url');
+const net = require('net');
+const { URL } = require('url');
 const { once } = require("events");
 
 // Import your ID resolver and IPS text formatter
@@ -81,6 +81,7 @@ Connection.prototype._onData = function (chunk) {
   return originalOnData.call(this, chunk);
 };
 
+
 function safeEnv(varName, defaultValue) {
   const value = process.env[varName];
   if (!value) {
@@ -91,15 +92,15 @@ function safeEnv(varName, defaultValue) {
 }
 
 // Read environment variables - fallback defaults
-const XMPP_SERVICE  = safeEnv("XMPP_SERVICE",  "ws://192.168.68.112:7070/ws/");
-const XMPP_DOMAIN   = safeEnv("XMPP_DOMAIN",   "desktop-4tiift3");
+const XMPP_SERVICE = safeEnv("XMPP_SERVICE", "ws://192.168.68.115:7070/ws/");
+const XMPP_DOMAIN = safeEnv("XMPP_DOMAIN", "desktop-4tiift3");
 const XMPP_USERNAME = safeEnv("XMPP_USERNAME", "mikef");
 const XMPP_PASSWORD = safeEnv("XMPP_PASSWORD", "test");
 // e.g. "testroom@conference.desktop-4tiift3"
-const XMPP_ROOM     = safeEnv("XMPP_ROOM",     "testroom@conference.desktop-4tiift3");
+const XMPP_ROOM = safeEnv("XMPP_ROOM", "testroom@conference.desktop-4tiift3");
 
 // Default nickname to join room
-const DEFAULT_ROOM_NICK = "IPSSern";
+const DEFAULT_ROOM_NICK = "IPSMern";
 
 // Check if the XMPP service is reachable
 async function canReach(hostname, port, timeout = 2000) {
@@ -107,12 +108,14 @@ async function canReach(hostname, port, timeout = 2000) {
     const socket = new net.Socket();
     socket.setTimeout(timeout);
     socket
-      .once('connect',  () => { socket.destroy(); resolve(true) })
-      .once('timeout',  () => { socket.destroy(); resolve(false) })
-      .once('error',    () => { socket.destroy(); resolve(false) })
+      .once('connect', () => { socket.destroy(); resolve(true) })
+      .once('timeout', () => { socket.destroy(); resolve(false) })
+      .once('error', () => { socket.destroy(); resolve(false) })
       .connect(port, hostname);
   });
 }
+
+
 
 /**
  * Initialize a WebSocket-based XMPP client and attach event handlers.
@@ -132,10 +135,9 @@ async function initXMPP_WebSocket() {
     return null;
   }
 
-
   xmpp = client({
-    service:  XMPP_SERVICE,
-    domain:   XMPP_DOMAIN,
+    service: XMPP_SERVICE,
+    domain: XMPP_DOMAIN,
     username: XMPP_USERNAME,
     password: XMPP_PASSWORD,
     transport: "websocket",
@@ -158,13 +160,19 @@ async function initXMPP_WebSocket() {
     console.error("XMPP error:", err);
   });
 
+  // xmpp.on("stanza", (stanza) => {
+  //   if (!stanza.is("message")) return;
+  //   const body = stanza.getChildText("body");
+  //   console.log("[XMPP][IN]", stanza.attrs.id, stanza.attrs.from, stanza.attrs.type, body);
+  // });
+
   // Called once the client is online (SASL auth + resource binding complete)
   xmpp.on("online", async (address) => {
     isOnline = true;
     myJid = address.toString();
-     myBareJid = address.bare().toString();
+    myBareJid = address.bare().toString();
 
-     // try {
+    // try {
     //   await xmpp.enableStreamManagement({ resume: true });
     //   console.log("[XMPP] Stream management enabled (resume=true)");
     // } catch (e) {
@@ -189,11 +197,11 @@ async function initXMPP_WebSocket() {
     );
 
     // Send a quick message to the room
-  //   xmpp.send(
-  //     xml("message", { type: "groupchat", to: XMPP_ROOM },
-  //       xml("body", {}, `Hello, this is ${DEFAULT_ROOM_NICK} from Node WebSocket!`)
-  //     )
-  //   );
+    // xmpp.send(
+    //   xml("message", { type: "groupchat", to: XMPP_ROOM },
+    //     xml("body", {}, `Hello, this is ${DEFAULT_ROOM_NICK} from Node WebSocket!`)
+    //   )
+    // );
   });
 
   xmpp.on("stanza", async (stanza) => {
@@ -243,7 +251,7 @@ async function initXMPP_WebSocket() {
     }
   });
 
-  
+
 
   // Connect (start the XMPP session)
   try {
@@ -328,6 +336,7 @@ async function getRoomOccupants(roomJid) {
 
   return items.map((item) => item.attrs.jid);
 }
+
 
 module.exports = {
   initXMPP_WebSocket,

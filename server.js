@@ -9,8 +9,12 @@ const fs = require('fs');
 const http = require('http');
 const { Server } = require('socket.io');
 
+const BODY_LIMIT = '5mb';
+
 // ───── Models & Controllers ─────
 const { getIPSBundle } = require('./servercontrollers/ipsBundleFormat');
+const { getIPSBundleNHSSCR } = require('./servercontrollers/ipsBundleFormatNHSSCR');
+const { getIPSBundleEPS } = require('./servercontrollers/ipsBundleFormatEPS');
 const { getIPSBundleByName } = require('./servercontrollers/ipsBundleByName');
 const { getORABundleByName } = require('./servercontrollers/oraBundleByName');
 const { getIPSBundleGeneric } = require('./servercontrollers/fetchips');
@@ -49,6 +53,8 @@ const { convertCDAToMongo } = require('./servercontrollers/convertCDAToMongo');
 const { convertHL72_xToMongo } = require('./servercontrollers/convertHL72_xToMongo');
 const { convertHL72_xToIPS } = require("./servercontrollers/convertHL72_xToIPS");
 const ipsUniValRouter = require('./schema/ipsUniVal');
+const ipsNhsScrValRouter = require('./schema/ipsNhsScrVal');
+const epsValRouter = require('./schema/epsVal');
 
 // ----- Middleware ---------
 const binaryDecryptMiddleware = require('./middlewares/binaryDecryptMiddleware');
@@ -78,6 +84,14 @@ const { expressMiddleware } = require('@apollo/server/express4');
 const typeDefs = require('./graphql/schema');
 const resolvers = require('./graphql/resolvers');
 const playground = require('graphql-playground-middleware-express').default;
+
+// ------------- SNOMED GPS -------------
+const {
+    getSnomedTags,
+    getSnomedByCode,
+    getSnomedPicklistByTag,
+    searchSnomedGPS,
+} = require('./servercontrollers/snomedGPS');
 
 const { DB_USER, DB_PASSWORD, DB_NAME, DB_HOST } = process.env;
 
@@ -183,7 +197,7 @@ api.post('/convertcdatoips', convertCDAToIPS);
 api.post('/convertcdatobeer', convertCDAToBEER);
 api.post('/convertcdatomongo', convertCDAToMongo);
 api.post('/converthl72xtomongo', convertHL72_xToMongo);
-api.post('/converthl72xtoips', convertHL72_xToIPS)
+api.post('/converthl72xtoips', convertHL72_xToIPS);
 api.post('/convertxml', convertXmlEndpoint);
 api.post('/convertfhirxml', convertFhirXmlEndpoint);
 
@@ -196,6 +210,9 @@ api.post('/test', (req, res) => {
 // Schema validation endpoint
 api.use('/ipsUniVal', ipsUniValRouter);
 api.use('/npsVal', ipsUniValRouter);
+api.use('/ipsNhsScrVal', ipsNhsScrValRouter);
+api.use('/epsVal', epsValRouter);
+
 
 // API GET - CRUD Read
 api.get("/ips/all", getAllIPS);
@@ -203,6 +220,8 @@ api.get("/ips/list", getAllIPSList);
 api.get("/ipsraw/:id", getIPSRaw);
 api.get("/ipsmongo/:id", getMongoFormatted);
 api.get("/ips/:id", getIPSBundle);
+api.get("/ipsnhsscr/:id", getIPSBundleNHSSCR);
+api.get("/ipseps/:id", getIPSBundleEPS);
 api.get("/ipsbasic/:id", getIPSBasic);
 api.get("/ipsbeer/:id/:delim?", getIPSBEER);
 api.get("/ipshl72x/:id", getIPSHL72_x);
@@ -218,6 +237,26 @@ api.get("/ips/search/:name", getIPSSearch);
 api.get('/fetchipsora/:name/:givenName', getORABundleByName);
 api.get("/fetchips", getIPSBundleGeneric);
 api.get("/ipsplaintext/:id", getIPSPlainText);
+
+// SNOMED GPS
+api.get("/snomedgps/tags", getSnomedTags);
+api.get("/snomedgps/code/:code", getSnomedByCode);
+api.get("/snomedgps/picklist/:tag", getSnomedPicklistByTag);
+api.get("/snomedgps/search", searchSnomedGPS);
+
+// IP Endpoint
+api.get('/debug/ip', async (req, res) => {
+    try {
+        const response = await axios.get('https://api.ipify.org?format=json');
+        res.json({
+            outboundIp: response.data.ip
+        });
+    } catch (err) {
+        res.status(500).json({
+            error: err.message
+        });
+    }
+});
 
 // XMPP endpoints
 api.use("/xmpp", xmppRoutes);
@@ -236,15 +275,104 @@ api.put("/ipsuuid/:uuid", updateIPSByUUID);
 api.delete("/ips/:id", deleteIPS);
 api.delete("/ipsdeletebypractitioner/:practitioner", deleteIPSbyPractitioner);
 
-// // GraphQL
-api.get('/playground', playground({ endpoint: '/graphql' }));
-async function startApolloServer() {
-    const apolloServer = new ApolloServer({ typeDefs, resolvers, introspection: true, playground : true });
-    await apolloServer.start();
-    api.use('/graphql', express.json(), expressMiddleware(apolloServer));
+// GraphQL
+// GraphQL Playground with clickable example tabs
+api.get('/playground', playground({
+  endpoint: '/graphql',
+  settings: {
+    'editor.theme': 'dark',
+    'editor.cursorShape': 'line',
+    'request.credentials': 'same-origin',
+    'tracing.hideTracingResponse': true,
+    'schema.polling.enable': false,
+  },
+  tabs: [
+    {
+      name: 'Get all IPS',
+      endpoint: '/graphql',
+      query: `query {
+  getAllIPS {
+    id
+    status
+    contentType
   }
-  
-  startApolloServer();
+}`
+    },
+    {
+      name: 'Expanded IPS by ID',
+      endpoint: '/graphql',
+      query: `query {
+  getIPSExpanded(id: "12345", narrative: 1, resourceNarrative: 0) {
+    id
+    status
+    contentType
+    content
+  }
+}`
+    },
+    {
+      name: 'Unified IPS by ID',
+      endpoint: '/graphql',
+      query: `query {
+  getIPSUnified(id: "12345") {
+    id
+    content
+  }
+}`
+    },
+    {
+      name: 'IPS by name',
+      endpoint: '/graphql',
+      query: `query {
+  getIPSByName(name: "Smith", given: "John", format: "unified") {
+    id
+    content
+  }
+}`
+    },
+    {
+      name: 'BEER by ID',
+      endpoint: '/graphql',
+      query: `query {
+  getIPSBeer(id: "12345", delim: "pipe") {
+    id
+    content
+  }
+}`
+    },
+    {
+      name: 'Create IPS',
+      endpoint: '/graphql',
+      query: `mutation {
+  addIPS(
+    json: "{\\"packageUUID\\":\\"abc-123\\",\\"timeStamp\\":\\"2026-03-12T10:00:00.000Z\\",\\"patient\\":{\\"name\\":\\"Smith\\",\\"given\\":\\"John\\",\\"dob\\":\\"1980-01-01\\"}}"
+  ) {
+    ok
+    status
+    content
+  }
+}`
+    }
+  ]
+}));
+
+async function startApolloServer() {
+  const apolloServer = new ApolloServer({
+    typeDefs,
+    resolvers,
+    introspection: true,
+  });
+
+  await apolloServer.start();
+
+  api.use(
+    '/graphql',
+    express.json({ limit: BODY_LIMIT }),
+    expressMiddleware(apolloServer)
+  );
+}
+
+startApolloServer();
 
 api.use(express.static(path.join(__dirname, "client", "build")));
 api.get("/*", (req, res) => {

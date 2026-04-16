@@ -1,8 +1,12 @@
 const { resolveId } = require('../utils/resolveId');
-const { generateIPSBundleUnified } = require('./servercontrollerfuncs/generateIPSBundleUnified');
+const { status } = require('@grpc/grpc-js');
+const { generateIPSBundleUnified, protectIPSBundle } = require('./servercontrollerfuncs/generateIPSBundleUnified');
+
 
 async function getIPSUnifiedBundle(req, res) {
     const id = req.params.id;
+
+    console.log("getIPSUnifiedBundle called with ID:", id);
 
     try {
         const ips = await resolveId(id);
@@ -11,10 +15,28 @@ async function getIPSUnifiedBundle(req, res) {
             return res.status(404).json({ message: "IPS record not found" });
         }
 
-        // Construct the JSON structure
+        const useJwe =
+            String(req.query.protect || '').trim() === '1' ||
+            (req.get('X-Field-Enc') || '').toLowerCase() === 'jwe';
+
+        const useOmit =
+            String(req.query.protect || '').trim() === '2' ||
+            (req.get('X-Field-Enc') || '').toLowerCase() === 'omit';
+
+        let protectMethod = "none";
+        if (useJwe) {
+            protectMethod = "jwe";
+        } else if (useOmit) {
+            protectMethod = "omit";
+        }
+
+        // Constructing the JSON structure
         const bundle = generateIPSBundleUnified(ips);
 
-        res.json(bundle);
+        const protectedBundle = await protectIPSBundle(bundle, protectMethod);
+
+
+        res.json(protectedBundle);
     } catch (err) {
         res.status(400).json({ error: err.message });
     }

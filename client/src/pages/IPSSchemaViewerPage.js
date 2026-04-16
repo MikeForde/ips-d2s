@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Container, Spinner, Tab, Nav, Button, ButtonGroup } from 'react-bootstrap';
 import ReactJson from 'react-json-view';
 
@@ -10,6 +10,45 @@ export default function IPSchemaViewer() {
   const [expandAll, setExpandAll] = useState({});
   const [showExample, setShowExample] = useState({});
   const [showRawExample, setShowRawExample] = useState({});
+
+  // Extension example
+  // Shared example: Extension[] (valid against Extension.schema.json)
+const extensionExamples = [
+  // Religion (simple extension: url + valueCodeableConcept)
+  {
+    url: "http://hl7.org/fhir/StructureDefinition/patient-religion",
+    valueCodeableConcept: {
+      coding: [
+        {
+          system: "http://terminology.hl7.org/CodeSystem/v3-ReligiousAffiliation",
+          code: "CHR",
+          display: "Christian"
+        }
+      ],
+      text: "Christian"
+    }
+  },
+
+  // Nationality (complex extension: url + nested extension[]; no value[x] at top level)
+  {
+    url: "http://hl7.org/fhir/StructureDefinition/patient-nationality",
+    extension: [
+      {
+        url: "code",
+        valueCodeableConcept: {
+          coding: [
+            {
+              system: "urn:iso:std:iso:3166",
+              code: "GBR",
+              display: "United Kingdom"
+            }
+          ]
+        }
+      }
+    ]
+  }
+];
+
 
   // Example data for each resource
   const exampleData = {
@@ -23,12 +62,13 @@ export default function IPSchemaViewer() {
       name: [{ family: 'Doe', given: ['John'] }],
       gender: 'male',
       birthDate: '1980-01-01',
-      address: [{ country: 'Wonderland' }]
+      address: [{ country: 'WLD' }],
+      extension: extensionExamples[0]
     },
     Organization: {
       resourceType: 'Organization',
       id: 'org1',
-      name: 'Example Org'
+      name: 'ORG'
     },
     Medication: {
       resourceType: 'Medication',
@@ -81,23 +121,24 @@ export default function IPSchemaViewer() {
       ]
     },
     Procedure: {
-        resourceType: 'Procedure',
-        id: 'proc1',
-        status: 'completed',
-        code: {
-          coding: [
-            { system: 'http://snomed.info/sct', code: '40847009', display: 'Blood pressure measurement' }
-          ]
-        },
-        subject: { reference: 'Patient/pt1' },
-        performedDateTime: '2025-05-16T09:00:00Z'
+      resourceType: 'Procedure',
+      id: 'proc1',
+      status: 'completed',
+      code: {
+        coding: [
+          { system: 'http://snomed.info/sct', code: '40847009', display: 'Blood pressure measurement' }
+        ]
       },
+      subject: { reference: 'Patient/pt1' },
+      performedDateTime: '2025-05-16T09:00:00Z'
+    },
     Coverage: {
-        resourceType: 'Coverage',
-        id: 'cov1',
-        beneficiary: { reference: 'Patient/pt1' },
-        payor: { display: 'Example Insurance Co.' }
-      }
+      resourceType: 'Coverage',
+      id: 'cov1',
+      beneficiary: { reference: 'Patient/pt1' },
+      payor: { display: 'Example Insurance Co.' }
+    },
+    Extension: extensionExamples
   };
 
   // Construct full Bundle example
@@ -106,11 +147,12 @@ export default function IPSchemaViewer() {
     id: 'example-bundle',
     timestamp: '2025-05-16T10:00:00Z',
     type: 'collection',
-    total: Object.keys(exampleData).length - 1,
+    total: Object.values(exampleData).filter(x => x?.resourceType && x.resourceType !== 'Bundle').length,
     entry: Object.values(exampleData)
-      .filter(res => res.resourceType !== 'Bundle')
+      .filter(x => x?.resourceType && x.resourceType !== 'Bundle')
       .map(res => ({ resource: res }))
   };
+
 
   useEffect(() => {
     async function loadSchemas() {
@@ -125,7 +167,8 @@ export default function IPSchemaViewer() {
           'Condition.schema.json',
           'Observation.schema.json',
           'Procedure.schema.json',
-          'Coverage.schema.json'
+          'Coverage.schema.json',
+          'Extension.schema.json'
         ];
 
         const fetched = await Promise.all(
@@ -180,7 +223,7 @@ export default function IPSchemaViewer() {
 
   return (
     <Container className="mt-5">
-      <h3>NPS JSON Schemas</h3>
+      <h3>NPS (NATO) JSON Schemas</h3>
       <p>Toggle between default view, expanded view, raw schema, or example formats.</p>
 
       <Tab.Container activeKey={activeKey} onSelect={setActiveKey}>

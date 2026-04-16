@@ -3,6 +3,8 @@ import React, { useEffect, useContext } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import QRPage from './pages/QRPage';
+import AnimatedQR2Page from './pages/AnimatedQR2Page';
+import AnimatedQRReaderPage from './pages/AnimatedQRReaderPage';
 import DataUploadPage from './pages/DataUploadPage';
 import AboutPage from './pages/AboutPage';
 import NavigationBar from './appcomp/NavigationBar';
@@ -18,6 +20,8 @@ import NFCReaderPage from './pages/NFCReaderPage';
 import BEERGardenPage from './pages/BEERGardenPage';
 import APIDocumentationPage from './pages/APIDocumentationPage';
 import IPSchemaViewer from './pages/IPSSchemaViewerPage';
+import IPSchemaViewerNhsScr from './pages/IPSSchemaViewerNhsScr';
+import IPSSchemaViewerEps from './pages/IPSSchemaViewerEps';
 import IPSchemaValidator from './pages/IPSSchemaValidatorPage';
 import JWEDecryptPage from './pages/JWEDecryptPage';
 import JWEMultiRecipientPage from './pages/JWEMultiRecipientPage';
@@ -64,6 +68,8 @@ function App() {
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/qr/:id?" element={<QRPage />} />
+              <Route path="/animatedqr2/:id?" element={<AnimatedQR2Page />} />
+              <Route path="/animatedqrreader" element={<AnimatedQRReaderPage />} />
               <Route path="/bulkupload" element={<DataUploadPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/changelog" element={<ChangeLogPage />} />
@@ -77,6 +83,8 @@ function App() {
               <Route path="/puships" element={<UnifiedPostPage />} />
               <Route path="/fetchips" element={<UnifiedIPSGetPage />} />
               <Route path="/schemaviewer" element={<IPSchemaViewer />} />
+              <Route path="/schemaviewernhsscr" element={<IPSchemaViewerNhsScr />} />
+              <Route path="/schemaviewereps" element={<IPSSchemaViewerEps />} />
               <Route path="/schemavalidator" element={<IPSchemaValidator />} />
               <Route path="/cwix/payload" element={<PayloadPage />} />
               <Route path="/viewer" element={<PayloadPage />} />

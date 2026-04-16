@@ -1,7 +1,7 @@
 {
     "openapi": "3.0.0",
     "info": {
-      "version": "0_77",
+      "version": "0_86",
       "title": "IPS SERN API",
       "description": "OpenAPI 3.0 specification for the IPS SERN API."
     },
@@ -11,11 +11,11 @@
         "description": "Production Server"
       },
       {
-        "url": "http://localhost:5049",
-        "description": "Local Server"
-      }
-    ],
-    "tags": [
+      "url": "http://localhost:5049",
+      "description": "Local Server"
+    }
+  ],
+  "tags": [
     {
       "name": "IPS",
       "description": "Endpoints for managing and converting IPS records"
@@ -611,7 +611,7 @@
     "/npsVal": {
       "post": {
         "tags": [
-          "NPS"
+          "Schema"
         ],
         "summary": "Validates an NPS format record.",
         "description": "Validates an NPS format record.",
@@ -628,7 +628,108 @@
         },
         "responses": {
           "200": {
-            "description": "JSON object containing the validation report."
+            "description": "Validation report for NPS validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/valschemas/NpsValidationReport"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/valschemas/NpsValidationReport"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ipsNhsScrVal": {
+      "post": {
+        "tags": [
+          "Schema"
+        ],
+        "summary": "Validate NHS SCR IPS FHIR JSON against schema",
+        "description": "Validates a pasted FHIR JSON payload (Bundle or single resource) against the NHS SCR IPS (custom) schema and against the global FHIR R4 schema.",
+        "requestBody": {
+          "description": "FHIR JSON payload (Bundle or single resource).",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Validation report (custom schema + FHIR R4 structural validation).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/valschemas/NhsScrValidationReport"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request (e.g. missing/unknown resourceType).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/valschemas/NhsScrValidationReport"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/epsVal": {
+      "post": {
+        "tags": [
+          "Schema"
+        ],
+        "summary": "Validate EPS IPS FHIR JSON against schema",
+        "description": "Validates a pasted FHIR JSON payload (Bundle or single resource) against the EPS IPS (custom) schema and against the global FHIR R4 schema.",
+        "requestBody": {
+          "description": "FHIR JSON payload (Bundle or single resource).",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Validation report (custom schema + FHIR R4 structural validation).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/valschemas/EpsValidationReport"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request (e.g. missing/unknown resourceType).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/valschemas/EpsValidationReport"
+                }
+              }
+            }
           }
         }
       }
@@ -735,6 +836,34 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "narrative",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "enum": [
+                0,
+                1
+              ],
+              "default": 0
+            },
+            "description": "If 1, include generated narrative in Composition.section[].text."
+          },
+          {
+            "name": "resourceNarrative",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "enum": [
+                0,
+                1
+              ],
+              "default": 0
+            },
+            "description": "If 1, include generated narrative in each resource.text within Bundle.entry[].resource."
           }
         ],
         "responses": {
@@ -819,6 +948,124 @@
               "text/plain": {
                 "schema": {
                   "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ipsnhsscr/{id}": {
+      "get": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Retrieve IPS record in NHS SCR format by ID",
+        "description": "Retrieve IPS record in NHS SCR format by ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "narrative",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "enum": [
+                0,
+                1
+              ],
+              "default": 0
+            },
+            "description": "If 1, include generated narrative in Composition.section[].text."
+          },
+          {
+            "name": "resourceNarrative",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "enum": [
+                0,
+                1
+              ],
+              "default": 0
+            },
+            "description": "If 1, include generated narrative in each resource.text within Bundle.entry[].resource."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "NHS SCR format - FHIR JSON",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ipseps/{id}": {
+      "get": {
+        "tags": [
+          "IPS"
+        ],
+        "summary": "Retrieve IPS record in EPS format by ID",
+        "description": "Retrieve IPS record in EPS format by ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "narrative",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "enum": [
+                0,
+                1
+              ],
+              "default": 0
+            },
+            "description": "If 1, include generated narrative in Composition.section[].text."
+          },
+          {
+            "name": "resourceNarrative",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "enum": [
+                0,
+                1
+              ],
+              "default": 0
+            },
+            "description": "If 1, include generated narrative in each resource.text within Bundle.entry[].resource."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "EPS format - FHIR JSON",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
@@ -1251,7 +1498,7 @@
           "IPS"
         ],
         "summary": "Retrieve expanded IPS FHIR by patient name and given name",
-        "description": "Retrieve expanded IPS FHIR by patient name and given name (case-insensitive). An optional header parameter x-ips-format can be used to override the default format (e.g., 'fhir', 'beer', 'ora', 'xml', 'legacy', 'unified').",
+        "description": "Retrieve expanded IPS FHIR by patient name and given name (case-insensitive). An optional header parameter x-ips-format can be used to override the default format (e.g., 'nhsscr', 'inter', 'euro', 'legacy', 'unified').",
         "parameters": [
           {
             "$ref": "#/components/parameters/XIPSFormat"
@@ -1665,14 +1912,325 @@
           }
         }
       }
+    },
+    "/snomedgps/tags": {
+      "get": {
+        "tags": [
+          "SNOMED GPS"
+        ],
+        "summary": "Get all SNOMED GPS semantic tags",
+        "description": "Returns a list of all SNOMED GPS semantic tags currently in the system.",
+        "responses": {
+          "200": {
+            "description": "Array of SNOMED GPS tag strings.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to retrieve SNOMED semantic tags."
+          }
+        }
+      }
+    },
+    "/snomedgps/code/{code}": {
+      "get": {
+        "tags": [
+          "SNOMED GPS"
+        ],
+        "summary": "Get SNOMED GPS concept by code",
+        "description": "Returns details for a specific SNOMED GPS concept identified by its code.",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "description": "The SNOMED code to retrieve.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Details of the specified SNOMED GPS concept.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SnomedCode"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "SNOMED concept not found."
+          },
+          "500": {
+            "description": "Failed to retrieve SNOMED concept."
+          }
+        }
+      }
+    },
+    "/snomedgps/picklist/{tag}": {
+      "get": {
+        "tags": [
+          "SNOMED GPS"
+        ],
+        "summary": "Get SNOMED GPS picklist by tag",
+        "description": "Returns a picklist of SNOMED concepts associated with a specific semantic tag.",
+        "parameters": [
+          {
+            "name": "tag",
+            "in": "path",
+            "required": true,
+            "description": "The semantic tag or lookup category.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Maximum number of concepts to return.",
+            "schema": {
+              "type": "integer",
+              "default": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Picklist of SNOMED concepts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SnomedCode"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to retrieve SNOMED picklist."
+          }
+        }
+      }
+    },
+    "/snomedgps/search": {
+      "get": {
+        "tags": [
+          "SNOMED GPS"
+        ],
+        "summary": "Search SNOMED GPS concepts",
+        "description": "Searches SNOMED concepts using free text and an optional semantic tag filter.",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "description": "Free text query.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tag",
+            "in": "query",
+            "required": false,
+            "description": "Optional semantic tag or lookup category filter.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Maximum number of results to return.",
+            "schema": {
+              "type": "integer",
+              "default": 25
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of matching SNOMED concepts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SnomedCode"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to search SNOMED GPS."
+          }
+        }
+      }
     }
   },
   "components": {
+    "valschemas": {
+      "ValidationIssue": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "example": "/entry/23/resource/MedicationStatement/dosage/0/doseAndRate/0/doseQuantity"
+          },
+          "message": {
+            "type": "string",
+            "example": "Missing required property \"code\""
+          }
+        },
+        "required": [
+          "path",
+          "message"
+        ]
+      },
+      "BaseValidationReport": {
+        "type": "object",
+        "properties": {
+          "valid": {
+            "type": "boolean",
+            "description": "Overall validation result."
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/valschemas/ValidationIssue"
+            },
+            "description": "Primary validation errors."
+          },
+          "validationMode": {
+            "type": "string",
+            "description": "Validation mode used by the endpoint.",
+            "example": "lenient"
+          }
+        },
+        "required": [
+          "valid",
+          "errors"
+        ]
+      },
+      "EpsValidationReport": {
+        "allOf": [
+          {
+            "$ref": "#/components/valschemas/BaseValidationReport"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "validEps": {
+                "type": "boolean"
+              },
+              "errorsEps": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/valschemas/ValidationIssue"
+                }
+              },
+              "validFhirR4": {
+                "type": "boolean"
+              },
+              "errorsFhirR4": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/valschemas/ValidationIssue"
+                }
+              }
+            },
+            "required": [
+              "validEps",
+              "errorsEps",
+              "validFhirR4",
+              "errorsFhirR4"
+            ]
+          }
+        ]
+      },
+      "NhsScrValidationReport": {
+        "allOf": [
+          {
+            "$ref": "#/components/valschemas/BaseValidationReport"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "validNhsScr": {
+                "type": "boolean"
+              },
+              "errorsNhsScr": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/valschemas/ValidationIssue"
+                }
+              },
+              "validFhirR4": {
+                "type": "boolean"
+              },
+              "errorsFhirR4": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/valschemas/ValidationIssue"
+                }
+              }
+            },
+            "required": [
+              "validNhsScr",
+              "errorsNhsScr",
+              "validFhirR4",
+              "errorsFhirR4"
+            ]
+          }
+        ]
+      },
+      "NpsValidationReport": {
+        "allOf": [
+          {
+            "$ref": "#/components/valschemas/BaseValidationReport"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "validNps": {
+                "type": "boolean"
+              },
+              "errorsNps": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/valschemas/ValidationIssue"
+                }
+              }
+            },
+            "required": [
+              "validNps",
+              "errorsNps"
+            ]
+          }
+        ]
+      }
+    },
     "parameters": {
       "XIPSFormat": {
         "name": "x-ips-format",
         "in": "header",
-        "description": "Optional format override. Available values: 'unified' (default), 'inter', 'legacy'.",
+        "description": "Optional format override. Available values: 'unified' (default), 'inter', 'nhsscr', 'euro', 'legacy'.",
         "required": false,
         "schema": {
           "type": "string"
@@ -1938,13 +2496,30 @@
                 }
               }
             }
-          }     
+          }
         },
         "required": [
           "packageUUID",
           "timeStamp",
           "patient"
         ]
+      },
+      "SnomedCode": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "term_clean": {
+            "type": "string"
+          },
+          "term": {
+            "type": "string"
+          },
+          "semantic_tag": {
+            "type": "string"
+          }
+        }
       }
     }
   }
