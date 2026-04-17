@@ -1,5 +1,6 @@
-import React from "react";
-import { Table, Container, Alert } from "react-bootstrap";
+import React, { useState } from "react";
+import axios from "axios";
+import { Table, Container, Alert, Button, Form, Spinner } from "react-bootstrap";
 
 function EndpointTable({ endpoints }) {
   return (
@@ -239,6 +240,35 @@ function APIDocumentationPage() {
     },
   ];
 
+  const [detectedOutboundIp, setDetectedOutboundIp] = useState("");
+  const [ipLookupLoading, setIpLookupLoading] = useState(false);
+  const [ipLookupError, setIpLookupError] = useState("");
+
+  const handleDetectOutboundIp = async () => {
+    setIpLookupLoading(true);
+    setIpLookupError("");
+    setDetectedOutboundIp("");
+
+    try {
+      const response = await axios.get("https://ipsmern-dep.azurewebsites.net/debug/inbound-ip");
+      const ip =
+        response?.data?.sourceIp ||
+        response?.data?.ip ||
+        response?.data?.outboundIp ||
+        "";
+
+      setDetectedOutboundIp(ip || JSON.stringify(response.data));
+    } catch (error) {
+      setIpLookupError(
+        error?.response?.data?.error ||
+        error?.message ||
+        "Failed to detect outbound IP."
+      );
+    } finally {
+      setIpLookupLoading(false);
+    }
+  };
+
   return (
     <Container className="mt-5">
       <h2>API Documentation</h2>
@@ -322,6 +352,45 @@ function APIDocumentationPage() {
       <p>
         The more expanded composition FHiR JSON format can be obtained instead for the marked API calls by using the optional header <code>x-ips-format: inter</code>. The NHS SCR format is also available for the same API calls with <code>x-ips-format: nhsscr</code>. The European (EPS) format is available with <code>x-ips-format: euro</code>. These provide more detailed and structured representations of the IPS data, suitable for different use cases and integration needs. Likewise, the legacy format with <code>x-ips-format: legacy</code> is retained for comparison.
       </p>
+
+      <h3 className="mt-5">Outbound IP Diagnostic</h3>
+      <p>
+        This calls the Azure IPS MERN diagnostic endpoint to detect the apparent outbound IP address of this IPS SERN deployment.
+      </p>
+
+      <div className="d-flex gap-2 align-items-start flex-wrap">
+        <Button onClick={handleDetectOutboundIp} disabled={ipLookupLoading}>
+          {ipLookupLoading ? (
+            <>
+              <Spinner
+                as="span"
+                animation="border"
+                size="sm"
+                role="status"
+                aria-hidden="true"
+                className="me-2"
+              />
+              Detecting...
+            </>
+          ) : (
+            "Detect Outbound IP"
+          )}
+        </Button>
+
+        <Form.Control
+          type="text"
+          value={detectedOutboundIp}
+          readOnly
+          placeholder="Detected outbound IP will appear here"
+          style={{ maxWidth: "420px" }}
+        />
+      </div>
+
+      {ipLookupError && (
+        <Alert variant="warning" className="mt-3">
+          {ipLookupError}
+        </Alert>
+      )}
     </Container>
   );
 }
