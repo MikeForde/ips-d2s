@@ -250,7 +250,7 @@ function APIDocumentationPage() {
     setDetectedOutboundIp("");
 
     try {
-      const response = await axios.get("https://ipsmern-dep.azurewebsites.net/debug/inbound-ip");
+      const response = await axios.get("/debug/outbound-ip");
       const ip =
         response?.data?.sourceIp ||
         response?.data?.ip ||

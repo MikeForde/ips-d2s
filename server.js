@@ -258,6 +258,17 @@ api.get('/debug/ip', async (req, res) => {
     }
 });
 
+api.get('/debug/outbound-ip', async (req, res) => {
+    try {
+        const response = await axios.get('https://ipsmern-dep.azurewebsites.net/debug/inbound-ip');
+        res.json(response.data);
+    } catch (err) {
+        res.status(500).json({
+            error: err.response?.data || err.message
+        });
+    }
+});
+
 // XMPP endpoints
 api.use("/xmpp", xmppRoutes);
 
