@@ -271,7 +271,7 @@ function APIDocumentationPage() {
 
   return (
     <Container className="mt-5">
-      <h2>API Documentation - TEST</h2>
+      <h2>API Documentation</h2>
 
       <Alert variant="info">
         <h4>Developer Documentation Endpoints</h4>
