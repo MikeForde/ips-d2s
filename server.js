@@ -264,7 +264,9 @@ api.get('/debug/outbound-ip', async (req, res) => {
         res.json(response.data);
     } catch (err) {
         res.status(500).json({
-            error: err.response?.data || err.message
+            message: err.message,
+            status: err.response?.status || null,
+            data: err.response?.data || null
         });
     }
 });
