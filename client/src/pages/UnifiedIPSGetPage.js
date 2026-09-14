@@ -1,6 +1,11 @@
 import { useMemo, useState } from 'react';
 import axios from 'axios';
-import { Form, Button, DropdownButton, Dropdown } from 'react-bootstrap';
+import {
+  Form,
+  Button,
+  DropdownButton,
+  Dropdown
+} from 'react-bootstrap';
 import { useLoading } from '../contexts/LoadingContext';
 
 const UnifiedIPSGetPage = () => {
@@ -9,44 +14,76 @@ const UnifiedIPSGetPage = () => {
   const [ipsData, setIpsData] = useState(null);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState('');
+
   const { startLoading, stopLoading } = useLoading();
 
   const isLocalhost = useMemo(() => {
     const host = window.location.hostname;
+
     return host === 'localhost' || host === '127.0.0.1';
   }, []);
 
-  const endpointMap = useMemo(() => {
-    const baseMap = {
-      'IPS MERN': 'https://ipsmern-dep.azurewebsites.net/ipsbyname',
-      VitalsIQ: 'https://4202xiwc.offroadapps.dev:62444/Fhir/ips/json',
-    };
+  /*
+   * The frontend contains only target IDs and display labels.
+   *
+   * It does NOT contain the actual URLs used by /fetchips.
+   * The backend converts these IDs into approved URLs.
+   */
+  const targets = useMemo(() => {
+    const targetList = [
+      {
+        key: 'ips-mern',
+        label: 'IPS MERN Azure',
+      },
+      {
+        key: 'vitalsiq',
+        label: 'VitalsIQ',
+      },
+    ];
 
+    /*
+     * Preserve the existing behaviour where the SERN D2S
+     * target is only offered when running the frontend locally.
+     */
     if (isLocalhost) {
-      baseMap['IPS SERN D2S'] = 'https://ips-d2s-uksc-medsnomed-medsno.apps.ocp1.azure.dso.digital.mod.uk/ipsbyname';
+      targetList.push({
+        key: 'ips-sern-d2s',
+        label: 'IPS SERN D2S',
+      });
     }
 
-    return baseMap;
+    return targetList;
   }, [isLocalhost]);
 
-  const [target, setTarget] = useState('IPS MERN');
-  const [endpoint, setEndpoint] = useState(endpointMap['IPS MERN']);
+  const [target, setTarget] = useState('ips-mern');
+
+  const selectedTargetLabel =
+    targets.find((item) => item.key === target)?.label || target;
 
   const handleTargetChange = (selectedTarget) => {
     setTarget(selectedTarget);
-    setEndpoint(endpointMap[selectedTarget] || '');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     startLoading();
+
     try {
       const response = await axios.get('/fetchips', {
-        params: { endpoint, name, givenName }
+        params: {
+          target,
+          name,
+          givenName,
+        },
       });
+
       setIpsData(response.data);
       setError(null);
+      setMessage('');
     } catch (err) {
+      console.error('Error fetching IPS record:', err);
+
       setError('Failed to fetch IPS data');
       setIpsData(null);
     } finally {
@@ -57,9 +94,15 @@ const UnifiedIPSGetPage = () => {
   const handleTransform = async () => {
     try {
       await axios.post('/ipsbundle', ipsData);
-      setMessage('IPS record successfully transformed and saved to MongoDB');
+
+      setMessage(
+        'IPS record successfully transformed and saved to MongoDB'
+      );
+
       setError(null);
     } catch (err) {
+      console.error('Error transforming IPS record:', err);
+
       setMessage(err.message);
       setError('Failed to transform IPS record');
     }
@@ -69,6 +112,7 @@ const UnifiedIPSGetPage = () => {
     <div className="app">
       <div className="container">
         <h3>External IPS API - GET (Pull)</h3>
+
         <Form onSubmit={handleSubmit}>
           <Form.Group controlId="name">
             <Form.Control
@@ -93,45 +137,40 @@ const UnifiedIPSGetPage = () => {
           <div className="dropdown-container mb-2">
             <DropdownButton
               id="dropdown-target-get"
-              title={`Target Endpoint: ${target}`}
+              title={`Target Endpoint: ${selectedTargetLabel}`}
               onSelect={handleTargetChange}
               className="dropdown-button"
             >
-              <Dropdown.Item eventKey="IPS SERN" active={target === 'IPS MERN'}>
-                IPS SERN D2S
-              </Dropdown.Item>
-
-              {isLocalhost && (
-                <Dropdown.Item eventKey="IPS MERN Azure" active={target === 'IPS SERN D2S'}>
-                  IPS MERN Azure
+              {targets.map((item) => (
+                <Dropdown.Item
+                  key={item.key}
+                  eventKey={item.key}
+                  active={target === item.key}
+                >
+                  {item.label}
                 </Dropdown.Item>
-              )}
-
-              <Dropdown.Item eventKey="VitalsIQ" active={target === 'VitalsIQ'}>
-                VitalsIQ
-              </Dropdown.Item>
+              ))}
             </DropdownButton>
           </div>
 
-          <Form.Group controlId="endpointInput" className="mb-2">
-            <Form.Label>Endpoint</Form.Label>
-            <Form.Control
-              type="text"
-              value={endpoint}
-              onChange={(e) => setEndpoint(e.target.value)}
-            />
-          </Form.Group>
-
-          <Button variant="primary" type="submit">
+          <Button
+            variant="primary"
+            type="submit"
+          >
             Submit GET Request
           </Button>
         </Form>
 
-        {error && <p style={{ color: 'red' }}>{error}</p>}
+        {error && (
+          <p style={{ color: 'red' }}>
+            {error}
+          </p>
+        )}
 
         {ipsData && (
           <div>
             <h4>IPS Data</h4>
+
             <div className="text-area">
               <Form.Control
                 as="textarea"
@@ -140,13 +179,21 @@ const UnifiedIPSGetPage = () => {
                 readOnly
               />
             </div>
-            <Button variant="success" onClick={handleTransform}>
+
+            <Button
+              variant="success"
+              onClick={handleTransform}
+            >
               Transform to IPS MERN Record
             </Button>
           </div>
         )}
 
-        {message && <p style={{ color: 'green' }}>{message}</p>}
+        {message && (
+          <p style={{ color: 'green' }}>
+            {message}
+          </p>
+        )}
       </div>
     </div>
   );
