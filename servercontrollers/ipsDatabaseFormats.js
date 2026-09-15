@@ -21,7 +21,7 @@ async function getIPSRaw(req, res) {
       res.send(formattedJson);
     } else {
       // Return JSON without formatting
-      res.json(transformedIps);
+      res.json(ips);
     }
   } catch (err) {
     console.error("Error fetching IPS record:", error);

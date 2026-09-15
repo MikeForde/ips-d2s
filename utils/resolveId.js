@@ -12,23 +12,25 @@ const { SQLToMongoSingle } = require('../servercontrollers/MySQLHelpers/SQLToMon
  * @returns {Promise} - A promise resolving to the record or `null`.
  */
 async function resolveId(id) {
+    let record;
+
     if (isValidUUID(id)) {
         console.log("Valid UUID, searching by packageUUID...");
-        return await IPSModel.findOne({ where: { packageUUID: id } });
-    }
+        record = await IPSModel.findOne({ where: { packageUUID: id } });
+    } else {
+        console.log("Not a valid UUID, searching by packageUUID...");
+        record = await IPSModel.findOne({ where: { packageUUID: id } });
 
-    console.log("Not a valid UUID, searching by packageUUID...");
-    var record = await IPSModel.findOne({ where: { packageUUID: id } });
-
-    // Fallback to search by primary key (`id`) if no record is found.
-    if (!record) {
-        console.log("Searching by primary key (id)...");
-        record = await IPSModel.findByPk(id);
+        // Fallback to search by primary key (`id`) if no record is found.
+        if (!record) {
+            console.log("Searching by primary key (id)...");
+            record = await IPSModel.findByPk(id);
+        }
     }
 
     // Transform to MongoDb
     if (record) {
-        record = SQLToMongoSingle(record);
+        record = await SQLToMongoSingle(record);
     }
 
     return record;
