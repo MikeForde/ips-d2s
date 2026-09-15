@@ -61,6 +61,7 @@ const binaryDecryptMiddleware = require('./middlewares/binaryDecryptMiddleware')
 const jsonDecryptDezipMiddleware = require('./middlewares/jsonDecryptDezipMiddleware');
 const xmlMiddleware = require('./middlewares/xmlMiddleware');
 const responseMiddleware = require('./middlewares/responseMiddleware');
+const { generalLimiter, strictLimiter } = require('./middlewares/rateLimiter');
 
 // ───── Other ─────
 const { convertXmlEndpoint } = require('./servercontrollers/convertXmlEndpoint');
@@ -105,7 +106,14 @@ sequelize.authenticate()
     .catch(console.error);
 
 const api = express();
+
+// Trust the platform's reverse proxy (Azure App Service / OpenShift router) so
+// req.ip reflects the real client IP rather than the proxy, which the rate
+// limiter below relies on to key requests per client.
+api.set('trust proxy', 1);
+
 api.use(cors()); // enable CORS on all our requests
+api.use(generalLimiter);
 
 // Load the Swagger definition
 const apiDefinition = JSON.parse(
