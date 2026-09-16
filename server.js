@@ -57,6 +57,7 @@ const ipsNhsScrValRouter = require('./schema/ipsNhsScrVal');
 const epsValRouter = require('./schema/epsVal');
 
 // ----- Middleware ---------
+const basicAuthMiddleware = require('./middlewares/basicAuthMiddleware');
 const binaryDecryptMiddleware = require('./middlewares/binaryDecryptMiddleware');
 const jsonDecryptDezipMiddleware = require('./middlewares/jsonDecryptDezipMiddleware');
 const xmlMiddleware = require('./middlewares/xmlMiddleware');
@@ -112,8 +113,16 @@ const api = express();
 // limiter below relies on to key requests per client.
 api.set('trust proxy', 1);
 
-api.use(cors()); // enable CORS on all our requests
+// Rate limit first, so unauthenticated/brute-force credential attempts
+// against basicAuthMiddleware are throttled too, not just requests that
+// already got past it.
 api.use(generalLimiter);
+
+// Gate the whole app behind a shared Basic Auth credential - see
+// middlewares/basicAuthMiddleware.js for why this exists.
+api.use(basicAuthMiddleware);
+
+api.use(cors()); // enable CORS on all our requests
 
 // Load the Swagger definition
 const apiDefinition = JSON.parse(
@@ -126,8 +135,9 @@ api.use('/docs', swaggerUi.serve, swaggerUi.setup(apiDefinition));
 //                  Logging Middleware
 // ──────────────────────────────────────────────────────────
 api.use((req, res, next) => {
+    const { authorization, cookie, ...safeHeaders } = req.headers;
     console.log("Incoming request:", req.method, req.url);
-    console.log("Request headers:", req.headers);
+    console.log("Request headers:", safeHeaders);
     console.log("Request path:", req.path);
     next();
 });
