@@ -2,6 +2,7 @@
 
 const { decryptBinary } = require('../encryption/aesUtils');
 const { gzipDecode } = require('../compression/gzipUtils');
+const { readRawBody } = require('../utils/readRawBody');
 
 /**
  * Middleware to handle raw binary (octet-stream) encrypted and compressed requests.
@@ -11,12 +12,7 @@ async function binaryDecryptMiddleware(req, res, next) {
 
     if (isBinary) {
         try {
-            const rawData = await new Promise((resolve, reject) => {
-                const chunks = [];
-                req.on('data', (chunk) => chunks.push(chunk));
-                req.on('end', () => resolve(Buffer.concat(chunks)));
-                req.on('error', (err) => reject(err));
-            });
+            const rawData = await readRawBody(req);
 
             // Must be at least 32 bytes: 16 (IV) + 16 (MAC) + 0 or more for ciphertext
             if (rawData.length < 32) {
@@ -33,7 +29,7 @@ async function binaryDecryptMiddleware(req, res, next) {
             next();
         } catch (error) {
             console.error('Error processing raw binary request:', error);
-            return res.status(400).send('Invalid binary request data.');
+            return res.status(error.statusCode || 400).send(error.statusCode === 413 ? 'Request body too large.' : 'Invalid binary request data.');
         }
     } else {
         next();

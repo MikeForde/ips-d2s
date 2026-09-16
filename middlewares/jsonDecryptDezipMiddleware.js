@@ -2,6 +2,7 @@
 
 const { decrypt } = require('../encryption/aesUtils');
 const { gzipDecode } = require('../compression/gzipUtils');
+const { readRawBody } = require('../utils/readRawBody');
 const xml2js = require('xml2js');
 
 /**
@@ -27,12 +28,7 @@ async function jsonDecryptDezipMiddleware(req, res, next) {
     if (shouldProcess) {
         try {
             // Collect raw binary data from the request
-            const rawData = await new Promise((resolve, reject) => {
-                const chunks = [];
-                req.on('data', (chunk) => chunks.push(chunk));
-                req.on('end', () => resolve(Buffer.concat(chunks)));
-                req.on('error', (err) => reject(err));
-            });
+            const rawData = await readRawBody(req);
 
             let data = rawData;
 
@@ -93,7 +89,7 @@ async function jsonDecryptDezipMiddleware(req, res, next) {
             next();
         } catch (error) {
             console.error('Error processing request data:', error);
-            res.status(400).send('Invalid request data');
+            res.status(error.statusCode || 400).send(error.statusCode === 413 ? 'Request body too large' : 'Invalid request data');
         }
     } else {
         next();

@@ -1,5 +1,9 @@
 const zlib = require('zlib');
 
+// Caps decompressed output so a small malicious payload can't expand into a
+// multi-GB allocation (zip/gzip bomb) and exhaust server memory.
+const DEFAULT_MAX_DECOMPRESSED_BYTES = 20 * 1024 * 1024; // 20MB
+
 /**
  * Compress data into Gzip format
  * @param {Buffer | string} data - The data to be compressed (can be JSON, text, or XML)
@@ -22,10 +26,13 @@ function gzipEncode(data) {
  * @param {Buffer} compressedData - The compressed gzip data
  * @returns {Promise<string>} - The decompressed data as a string
  */
-function gzipDecode(compressedData) {
+function gzipDecode(compressedData, maxOutputLength = DEFAULT_MAX_DECOMPRESSED_BYTES) {
     return new Promise((resolve, reject) => {
-        zlib.gunzip(compressedData, (err, decompressedData) => {
+        zlib.gunzip(compressedData, { maxOutputLength }, (err, decompressedData) => {
             if (err) {
+                if (err.code === 'ERR_BUFFER_TOO_LARGE') {
+                    err.statusCode = 413;
+                }
                 return reject(err);
             }
             resolve(decompressedData.toString('utf-8'));
@@ -33,4 +40,4 @@ function gzipDecode(compressedData) {
     });
 }
 
-module.exports = { gzipEncode, gzipDecode };
+module.exports = { gzipEncode, gzipDecode, DEFAULT_MAX_DECOMPRESSED_BYTES };
