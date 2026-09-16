@@ -15,13 +15,6 @@ object-assign
  * License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License)
  */
 
-/*!
- * The buffer module from node.js, for the browser.
- *
- * @author   Feross Aboukhadijeh <https://feross.org>
- * @license  MIT
- */
-
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation.
 
@@ -50,8 +43,6 @@ PERFORMANCE OF THIS SOFTWARE.
  * Forked By Naver egjs
  * Copyright (c) hammerjs
  * Licensed under the MIT license */
-
-/*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> */
 
 /**
  * @license qrcode.react
