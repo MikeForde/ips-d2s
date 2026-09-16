@@ -12,10 +12,15 @@ function UnifiedPostPage() {
     const [showNotification, setShowNotification] = useState(false);
     const [target, setTarget] = useState('IPS MERN'); // options: "VitalsIQ", "NLD", "IPS SERN"
     const { startLoading, stopLoading } = useLoading();
-    // Add these state variables at the top of your component:
-    const [endpoint, setEndpoint] = useState('https://ipsmern-dep.azurewebsites.net/ipsbundle');
     const [dataFormat, setDataFormat] = useState('ipsunified'); // options: "ipsunified", "ips", "ipslegacy"
     const [hl7Wrapper, setHl7Wrapper] = useState(false);
+
+    // Approved push targets - keys must match the allowlist in servercontrollers/puships.js.
+    const targetOptions = {
+        'IPS MERN': { key: 'ips-mern', endpoint: 'https://ipsmern-dep.azurewebsites.net/ipsbundle' },
+        'NLD': { key: 'nld', endpoint: 'https://medicalcloud.orange-synapse.nl/api/fhir/1' },
+        'VitalsIQ': { key: 'vitalsiq', endpoint: 'https://4202xiwc.offroadapps.dev:62444/Fhir/ips/json' },
+    };
 
 
     const handleRecordChange = (recordId) => {
@@ -51,7 +56,7 @@ function UnifiedPostPage() {
         startLoading();
         try {
             const ipsData = JSON.parse(data);
-            await axios.post('/puships', { ipsBundle: ipsData, endpoint, dataFormat, hl7Wrapper });
+            await axios.post('/puships', { ipsBundle: ipsData, target: targetOptions[target].key, dataFormat, hl7Wrapper });
             setMessage('IPS data successfully pushed to the external server');
             setShowNotification(false);
         } catch (error) {
@@ -91,16 +96,7 @@ function UnifiedPostPage() {
                     <DropdownButton
                         id="dropdown-target"
                         title={`Target Endpoint: ${target}`}
-                        onSelect={(e) => {
-                            setTarget(e);
-                            if (e === "VitalsIQ") {
-                                setEndpoint("https://4202xiwc.offroadapps.dev:62444/Fhir/ips/json");
-                            } else if (e === "NLD") {
-                                setEndpoint("https://medicalcloud.orange-synapse.nl/api/fhir/1");
-                            } else if (e === "IPS MERN") {
-                                setEndpoint("https://ipsmern-dep.azurewebsites.net/ipsbundle");
-                            }
-                        }}
+                        onSelect={(e) => setTarget(e)}
                         className="dropdown-button"
                     >
                         <Dropdown.Item eventKey="IPS MERN" active={target === "IPS MERN"}>
@@ -150,8 +146,9 @@ function UnifiedPostPage() {
                         <Form.Label>Endpoint</Form.Label>
                         <Form.Control
                             type="text"
-                            value={endpoint}
-                            onChange={(e) => setEndpoint(e.target.value)}
+                            value={targetOptions[target].endpoint}
+                            readOnly
+                            disabled
                         />
                     </Form.Group>
                 </div>
