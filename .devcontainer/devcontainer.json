@@ -1,31 +1,20 @@
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the
-// README at: https://github.com/devcontainers/templates/tree/main/src/javascript-node
 {
-	"name": "Node.js",
-	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
-	"customizations": {
-		"vscode": {
-			"extensions": [
-				"Tyriar.luna-paint",
-				"sourcegraph.cody-ai"
-			]
-		}
-	},
-
-	// Features to add to the dev container. More info: https://containers.dev/features.
-	// "features": {},
-
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
-
-	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "npm i -g opencode-ai"
-
-
-	// Configure tool-specific properties.
-	// "customizations": {},
-
-	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-	// "remoteUser": "root"
+    "name": "Node.js",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "features": {
+        "ghcr.io/devcontainers/features/node:1": {
+            "version": "22.23.4"
+        }
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "Tyriar.luna-paint",
+                "sourcegraph.cody-ai"
+            ]
+        }
+    },
+    "postCreateCommand": "npm i -g opencode-ai"
 }
